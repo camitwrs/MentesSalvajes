@@ -5,6 +5,11 @@ import HomePage from "./pages/HomePage";
 import CuestionarioPage from "./pages/CuestionarioPage";
 import FormContext from "./context/FormContext"; // Asegúrate de la ruta correcta
 
+import LoginPage from "./pages/LoginPage";
+import IllustratorPage from "./pages/IllustratorPage";
+
+
+
 function App() {
   return (
     <Router>
@@ -18,6 +23,8 @@ function App() {
             </FormContext>
           }
         />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/illustrator" element={<IllustratorPage />} />
       </Routes>
     </Router>
   );
