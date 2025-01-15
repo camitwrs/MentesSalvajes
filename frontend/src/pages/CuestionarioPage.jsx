@@ -1,7 +1,9 @@
-import React, { useContext, useState, useEffect, useCallback } from "react";
+import { useContext, useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { FormContext } from "../context/FormContext";
 import CircularProgress from "@mui/material/CircularProgress";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import logo from "../assets/logo.svg";
 
 const CuestionarioPage = () => {
   const {
@@ -481,13 +483,21 @@ const CuestionarioPage = () => {
   const hasError = !!checkboxError || !!numberError || !!submitError;
 
   return (
-    <div className="flex flex-col w-screen h-screen bg-pulpo-pattern bg-YankeesBlue bg-cover bg-center bg-no-repeat p-0">
+    <div className="flex flex-col w-screen h-screen bg-pulpo-pattern bg-gray-200 bg-cover bg-center bg-no-repeat p-0">
       <div className="flex justify-start mb-4">
-        <Link to="/">
-          <button className="bg-Moonstone rounded-full text-white font-semibold py-2 m-1 px-6 sm:py-3 sm:px-8 shadow-md transition-transform duration-200 ease-in-out transform hover:scale-105">
-            Volver a Inicio
-          </button>
-        </Link>
+        <header className="absolute top-4 left-4">
+          <Link
+            to="/"
+            className="flex items-center bg-YankeesBlue text-white font-bold py-2 px-4 rounded hover:bg-YankeesBlueDark transition duration-300"
+          >
+            <img
+              src={logo}
+              alt="Logo del Proyecto"
+              className="h-8 w-auto mr-2"
+            />
+            <ArrowBackIcon className="h-6 w-6" />
+          </Link>
+        </header>
       </div>
 
       {/* Main Content */}
@@ -611,7 +621,7 @@ const CuestionarioPage = () => {
       </div>
 
       {/* Footer */}
-      <div className="mt-4 px-4 bg-Moonstone">
+      <div className="mt-4 px-4 bg-YankeesBlue">
         <p className="text-xs text-center sm:text-sm text-white p-2 rounded">
           La duración del cuestionario es de 20 minutos aproximadamente.
         </p>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.svg";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -46,7 +46,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-300 px-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-200 px-4">
       {/* Encabezado responsive */}
       <header className="absolute top-4 left-4">
         <Link

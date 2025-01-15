@@ -1,7 +1,6 @@
-import React from "react";
-//import nutria_nobg from "../assets/nutria_nobg.png";
 import prototipo from "../assets/prototipo4.png";
 import logo from "../assets/logo.svg";
+import LoginIcon from "@mui/icons-material/Login";
 
 import { Link } from "react-router-dom";
 
@@ -12,7 +11,7 @@ const HomePage = () => {
         {/* Logo y Título */}
         <div className="flex items-center gap-x-4">
           <img src={logo} alt="Logo" className="h-12 sm:h-16 lg:h-20 mr-4" />
-          <span className="hidden sm:block text-white text-lg sm:text-xl lg:text-2xl font-bold">
+          <span className="hidden sm:block text-white text-lg sm:text-xl lg:text-3xl font-bold">
             MENTES SALVAJES
           </span>
         </div>
@@ -20,9 +19,10 @@ const HomePage = () => {
         {/* Botón */}
         <Link
           to="/login"
-          className="bg-white text-YankeesBlue py-2 px-4 sm:py-3 sm:px-6 rounded-md text-sm sm:text-base lg:text-lg hover:bg-gray-200 hover:shadow-md transition-all"
+          className="bg-white text-YankeesBlue py-2 px-4 sm:py-3 sm:px-6 rounded-md text-sm sm:text-base lg:text-lg hover:bg-gray-200 hover:shadow-md transition-all flex items-center gap-2"
         >
-          Ingresar como diseñador
+          <LoginIcon className="text-YankeesBlue" />
+          Ingresar
         </Link>
       </nav>
 
@@ -45,11 +45,11 @@ const HomePage = () => {
               &gt;&gt; Haz el cuestionario aquí
             </Link>
           </div>
-          
+
           <div className="mt-8 lg:mt-0">
             <img
               src={prototipo}
-              alt="Mamífero Marino"
+              alt="Mamifero Marino"
               className="w-48 sm:w-64 lg:w-80 xl:w-[28rem] h-auto"
             />
           </div>
@@ -59,7 +59,7 @@ const HomePage = () => {
       {/* Footer */}
       <footer className="bg-custom-lightgray py-4 text-center">
         <p className="text-gray-500 text-xs sm:text-xs lg:text-xs">
-          © 2024 SAUKKOTECH TODOS LOS DERECHOS RESERVADOS.
+          © 2025 Jan Houter & Camila Torres TODOS LOS DERECHOS RESERVADOS.
         </p>
       </footer>
     </div>

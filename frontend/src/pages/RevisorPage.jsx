@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import ListIllustrations from "../components/ListIllustrations";
 import InstructionsIllustration from "../components/InstructionsIllustration";
 import ApproveIllustration from "../components/ApproveIllustration";
 
-const VistaJefeDiseno = () => {
+const RevisorPage = () => {
   const [selectedIllustration, setSelectedIllustration] = useState(null);
   const [currentView, setCurrentView] = useState("list"); // 'list', 'details', 'approve'
 
@@ -77,4 +77,4 @@ const VistaJefeDiseno = () => {
   );
 };
 
-export default VistaJefeDiseno;
+export default RevisorPage;
