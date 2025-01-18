@@ -1,20 +1,17 @@
-import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import HomePage from "./pages/HomePage";
 import CuestionarioPage from "./pages/CuestionarioPage";
-import FormContext from "./context/FormContext"; // Asegúrate de la ruta correcta
+import FormContext from "./context/FormContext";
 
-import LoginPage from "./pages/LoginPage";
-import IllustratorPage from "./pages/IllustratorPage";
-
-
+import IniciarSesionPage from "./pages/IniciarSesionPage";
+import IlustradorPage from "./pages/IlustradorPage";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<HomePage />} /> {/* Ruta por defecto */}
+        <Route path="/" element={<HomePage />} />
         <Route
           path="/cuestionario"
           element={
@@ -23,8 +20,8 @@ function App() {
             </FormContext>
           }
         />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/illustrator" element={<IllustratorPage />} />
+        <Route path="/login" element={<IniciarSesionPage />} />
+        <Route path="/illustrator" element={<IlustradorPage />} />
       </Routes>
     </Router>
   );

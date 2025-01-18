@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import UploadFileButton from "../components/UploadFileButton";
+import { useState } from "react";
+import SubirArchivoBoton from "./SubirArchivoBoton";
 import prototipoImage from "../assets/prototipo.png"; // Asegúrate de usar la ruta correcta para la imagen
 
 const InstruccionesIlustracion = ({ ilustracion, onBack }) => {
@@ -97,7 +97,7 @@ const InstruccionesIlustracion = ({ ilustracion, onBack }) => {
       </div>
 
       {isModalOpen && (
-        <UploadFileButton
+        <SubirArchivoBoton
           isOpen={isModalOpen}
           onClose={handleCloseModal}
           onUpload={handleFileUpload}

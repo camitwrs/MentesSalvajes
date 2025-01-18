@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import LogoutButton from "../components/LogoutButton";
-import ListIllustrations from "../components/ListIllustrations";
-import InstructionsIllustration from "../components/InstructionsIllustration";
+import { useState } from "react";
+import CerrarSesionBoton from "../components/CerrarSesionBoton";
+import ListaIlustraciones from "../components/ListaIlustraciones";
+import InstruccionesIlustracion from "../components/InstruccionesIlustracion";
 
 const IlustradorPage = () => {
   const [view, setView] = useState("list");
@@ -65,18 +65,18 @@ const IlustradorPage = () => {
     <div className="min-h-screen bg-gray-100">
       <header className="flex justify-between items-center p-4 bg-YankeesBlue text-white shadow-md">
         <h1 className="text-xl font-bold">Ilustraciones Pendientes</h1>
-        <LogoutButton />
+        <CerrarSesionBoton />
       </header>
 
       <main className="max-w-7xl mx-auto py-6 px-4">
         {view === "list" && (
-          <ListIllustrations
+          <ListaIlustraciones
             ilustraciones={ilustraciones}
             onSelect={handleSelect}
           />
         )}
         {view === "details" && (
-          <InstructionsIllustration
+          <InstruccionesIlustracion
             ilustracion={selectedIlustracion}
             onBack={handleBack}
           />

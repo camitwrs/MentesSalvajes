@@ -1,5 +1,3 @@
-import React from "react";
-
 const ListaIlustraciones = ({ ilustraciones, onSelect }) => {
   return (
     <div className="container mx-auto mt-8">

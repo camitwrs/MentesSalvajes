@@ -1,20 +1,22 @@
 {
-  "name": "tallersw",
+  "name": "mentessalvajes",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "backend mentes salvajes",
+  "main": "server/server.js",
   "scripts": {
-    "start": "node server/index.js",
-    "dev": "nodemon server/index.js"
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js",
+    "test": "echo \"Error: no se especificaron pruebas\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "camila torres",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
     "express": "^4.21.0",
     "morgan": "^1.10.0",
-    "pg": "^8.13.0",
+    "pg": "^8.13.1",
     "tallersw": "file:"
   },
   "devDependencies": {
