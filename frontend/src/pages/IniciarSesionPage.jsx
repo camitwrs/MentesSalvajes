@@ -5,7 +5,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 
-const LoginPage = () => {
+const IniciarSesionPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -143,4 +143,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default IniciarSesionPage;

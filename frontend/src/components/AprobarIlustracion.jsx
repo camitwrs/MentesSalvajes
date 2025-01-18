@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 const AprobarIlustracion = ({ ilustracion, onApprove, onReject, onBack }) => {
   const [comments, setComments] = useState("");
@@ -88,4 +88,4 @@ const AprobarIlustracion = ({ ilustracion, onApprove, onReject, onBack }) => {
   );
 };
 
-export default ApproveIllustration;
+export default AprobarIlustracion;

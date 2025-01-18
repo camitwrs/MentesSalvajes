@@ -42,7 +42,7 @@ const CuestionarioPage = () => {
     const cargarPreguntasYAlternativas = async () => {
       try {
         const responsePreguntas = await fetch(
-          "http://localhost:4000/preguntas"
+          "http://localhost:3000/api/preguntas/cuestionario/1"
         );
         let dataPreguntas = await responsePreguntas.json();
 
@@ -52,14 +52,14 @@ const CuestionarioPage = () => {
         );
 
         const responseAlternativas = await fetch(
-          "http://localhost:4000/alternativas"
+          "http://localhost:3000/api/alternativas/cuestionario/1"
         );
         const dataAlternativas = await responseAlternativas.json();
 
         // Verificar que cada alternativa tenga un idPregunta y agruparlas
         const alternativasPorPregunta = dataAlternativas.reduce(
           (acc, alternativa) => {
-            const idPregunta = alternativa.idPregunta;
+            const idPregunta = alternativa.idpregunta;
             if (idPregunta) {
               if (!acc[idPregunta]) acc[idPregunta] = [];
               acc[idPregunta].push(alternativa);
@@ -71,6 +71,7 @@ const CuestionarioPage = () => {
 
         setPreguntas(dataPreguntas);
         setAlternativas(alternativasPorPregunta);
+        console.log("AQUI: ", alternativasPorPregunta);
         setIsLoading(false); // Finalizar carga
       } catch (error) {
         console.error("Error al cargar las preguntas y alternativas:", error);
@@ -86,12 +87,12 @@ const CuestionarioPage = () => {
   // Este efecto se activa cada vez que cambia la pregunta actual
   useEffect(() => {
     const pregunta = preguntas[currentQuestionIndex];
-    if (pregunta && pregunta.tipo === "range") {
-      const idPregunta = pregunta.idPregunta;
+    if (pregunta && pregunta.tipopregunta === "range") {
+      const idPregunta = pregunta.idpregunta;
       const opciones = alternativas[idPregunta];
 
       if (opciones && opciones.length > 0) {
-        const primeraOpcionId = opciones[0].idAlternativa;
+        const primeraOpcionId = opciones[0].idalternativa;
 
         // Si aún no hay valor para esta pregunta en userData, almacena la primera opción
         if (!userData[idPregunta]) {
@@ -181,7 +182,7 @@ const CuestionarioPage = () => {
     setUserData({
       ...userData,
       [idPregunta]: selectedAlternativa
-        ? selectedAlternativa.idAlternativa
+        ? selectedAlternativa.idalternativa
         : null,
     });
 
@@ -193,8 +194,8 @@ const CuestionarioPage = () => {
     const pregunta = preguntas[currentQuestionIndex];
     if (!pregunta) return;
 
-    if (pregunta.tipo === "number") {
-      const value = userData[pregunta.idPregunta];
+    if (pregunta.tipopregunta === "number") {
+      const value = userData[pregunta.idpregunta];
       if (value !== undefined && value !== "") {
         if (value < MIN_NUMBER) {
           setNumberError(`El número debe ser al menos ${MIN_NUMBER}.`);
@@ -233,9 +234,9 @@ const CuestionarioPage = () => {
     const pregunta = preguntas[currentQuestionIndex];
     if (!pregunta) return null;
 
-    const opciones = (alternativas[pregunta.idPregunta] || []).sort((a, b) => {
-      const textoA = a.textoAlternativa || "";
-      const textoB = b.textoAlternativa || "";
+    const opciones = (alternativas[pregunta.idpregunta] || []).sort((a, b) => {
+      const textoA = a.textoalternativa || "";
+      const textoB = b.textoalternativa || "";
       const isNumeric =
         !isNaN(parseFloat(textoA)) && !isNaN(parseFloat(textoB));
 
@@ -249,7 +250,7 @@ const CuestionarioPage = () => {
     return (
       <div className="w-full transition-opacity duration-300 ease-in-out">
         <h2 className="text-xl text-center sm:text-2xl font-semibold mb-4 text-Moonstone">
-          {pregunta.textoPregunta}
+          {pregunta.textopregunta}
         </h2>
 
         {renderInputByType(pregunta, opciones)}
@@ -265,18 +266,18 @@ const CuestionarioPage = () => {
   };
 
   const renderInputByType = (pregunta, opciones) => {
-    switch (pregunta.tipo) {
+    switch (pregunta.tipopregunta) {
       case "text":
         return (
           <div className="w-full">
             <input
               type="text"
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm sm:text-base focus:outline-none focus:border-blue-500 transition-transform duration-200 ease-in-out"
-              value={userData[pregunta.idPregunta] || ""}
+              value={userData[pregunta.idpregunta] || ""}
               onChange={(e) => {
                 setUserData({
                   ...userData,
-                  [pregunta.idPregunta]: e.target.value,
+                  [pregunta.idpregunta]: e.target.value,
                 });
                 if (startQuizError) setStartQuizError("");
                 if (submitError) setSubmitError("");
@@ -292,21 +293,21 @@ const CuestionarioPage = () => {
           <div className="w-full">
             {opciones.map((opcion) => (
               <label
-                key={opcion.idAlternativa}
+                key={opcion.idalternativa}
                 className="flex items-center mb-2 p-2 rounded-md transition-colors duration-200 ease-in-out hover:bg-gray-100"
               >
                 <input
                   type="radio"
-                  name={`pregunta-${pregunta.idPregunta}`}
-                  value={opcion.idAlternativa} // idAlternativa como número
+                  name={`pregunta-${pregunta.idpregunta}`}
+                  value={opcion.idalternativa} // idAlternativa como número
                   checked={
-                    userData[pregunta.idPregunta] === opcion.idAlternativa
+                    userData[pregunta.idpregunta] === opcion.idalternativa
                   }
                   onChange={handleInputChange}
                   className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-600"
                 />
                 <span className="text-gray-700 text-sm sm:text-base">
-                  {opcion.textoAlternativa}
+                  {opcion.textoalternativa}
                 </span>
               </label>
             ))}
@@ -318,20 +319,20 @@ const CuestionarioPage = () => {
           <div className="w-full">
             {opciones.map((opcion) => (
               <label
-                key={opcion.idAlternativa}
+                key={opcion.idalternativa}
                 className="flex items-center mb-2 p-2 rounded-md transition-colors duration-200 ease-in-out hover:bg-gray-100"
               >
                 <input
                   type="checkbox"
-                  value={opcion.idAlternativa} // idAlternativa como número
-                  checked={(userData[pregunta.idPregunta] || []).includes(
-                    opcion.idAlternativa
+                  value={opcion.idalternativa} // idAlternativa como número
+                  checked={(userData[pregunta.idpregunta] || []).includes(
+                    opcion.idalternativa
                   )}
                   onChange={handleCheckboxChange}
                   className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-600"
                 />
                 <span className="text-gray-700 text-sm sm:text-base">
-                  {opcion.textoAlternativa}
+                  {opcion.textoalternativa}
                 </span>
               </label>
             ))}
@@ -349,15 +350,15 @@ const CuestionarioPage = () => {
           <div className="w-full">
             <select
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm sm:text-base focus:outline-none focus:border-blue-500 transition-transform duration-200 ease-in-out"
-              value={userData[pregunta.idPregunta] || ""}
+              value={userData[pregunta.idpregunta] || ""}
               onChange={handleInputChange}
             >
               <option value="" disabled hidden>
                 Seleccione una opción
               </option>
               {opciones.map((opcion) => (
-                <option key={opcion.idAlternativa} value={opcion.idAlternativa}>
-                  {opcion.textoAlternativa}
+                <option key={opcion.idalternativa} value={opcion.idalternativa}>
+                  {opcion.textoalternativa}
                 </option>
               ))}
             </select>
@@ -366,9 +367,9 @@ const CuestionarioPage = () => {
 
       case "range": {
         // Encontrar el índice de la alternativa seleccionada basada en idAlternativa
-        const selectedId = userData[pregunta.idPregunta];
+        const selectedId = userData[pregunta.idpregunta];
         const selectedIndex = opciones.findIndex(
-          (opcion) => opcion.idAlternativa === selectedId
+          (opcion) => opcion.idalternativa === selectedId
         );
         const selectedOption = opciones[selectedIndex];
 
@@ -380,14 +381,14 @@ const CuestionarioPage = () => {
               max={opciones.length - 1}
               step="1"
               value={selectedIndex !== -1 ? selectedIndex : 0}
-              onChange={(e) => handleRangeChange(e, pregunta.idPregunta)}
+              onChange={(e) => handleRangeChange(e, pregunta.idpregunta)}
               className="w-full h-3 sm:h-4 bg-gray-200 rounded-lg appearance-none cursor-pointer transition-transform duration-200 ease-in-out"
             />
 
             {/* Mostrar la opción seleccionada en dispositivos pequeños */}
             {selectedOption && (
               <div className="mt-2 sm:hidden text-center text-sm text-gray-600">
-                {selectedOption.textoAlternativa}
+                {selectedOption.textoalternativa}
               </div>
             )}
 
@@ -403,10 +404,10 @@ const CuestionarioPage = () => {
             >
               {opciones.map((opcion) => (
                 <span
-                  key={opcion.idAlternativa}
+                  key={opcion.idalternativa}
                   className="text-center p-2 break-words"
                 >
-                  {opcion.textoAlternativa}
+                  {opcion.textoalternativa}
                 </span>
               ))}
             </div>
@@ -420,7 +421,7 @@ const CuestionarioPage = () => {
             <input
               type="number"
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm sm:text-base focus:outline-none focus:border-blue-500 transition-transform duration-200 ease-in-out"
-              value={userData[pregunta.idPregunta] || ""}
+              value={userData[pregunta.idpregunta] || ""}
               onChange={(e) => {
                 const value =
                   e.target.value === "" ? "" : parseInt(e.target.value, 10);
@@ -428,7 +429,7 @@ const CuestionarioPage = () => {
                 // Actualizar el estado con el valor ingresado
                 setUserData({
                   ...userData,
-                  [pregunta.idPregunta]: value,
+                  [pregunta.idpregunta]: value,
                 });
 
                 // Validar el valor ingresado y establecer mensajes de error si es necesario

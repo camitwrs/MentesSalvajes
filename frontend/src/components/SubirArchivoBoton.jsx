@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
-const UploadFileButton = ({ isOpen, onClose, onUpload }) => {
+const SubirArchivoBoton = ({ isOpen, onClose, onUpload }) => {
   const [file, setFile] = useState(null); // Estado para almacenar el archivo seleccionado
   const [error, setError] = useState(""); // Estado para mostrar errores
 
@@ -80,4 +80,4 @@ const UploadFileButton = ({ isOpen, onClose, onUpload }) => {
   );
 };
 
-export default UploadFileButton;
+export default SubirArchivoBoton;
