@@ -9,9 +9,11 @@ const routes = require("./routes/export");
 const app = express();
 
 // Middlewares
-app.use(cors({
-  origin: "http://localhost:5173",
-})); // por los dominios diferentes, politicas de navegador
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+  })
+); // por los dominios diferentes, politicas de navegador
 app.use(morgan("dev")); // Registro de solicitudes en la consola
 app.use(express.json()); // Analiza las solicitudes JSON
 app.use(express.urlencoded({ extended: false })); // Analiza solicitudes de formulario
