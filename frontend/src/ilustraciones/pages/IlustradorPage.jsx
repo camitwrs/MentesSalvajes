@@ -1,5 +1,5 @@
 import { useState } from "react";
-import CerrarSesionBoton from "../components/CerrarSesionBoton";
+import CerrarSesionBoton from "../../autenticacion/components/CerrarSesionBoton";
 import ListaIlustraciones from "../components/ListaIlustraciones";
 import InstruccionesIlustracion from "../components/InstruccionesIlustracion";
 

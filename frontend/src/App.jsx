@@ -1,11 +1,11 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
-import HomePage from "./pages/HomePage";
-import CuestionarioPage from "./pages/CuestionarioPage";
-import FormContext from "./context/FormContext";
+import HomePage from "./inicio/pages/HomePage";
+import CuestionarioPage from "./cuestionario/pages/CuestionarioPage";
+import FormContext from "./cuestionario/context/FormContext";
 
-import IniciarSesionPage from "./pages/IniciarSesionPage";
-import IlustradorPage from "./pages/IlustradorPage";
+import IniciarSesionPage from "./autenticacion/pages/IniciarSesionPage";
+import IlustradorPage from "./ilustraciones/pages/IlustradorPage";
 
 function App() {
   return (

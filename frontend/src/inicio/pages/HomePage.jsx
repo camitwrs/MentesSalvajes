@@ -1,5 +1,5 @@
-import prototipo from "../assets/prototipo4.png";
-import logo from "../assets/logo.svg";
+import prototipo from "../../shared/assets/prototipo4.png";
+import logo from "../../shared/assets/logo.svg";
 import LoginIcon from "@mui/icons-material/Login";
 
 import { Link } from "react-router-dom";

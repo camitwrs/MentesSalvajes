@@ -1,6 +1,6 @@
 import { useState } from "react";
 import SubirArchivoBoton from "./SubirArchivoBoton";
-import prototipoImage from "../assets/prototipo.png"; // Asegúrate de usar la ruta correcta para la imagen
+import prototipoImage from "../../shared/assets/prototipo4.png"; // Asegúrate de usar la ruta correcta para la imagen
 
 const InstruccionesIlustracion = ({ ilustracion, onBack }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);

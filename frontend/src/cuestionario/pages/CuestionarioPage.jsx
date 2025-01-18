@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { FormContext } from "../context/FormContext";
 import CircularProgress from "@mui/material/CircularProgress";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import logo from "../assets/logo.svg";
+import logo from "../../shared/assets/logo.svg";
 
 const CuestionarioPage = () => {
   const {
