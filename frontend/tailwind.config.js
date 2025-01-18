@@ -13,7 +13,7 @@ export default {
         Moonstone: "#4b9bb8",
       },
       backgroundImage: {
-        "pulpo-pattern": "url('./src/assets/pattern pulpo.svg')",
+        "pulpo-pattern": "url('./src/shared/assets/pattern pulpo.svg')",
       },
     },
   },
