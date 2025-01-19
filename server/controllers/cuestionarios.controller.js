@@ -1,5 +1,10 @@
 const pool = require("../pg");
 
+// Validación auxiliar para entradas
+const validateInteger = (value) => Number.isInteger(parseInt(value, 10));
+const validateNonEmptyString = (value) =>
+  typeof value === "string" && value.trim().length > 0;
+
 // Obtener todos los cuestionarios
 const getCuestionarios = async (req, res) => {
   try {
@@ -14,6 +19,19 @@ const getCuestionarios = async (req, res) => {
 // Crear un nuevo cuestionario
 const crearCuestionario = async (req, res) => {
   const { titulocuestionario, descripcioncuestionario } = req.body;
+
+  if (!validateNonEmptyString(titulocuestionario)) {
+    return res
+      .status(400)
+      .json({ error: "El titulo del cuestionario no puede estar vacío." });
+  }
+
+  if (!validateNonEmptyString(descripcioncuestionario)) {
+    return res
+      .status(400)
+      .json({ error: "La descripción del cuestionario no puede estar vacía." });
+  }
+
   try {
     await pool.query(
       `INSERT INTO public.cuestionarios (titulocuestionario, descripcioncuestionario) VALUES ($1, $2)`,
@@ -29,6 +47,11 @@ const crearCuestionario = async (req, res) => {
 // Obtener cuestionarios por título (búsqueda)
 const getCuestionariosPorTitulo = async (req, res) => {
   const { titulo } = req.query;
+
+  if (!validateNonEmptyString(titulo)) {
+    return res.status(400).json({ error: "El título no puede estar vacío." });
+  }
+
   try {
     const result = await pool.query(
       `SELECT * FROM public.cuestionarios WHERE titulocuestionario ILIKE $1`,
