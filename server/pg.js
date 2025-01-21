@@ -10,6 +10,9 @@ const pool = new Pool({
   port: process.env.PG_PORT,
 });
 
+// testing
+pool.query("SELECT 1");
+
 pool.on("connect", () => {
   console.log("Conexión exitosa a PostgreSQL");
 });
