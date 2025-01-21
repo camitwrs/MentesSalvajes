@@ -1,8 +1,7 @@
-import React from "react";
+import PropTypes from "prop-types";
 
 const BotonesNavegacion = ({
   currentQuestionIndex,
-  totalQuestions,
   handleNext,
   handlePrev,
   handleSendQuiz,
@@ -41,6 +40,17 @@ const BotonesNavegacion = ({
       </button>
     </div>
   );
+};
+
+BotonesNavegacion.propTypes = {
+  currentQuestionIndex: PropTypes.number.isRequired,
+  totalQuestions: PropTypes.number.isRequired,
+  handleNext: PropTypes.func.isRequired,
+  handlePrev: PropTypes.func.isRequired,
+  handleSendQuiz: PropTypes.func.isRequired,
+  hasError: PropTypes.bool.isRequired,
+  isSubmitting: PropTypes.bool.isRequired,
+  isLastQuestion: PropTypes.bool.isRequired,
 };
 
 export default BotonesNavegacion;

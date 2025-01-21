@@ -1,10 +1,11 @@
-import React from "react";
+import PropTypes from "prop-types";
 
 const InicioCuestionario = ({
   aceptaTerminos,
   setAceptaTerminos,
   handleStartQuiz,
   startQuizError,
+  setStartQuizError,
 }) => {
   return (
     <div className="flex flex-col items-center justify-center bg-white p-6 sm:p-8 shadow-xl rounded-xl max-w-md sm:max-w-lg md:max-w-xl w-full transition-opacity duration-500 ease-in-out">
@@ -52,6 +53,14 @@ const InicioCuestionario = ({
       </button>
     </div>
   );
+};
+
+InicioCuestionario.propTypes = {
+  aceptaTerminos: PropTypes.bool.isRequired,
+  setAceptaTerminos: PropTypes.func.isRequired,
+  handleStartQuiz: PropTypes.func.isRequired,
+  startQuizError: PropTypes.string,
+  setStartQuizError: PropTypes.func.isRequired,
 };
 
 export default InicioCuestionario;

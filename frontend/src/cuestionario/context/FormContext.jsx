@@ -1,4 +1,5 @@
-import React, { useState, createContext, useEffect } from "react";
+import { useState, createContext, useEffect } from "react";
+import PropTypes from "prop-types"; // Importación de PropTypes
 
 // Crea el contexto fuera del componente
 export const FormContext = createContext();
@@ -46,6 +47,10 @@ const FormProvider = ({ children }) => {
       {children}
     </FormContext.Provider>
   );
+};
+
+FormProvider.propTypes = {
+  children: PropTypes.node.isRequired, // Validación para la prop children
 };
 
 export default FormProvider;
