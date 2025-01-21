@@ -2,7 +2,7 @@
 
 @font-face {
   font-family: "NUD Std";
-  src: url("../src/assets/fonts/NUD\ Std.ttf") format("truetype");
+  src: url("../src/shared/fonts/NUD\ Std.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
