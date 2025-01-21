@@ -25,8 +25,13 @@ const registrarUsuario = async (req, res, rol) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Insertar el nuevo usuario en la base de datos
+    await pool.query(
+      "INSERT INTO usuarios (nombreusuario, apellidousuario, correousuario, contrasenausuario, fecharegistrousuario, idrol) VALUES ($1, $2, $3, $4, NOW(), $5)",
+      [nombre, apellido, email, hashedPassword, rol]
+    );
 
-    console.log(hashedPassword);
+    console.log("contraseña hasheada:", hashedPassword);
+
     res.status(201).json({ mensaje: "Usuario registrado exitosamente." });
   } catch (error) {
     console.error(error);
