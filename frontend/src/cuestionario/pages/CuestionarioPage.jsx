@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import InicioCuestionario from "../components/InicioCuestionario";
 import EstadoCargaYError from "../components/EstadoCargaYError";
-import ContenidoCuestionario from "../components/ContenidoCuestionario";
+import RenderizarPreguntas from "../components/RenderizarPreguntas";
 import BotonesNavegacion from "../components/BotonesNavegacion";
 import { useCuestionario } from "../hooks/useCuestionario";
 import { useInicializarAlternativas } from "../hooks/useInicializarAlternativas";
@@ -119,7 +119,7 @@ const CuestionarioPage = () => {
                   </div>
                 ) : (
                   <>
-                    <ContenidoCuestionario
+                    <RenderizarPreguntas
                       preguntas={preguntas}
                       alternativas={alternativas}
                       currentQuestionIndex={currentQuestionIndex}
