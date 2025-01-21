@@ -7,11 +7,17 @@ const FormProvider = ({ children }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userData, setUserData] = useState({});
   const [finalData, setFinalData] = useState([]);
+  const [isQuizStarted, setIsQuizStarted] = useState(false); // Estado para iniciar el cuestionario
+
+  function handleStartQuiz() {
+    setIsQuizStarted(true); // Cambiar el estado para iniciar el cuestionario
+  }
 
   function submitData() {
     setFinalData((prevFinalData) => [...prevFinalData, userData]);
     setUserData({});
     setCurrentQuestionIndex(0);
+    setIsQuizStarted(false); // Reiniciar el estado al enviar los datos
   }
 
   useEffect(() => {
@@ -31,6 +37,9 @@ const FormProvider = ({ children }) => {
         setUserData,
         finalData,
         setFinalData,
+        isQuizStarted,
+        setIsQuizStarted,
+        handleStartQuiz,
         submitData,
       }}
     >
