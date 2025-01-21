@@ -1,4 +1,3 @@
-import React from "react";
 import PreguntaTipoTexto from "./PreguntaTipoText";
 import PreguntaTipoRadio from "./PreguntaTipoRadio";
 import PreguntaTipoCheckbox from "./PreguntaTipoCheckbox";
@@ -6,7 +5,7 @@ import PreguntaTipoSelect from "./PreguntaTipoSelect";
 import PreguntaTipoRange from "./PreguntaTipoRange";
 import PreguntaTipoNumber from "./PreguntaTipoNumber";
 
-const ContenidoCuestionario = ({
+const RenderizarPreguntas = ({
   preguntas,
   alternativas,
   currentQuestionIndex,
@@ -126,4 +125,4 @@ const ContenidoCuestionario = ({
   return renderQuestion();
 };
 
-export default ContenidoCuestionario;
+export default RenderizarPreguntas;

@@ -1,4 +1,4 @@
-import React from "react";
+import PropTypes from "prop-types";
 
 const PreguntaTipoTexto = ({ idPregunta, userData, setUserData }) => {
   const handleTextChange = (e) => {
@@ -21,6 +21,12 @@ const PreguntaTipoTexto = ({ idPregunta, userData, setUserData }) => {
       />
     </div>
   );
+};
+
+PreguntaTipoTexto.propTypes = {
+  idPregunta: PropTypes.number.isRequired,
+  userData: PropTypes.object.isRequired,
+  setUserData: PropTypes.func.isRequired,
 };
 
 export default PreguntaTipoTexto;

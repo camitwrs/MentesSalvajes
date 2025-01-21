@@ -1,4 +1,4 @@
-import React from "react";
+import PropTypes from "prop-types";
 
 const PreguntaTipoNumber = ({
   idPregunta,
@@ -52,6 +52,16 @@ const PreguntaTipoNumber = ({
       )}
     </div>
   );
+};
+
+PreguntaTipoNumber.propTypes = {
+  idPregunta: PropTypes.number.isRequired,
+  userData: PropTypes.object.isRequired,
+  setUserData: PropTypes.func.isRequired,
+  min: PropTypes.number.isRequired,
+  max: PropTypes.number.isRequired,
+  numberError: PropTypes.string,
+  setNumberError: PropTypes.func.isRequired,
 };
 
 export default PreguntaTipoNumber;

@@ -1,4 +1,4 @@
-import React from "react";
+import PropTypes from "prop-types";
 
 const PreguntaTipoRadio = ({ idPregunta, opciones, userData, setUserData }) => {
   const handleRadioChange = (e) => {
@@ -31,6 +31,18 @@ const PreguntaTipoRadio = ({ idPregunta, opciones, userData, setUserData }) => {
       ))}
     </div>
   );
+};
+
+PreguntaTipoRadio.propTypes = {
+  idPregunta: PropTypes.number.isRequired,
+  opciones: PropTypes.arrayOf(
+    PropTypes.shape({
+      idalternativa: PropTypes.number.isRequired,
+      textoalternativa: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  userData: PropTypes.object.isRequired,
+  setUserData: PropTypes.func.isRequired,
 };
 
 export default PreguntaTipoRadio;
