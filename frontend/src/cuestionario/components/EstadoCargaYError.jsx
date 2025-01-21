@@ -1,4 +1,4 @@
-import React from "react";
+import PropTypes from "prop-types";
 import CircularProgress from "@mui/material/CircularProgress";
 
 const EstadoCargaYError = ({ isLoading, loadError }) => {
@@ -19,6 +19,11 @@ const EstadoCargaYError = ({ isLoading, loadError }) => {
   }
 
   return null; // No renderiza nada si no hay carga ni error
+};
+
+EstadoCargaYError.propTypes = {
+  isLoading: PropTypes.bool.isRequired,
+  loadError: PropTypes.string,
 };
 
 export default EstadoCargaYError;

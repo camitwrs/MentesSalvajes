@@ -1,4 +1,4 @@
-import React from "react";
+import PropTypes from "prop-types";
 
 const PreguntaTipoSelect = ({ idPregunta, opciones, userData, setUserData }) => {
   const handleSelectChange = (e) => {
@@ -27,6 +27,18 @@ const PreguntaTipoSelect = ({ idPregunta, opciones, userData, setUserData }) => 
       </select>
     </div>
   );
+};
+
+PreguntaTipoSelect.propTypes = {
+  idPregunta: PropTypes.number.isRequired,
+  opciones: PropTypes.arrayOf(
+    PropTypes.shape({
+      idalternativa: PropTypes.number.isRequired,
+      textoalternativa: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  userData: PropTypes.object.isRequired,
+  setUserData: PropTypes.func.isRequired,
 };
 
 export default PreguntaTipoSelect;

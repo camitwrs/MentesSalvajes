@@ -1,4 +1,3 @@
-import React from "react";
 import PreguntaTipoTexto from "./PreguntaTipoText";
 import PreguntaTipoRadio from "./PreguntaTipoRadio";
 import PreguntaTipoCheckbox from "./PreguntaTipoCheckbox";

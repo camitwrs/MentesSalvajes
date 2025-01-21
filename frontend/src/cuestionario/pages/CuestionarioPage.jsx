@@ -10,8 +10,6 @@ import { useCuestionario } from "../hooks/useCuestionario";
 import { useInicializarAlternativas } from "../hooks/useInicializarAlternativas";
 import { useManejoEnvio } from "../hooks/useManejoEnvio";
 import {
-  handleInputChange,
-  handleCheckboxChange,
   validateCurrentInput,
 } from "../utils/utils";
 import {
@@ -45,7 +43,7 @@ const CuestionarioPage = () => {
   const MAX_NUMBER = 80;
 
   // Cargar preguntas y alternativas desde el backend
-  const { preguntas, alternativas, isLoading, loadError, setPreguntas, setAlternativas } = useCuestionario(1);
+  const { preguntas, alternativas, isLoading, loadError} = useCuestionario(1);
 
   // Este efecto se activa cada vez que cambia la pregunta actual
   useInicializarAlternativas(preguntas, currentQuestionIndex, alternativas, userData, setUserData);
@@ -60,52 +58,6 @@ const CuestionarioPage = () => {
         "Debes aceptar los términos y condiciones para continuar."
       );
     }
-  };
-
-  // Manejar cambios en inputs de tipo radio y select
-  const handleInputChangeWrapper = (e) => {
-    handleInputChange(
-      e,
-      preguntas,
-      currentQuestionIndex,
-      setUserData,
-      userData
-    );
-
-    // Limpiar mensajes de error si existen
-    if (startQuizError) setStartQuizError("");
-    if (submitError) setStartQuizError("");
-  };
-
-  // Manejar cambios en inputs de tipo checkbox
-  const handleCheckboxChangeWrapper = (e) => {
-    handleCheckboxChange(
-      e,
-      preguntas,
-      currentQuestionIndex,
-      setUserData,
-      userData,
-      setCheckboxError,
-      submitError,
-      setStartQuizError
-    );
-  };
-
-  // Manejar cambios en inputs de tipo range
-  const handleRangeChange = (e, idPregunta) => {
-    const selectedIndex = parseInt(e.target.value, 10);
-    const opciones = alternativas[idPregunta] || [];
-    const selectedAlternativa = opciones[selectedIndex];
-
-    setUserData({
-      ...userData,
-      [idPregunta]: selectedAlternativa
-        ? selectedAlternativa.idalternativa
-        : null,
-    });
-
-    // Limpiar mensajes de error
-    if (submitError) setStartQuizError("");
   };
 
   const validateCurrentInputWrapper = useCallback(() => {
@@ -148,11 +100,12 @@ const CuestionarioPage = () => {
           <>
             {!isQuizStarted ? (
               <InicioCuestionario
-                aceptaTerminos={aceptaTerminos}
-                setAceptaTerminos={setAceptaTerminos}
-                handleStartQuiz={handleStartQuiz}
-                startQuizError={startQuizError}
-              />
+              aceptaTerminos={aceptaTerminos}
+              setAceptaTerminos={setAceptaTerminos}
+              handleStartQuiz={handleStartQuiz}
+              startQuizError={startQuizError}
+              setStartQuizError={setStartQuizError}
+            />
             ) : (
               <div className="flex flex-col items-center justify-center bg-white p-6 sm:p-8 shadow-xl rounded-xl max-w-md sm:max-w-lg md:max-w-xl w-full transition-opacity duration-500 ease-in-out">
                 {submitSuccess ? (

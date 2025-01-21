@@ -22,5 +22,5 @@ export const useCuestionario = (idCuestionario) => {
     cargarDatos();
   }, [idCuestionario]);
 
-  return { preguntas, alternativas, isLoading, loadError, setPreguntas, setAlternativas };
+  return { preguntas, alternativas, isLoading, loadError};
 };

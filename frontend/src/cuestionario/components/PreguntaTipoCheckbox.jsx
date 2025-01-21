@@ -1,4 +1,4 @@
-import React from "react";
+import PropTypes from "prop-types";
 
 const PreguntaTipoCheckbox = ({
   idPregunta,
@@ -63,6 +63,20 @@ const PreguntaTipoCheckbox = ({
       )}
     </div>
   );
+};
+
+PreguntaTipoCheckbox.propTypes = {
+  idPregunta: PropTypes.number.isRequired,
+  opciones: PropTypes.arrayOf(
+    PropTypes.shape({
+      idalternativa: PropTypes.number.isRequired,
+      textoalternativa: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  userData: PropTypes.object.isRequired,
+  setUserData: PropTypes.func.isRequired,
+  checkboxError: PropTypes.string,
+  setCheckboxError: PropTypes.func.isRequired,
 };
 
 export default PreguntaTipoCheckbox;
