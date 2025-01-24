@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 
-const PreguntaTipoNumber = ({
+const PreguntaNumber = ({
   idPregunta,
   userData,
   setUserData,
@@ -54,7 +54,7 @@ const PreguntaTipoNumber = ({
   );
 };
 
-PreguntaTipoNumber.propTypes = {
+PreguntaNumber.propTypes = {
   idPregunta: PropTypes.number.isRequired,
   userData: PropTypes.object.isRequired,
   setUserData: PropTypes.func.isRequired,
@@ -64,4 +64,4 @@ PreguntaTipoNumber.propTypes = {
   setNumberError: PropTypes.func.isRequired,
 };
 
-export default PreguntaTipoNumber;
+export default PreguntaNumber;

@@ -1,9 +1,9 @@
-import PreguntaTipoTexto from "./PreguntaTipoText";
-import PreguntaTipoRadio from "./PreguntaTipoRadio";
-import PreguntaTipoCheckbox from "./PreguntaTipoCheckbox";
-import PreguntaTipoSelect from "./PreguntaTipoSelect";
-import PreguntaTipoRange from "./PreguntaTipoRange";
-import PreguntaTipoNumber from "./PreguntaTipoNumber";
+import PreguntaTexto from "./PreguntaText";
+import PreguntaRadio from "./PreguntaRadio";
+import PreguntaCheckbox from "./PreguntaCheckbox";
+import PreguntaSelect from "./PreguntaSelect";
+import PreguntaRange from "./PreguntaRange";
+import PreguntaNumber from "./PreguntaNumber";
 
 const RenderizarPreguntas = ({
   preguntas,
@@ -22,7 +22,7 @@ const RenderizarPreguntas = ({
     switch (pregunta.tipopregunta) {
       case "text":
         return (
-          <PreguntaTipoTexto
+          <PreguntaTexto
             idPregunta={pregunta.idpregunta}
             userData={userData}
             setUserData={setUserData}
@@ -31,7 +31,7 @@ const RenderizarPreguntas = ({
 
       case "radio":
         return (
-          <PreguntaTipoRadio
+          <PreguntaRadio
             idPregunta={pregunta.idpregunta}
             opciones={opciones}
             userData={userData}
@@ -41,7 +41,7 @@ const RenderizarPreguntas = ({
 
       case "checkbox":
         return (
-          <PreguntaTipoCheckbox
+          <PreguntaCheckbox
             idPregunta={pregunta.idpregunta}
             opciones={opciones}
             userData={userData}
@@ -53,7 +53,7 @@ const RenderizarPreguntas = ({
 
       case "select":
         return (
-          <PreguntaTipoSelect
+          <PreguntaSelect
             idPregunta={pregunta.idpregunta}
             opciones={opciones}
             userData={userData}
@@ -63,7 +63,7 @@ const RenderizarPreguntas = ({
 
       case "range":
         return (
-          <PreguntaTipoRange
+          <PreguntaRange
             idPregunta={pregunta.idpregunta}
             opciones={opciones}
             userData={userData}
@@ -73,7 +73,7 @@ const RenderizarPreguntas = ({
 
       case "number":
         return (
-          <PreguntaTipoNumber
+          <PreguntaNumber
             idPregunta={pregunta.idpregunta}
             userData={userData}
             setUserData={setUserData}

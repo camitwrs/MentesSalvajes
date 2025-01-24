@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 
-const PreguntaTipoCheckbox = ({
+const PreguntaCheckbox = ({
   idPregunta,
   opciones,
   userData,
@@ -67,7 +67,7 @@ const PreguntaTipoCheckbox = ({
   );
 };
 
-PreguntaTipoCheckbox.propTypes = {
+PreguntaCheckbox.propTypes = {
   idPregunta: PropTypes.number.isRequired,
   opciones: PropTypes.arrayOf(
     PropTypes.shape({
@@ -81,4 +81,4 @@ PreguntaTipoCheckbox.propTypes = {
   setCheckboxError: PropTypes.func.isRequired,
 };
 
-export default PreguntaTipoCheckbox;
+export default PreguntaCheckbox;

@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 
-const PreguntaTipoRange = ({ idPregunta, opciones, userData, setUserData }) => {
+const PreguntaRange = ({ idPregunta, opciones, userData, setUserData }) => {
   const handleRangeChange = (e) => {
     const selectedIndex = parseInt(e.target.value, 10); // Convertir el valor del rango a número
     const selectedAlternativa = opciones[selectedIndex]; // Obtener la opción seleccionada
@@ -57,7 +57,7 @@ const PreguntaTipoRange = ({ idPregunta, opciones, userData, setUserData }) => {
   );
 };
 
-PreguntaTipoRange.propTypes = {
+PreguntaRange.propTypes = {
   idPregunta: PropTypes.number.isRequired,
   opciones: PropTypes.arrayOf(
     PropTypes.shape({
@@ -69,4 +69,4 @@ PreguntaTipoRange.propTypes = {
   setUserData: PropTypes.func.isRequired,
 };
 
-export default PreguntaTipoRange;
+export default PreguntaRange;
