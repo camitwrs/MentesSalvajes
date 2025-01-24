@@ -1,7 +1,11 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+import pkg from "pg";
+const { Pool } = pkg;
 
-const { Pool } = require("pg");
+// Cargar variables de entorno
+dotenv.config();
 
+// Configuración de la conexión
 const pool = new Pool({
   user: process.env.PG_USER,
   host: process.env.PG_HOST,
@@ -10,7 +14,7 @@ const pool = new Pool({
   port: process.env.PG_PORT,
 });
 
-// testing
+// Probar conexión
 pool.query("SELECT 1");
 
 pool.on("connect", () => {
@@ -21,4 +25,4 @@ pool.on("error", (err) => {
   console.error("Error en la conexión a la base de datos:", err.message);
 });
 
-module.exports = pool;
+export default pool;

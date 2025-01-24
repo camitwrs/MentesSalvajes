@@ -1,9 +1,9 @@
-const { Router } = require("express");
-const {
+import { Router } from "express";
+import {
   registrarRespuesta,
   getRespuestasPorUsuario,
   getRespuestasPorCuestionario,
-} = require("../controllers/respuestas.controller");
+} from "../controllers/respuestas.controller.js";
 
 const router = Router();
 
@@ -11,4 +11,4 @@ router.post("/", registrarRespuesta);
 router.get("/usuario/:idusuario", getRespuestasPorUsuario);
 router.get("/cuestionario/:idcuestionario", getRespuestasPorCuestionario);
 
-module.exports = router;
+export default router;

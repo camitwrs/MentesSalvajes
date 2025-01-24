@@ -1,10 +1,10 @@
-const { Router } = require("express");
+import { Router } from "express";
 
-const cuestionariosRoutes = require("./cuestionarios.routes");
-const preguntasRoutes = require("./preguntas.routes");
-const alternativasRoutes = require("./alternativas.routes");
-const respuestasRoutes = require("./respuestas.routes");
-const autenticacionRoutes = require("./autenticacion.routes");
+import cuestionariosRoutes from "./cuestionarios.routes.js";
+import preguntasRoutes from "./preguntas.routes.js";
+import alternativasRoutes from "./alternativas.routes.js";
+import respuestasRoutes from "./respuestas.routes.js";
+import autenticacionRoutes from "./autenticacion.routes.js";
 
 const router = Router();
 
@@ -14,4 +14,4 @@ router.use("/alternativas", alternativasRoutes);
 router.use("/respuestas", respuestasRoutes);
 router.use("/autenticacion", autenticacionRoutes);
 
-module.exports = router;
+export default router;

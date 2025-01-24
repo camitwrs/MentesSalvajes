@@ -46,7 +46,9 @@ const PreguntaTipoCheckbox = ({
           <input
             type="checkbox"
             value={opcion.idalternativa}
-            checked={(userData[idPregunta] || []).includes(opcion.idalternativa)}
+            checked={(userData[idPregunta] || []).includes(
+              opcion.idalternativa
+            )}
             onChange={handleCheckboxChange}
             className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-600"
           />

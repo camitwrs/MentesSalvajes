@@ -1,10 +1,11 @@
-const express = require("express");
-const cors = require("cors");
-const morgan = require("morgan");
-require("dotenv").config(); // Carga las variables de entorno desde el archivo .env
+import express from "express";
+import cors from "cors";
+import morgan from "morgan";
+import dotenv from "dotenv"; // Importa dotenv para cargar variables de entorno
+import routes from "./routes/export.js"; // Asegúrate de incluir la extensión .js
 
-// Importar rutas
-const routes = require("./routes/export");
+// Cargar las variables de entorno desde el archivo .env
+dotenv.config();
 
 const app = express();
 
@@ -13,7 +14,7 @@ app.use(
   cors({
     origin: "http://localhost:5173",
   })
-); // por los dominios diferentes, politicas de navegador
+); // Permite solicitudes desde diferentes dominios
 app.use(morgan("dev")); // Registro de solicitudes en la consola
 app.use(express.json()); // Analiza las solicitudes JSON
 app.use(express.urlencoded({ extended: false })); // Analiza solicitudes de formulario

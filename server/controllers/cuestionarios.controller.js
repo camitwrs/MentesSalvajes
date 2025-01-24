@@ -1,4 +1,4 @@
-const pool = require("../pg");
+import pool from "../pg.js";
 
 // Validación auxiliar para entradas
 const validateInteger = (value) => Number.isInteger(parseInt(value, 10));
@@ -6,7 +6,7 @@ const validateNonEmptyString = (value) =>
   typeof value === "string" && value.trim().length > 0;
 
 // Obtener todos los cuestionarios
-const getCuestionarios = async (req, res) => {
+export const getCuestionarios = async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM public.cuestionarios");
     res.json(result.rows);
@@ -17,7 +17,7 @@ const getCuestionarios = async (req, res) => {
 };
 
 // Crear un nuevo cuestionario
-const crearCuestionario = async (req, res) => {
+export const crearCuestionario = async (req, res) => {
   const { titulocuestionario, descripcioncuestionario } = req.body;
 
   if (!validateNonEmptyString(titulocuestionario)) {
@@ -45,7 +45,7 @@ const crearCuestionario = async (req, res) => {
 };
 
 // Obtener cuestionarios por título (búsqueda)
-const getCuestionariosPorTitulo = async (req, res) => {
+export const getCuestionariosPorTitulo = async (req, res) => {
   const { titulo } = req.query;
 
   if (!validateNonEmptyString(titulo)) {
@@ -62,10 +62,4 @@ const getCuestionariosPorTitulo = async (req, res) => {
     console.error("Error al buscar cuestionarios:", error);
     res.status(500).json({ error: "Error al buscar cuestionarios" });
   }
-};
-
-module.exports = {
-  getCuestionarios,
-  crearCuestionario,
-  getCuestionariosPorTitulo,
 };

@@ -1,6 +1,6 @@
 import prototipo from "../../shared/assets/prototipo4.png";
 import logo from "../../shared/assets/logo.svg";
-import LoginIcon from "@mui/icons-material/Login";
+import { ArrowRightIcon } from "@heroicons/react/24/outline";
 
 import { Link } from "react-router-dom";
 
@@ -21,7 +21,7 @@ const HomePage = () => {
           to="/login"
           className="bg-white text-YankeesBlue py-2 px-4 sm:py-3 sm:px-6 rounded-md text-sm sm:text-base lg:text-lg hover:bg-gray-200 hover:shadow-md transition-all flex items-center gap-2"
         >
-          <LoginIcon className="text-YankeesBlue" />
+          <ArrowRightIcon className="h-6 w-6 stroke-YankeesBlue" />
           Ingresar
         </Link>
       </nav>

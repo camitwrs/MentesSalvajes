@@ -1,9 +1,9 @@
-const { Router } = require("express");
-const {
+import { Router } from "express";
+import {
   getPreguntasPorCuestionario,
   crearPregunta,
   getPreguntasPorTipo,
-} = require("../controllers/preguntas.controller");
+} from "../controllers/preguntas.controller.js";
 
 const router = Router();
 
@@ -11,4 +11,4 @@ router.get("/cuestionario/:idcuestionario", getPreguntasPorCuestionario);
 router.post("/", crearPregunta);
 router.get("/tipo", getPreguntasPorTipo);
 
-module.exports = router;
+export default router;

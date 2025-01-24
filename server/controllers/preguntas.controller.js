@@ -1,4 +1,4 @@
-const pool = require("../pg");
+import pool from "../pg.js";
 
 // Validación auxiliar para entradas
 const validateInteger = (value) => Number.isInteger(parseInt(value, 10));
@@ -6,7 +6,7 @@ const validateNonEmptyString = (value) =>
   typeof value === "string" && value.trim().length > 0;
 
 // Obtener preguntas por cuestionario
-const getPreguntasPorCuestionario = async (req, res) => {
+export const getPreguntasPorCuestionario = async (req, res) => {
   const { idcuestionario } = req.params;
 
   if (!validateInteger(idcuestionario)) {
@@ -28,7 +28,7 @@ const getPreguntasPorCuestionario = async (req, res) => {
 };
 
 // Crear una nueva pregunta
-const crearPregunta = async (req, res) => {
+export const crearPregunta = async (req, res) => {
   const { idcuestionario, textopregunta, tipopregunta } = req.body;
 
   if (!validateInteger(idcuestionario)) {
@@ -62,7 +62,7 @@ const crearPregunta = async (req, res) => {
 };
 
 // Obtener preguntas por tipo
-const getPreguntasPorTipo = async (req, res) => {
+export const getPreguntasPorTipo = async (req, res) => {
   const { tipo } = req.query;
 
   if (!validateNonEmptyString(tipo)) {
@@ -81,10 +81,4 @@ const getPreguntasPorTipo = async (req, res) => {
     console.error("Error al obtener preguntas por tipo:", error);
     res.status(500).json({ error: "Error al obtener preguntas por tipo" });
   }
-};
-
-module.exports = {
-  getPreguntasPorCuestionario,
-  crearPregunta,
-  getPreguntasPorTipo,
 };
