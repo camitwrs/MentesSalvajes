@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 
-const PreguntaTipoRadio = ({ idPregunta, opciones, userData, setUserData }) => {
+const PreguntaRadio = ({ idPregunta, opciones, userData, setUserData }) => {
   const handleRadioChange = (e) => {
     const value = parseInt(e.target.value, 10); // Convertir el valor a número
     setUserData((prevUserData) => ({
@@ -33,7 +33,7 @@ const PreguntaTipoRadio = ({ idPregunta, opciones, userData, setUserData }) => {
   );
 };
 
-PreguntaTipoRadio.propTypes = {
+PreguntaRadio.propTypes = {
   idPregunta: PropTypes.number.isRequired,
   opciones: PropTypes.arrayOf(
     PropTypes.shape({
@@ -45,4 +45,4 @@ PreguntaTipoRadio.propTypes = {
   setUserData: PropTypes.func.isRequired,
 };
 
-export default PreguntaTipoRadio;
+export default PreguntaRadio;

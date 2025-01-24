@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 
-const PreguntaTipoSelect = ({ idPregunta, opciones, userData, setUserData }) => {
+const PreguntaSelect = ({ idPregunta, opciones, userData, setUserData }) => {
   const handleSelectChange = (e) => {
     const value = parseInt(e.target.value, 10); // Convertir a número
     setUserData((prevUserData) => ({
@@ -29,7 +29,7 @@ const PreguntaTipoSelect = ({ idPregunta, opciones, userData, setUserData }) => 
   );
 };
 
-PreguntaTipoSelect.propTypes = {
+PreguntaSelect.propTypes = {
   idPregunta: PropTypes.number.isRequired,
   opciones: PropTypes.arrayOf(
     PropTypes.shape({
@@ -41,4 +41,4 @@ PreguntaTipoSelect.propTypes = {
   setUserData: PropTypes.func.isRequired,
 };
 
-export default PreguntaTipoSelect;
+export default PreguntaSelect;

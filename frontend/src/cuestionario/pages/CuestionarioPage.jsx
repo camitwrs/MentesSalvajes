@@ -2,8 +2,8 @@ import { useContext, useState, useEffect, useCallback } from "react";
 import { FormContext } from "../context/FormContext";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import InicioCuestionario from "../components/InicioCuestionario";
-import EstadoCargaYError from "../components/EstadoCargaYError";
+import Inicio from "../components/Inicio";
+import Carga from "../components/Carga";
 import RenderizarPreguntas from "../components/RenderizarPreguntas";
 import BotonesNavegacion from "../components/BotonesNavegacion";
 import { useCuestionario } from "../hooks/useCuestionario";
@@ -11,7 +11,7 @@ import { useInicializarAlternativas } from "../hooks/useInicializarAlternativas"
 import { useManejoEnvio } from "../hooks/useManejoEnvio";
 import {
   validateCurrentInput,
-} from "../utils/utils";
+} from "../utils/handlesCuestionario";
 import {
   handleNextQuestion,
   handlePrevQuestion,
@@ -93,13 +93,13 @@ const CuestionarioPage = () => {
       {/* Main Content */}
       <div className="flex-grow flex items-center justify-center">
         {/* Mostrar carga o errores */}
-        <EstadoCargaYError isLoading={isLoading} loadError={loadError} />
+        <Carga isLoading={isLoading} loadError={loadError} />
 
         {/* Mostrar el contenido principal del cuestionario si no hay carga ni error */}
         {!isLoading && !loadError && (
           <>
             {!isQuizStarted ? (
-              <InicioCuestionario
+              <Inicio
               aceptaTerminos={aceptaTerminos}
               setAceptaTerminos={setAceptaTerminos}
               handleStartQuiz={handleStartQuiz}
