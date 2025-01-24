@@ -37,7 +37,7 @@ const LoginPage = () => {
           <img
             src={logo}
             alt="Mentes Salvajes"
-            className="mx-auto w-14 h-14 p-2 mb-2 my-3 bg-Moonstone rounded-full"
+            className="mx-auto w-14 h-14 p-2 mb-2 my-3 bg-YankeesBlue rounded-full"
           />
           <h1 className="text-2xl font-bold mt-3 text-gray-800">
             Iniciar sesión
