@@ -55,6 +55,7 @@ const LoginPage = () => {
               <input
                 type="email"
                 id="correousuario"
+                placeholder="Ingresa tu correo"
                 {...register("correousuario")}
                 className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm h-12 pl-10 ${
                   errors.correousuario ? "border-red-500" : ""
@@ -81,6 +82,7 @@ const LoginPage = () => {
             <div className="relative">
               <input
                 type="password"
+                placeholder="Ingresa tu contraseña"
                 id="contrasenausuario"
                 {...register("contrasenausuario")}
                 className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm h-12 pl-10 ${
