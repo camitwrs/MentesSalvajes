@@ -2,8 +2,10 @@ import { Router } from "express";
 import {
   registrarUsuario,
   loginUsuario,
-  logoutUsuario,  
+  logoutUsuario,
+  perfilUsuario,
 } from "../controllers/autenticacion.controller.js";
+import { autenticacionRequerida } from "../middlewares/validarToken.js";
 
 const router = Router();
 
@@ -23,8 +25,10 @@ router.post("/registro/disenador", (req, res) => {
   registrarUsuario(req, res, 4);
 });
 
-router.post("/login", loginUsuario);
+router.post("/entrar", loginUsuario);
 
-router.post("/logout", logoutUsuario);
+router.post("/salir", logoutUsuario);
+
+router.get("/perfil", autenticacionRequerida, perfilUsuario);
 
 export default router;

@@ -53,7 +53,7 @@ const RegisterPage = () => {
           <img
             src={logo}
             alt="Mentes Salvajes"
-            className="mx-auto w-14 h-14 p-2 mb-2 my-3 bg-Moonstone rounded-full"
+            className="mx-auto w-14 h-14 p-2 mb-2 my-3 bg-YankeesBlue rounded-full"
           />
           <h1 className="text-2xl font-bold mt-3 text-gray-800">Regístrate</h1>
         </div>
@@ -71,7 +71,7 @@ const RegisterPage = () => {
                 id="nombreusuario"
                 {...register("nombreusuario")}
                 className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm  focus:outline-none focus:border-orange-500 text-sm h-12 pl-10 ${
-                  errors.nombreusuario ? "border-red-500" : ""
+                  errors.nombreusuario ? "  " : ""
                 }`}
               />
               <span className="absolute inset-y-0 left-0 flex items-center pl-3">
