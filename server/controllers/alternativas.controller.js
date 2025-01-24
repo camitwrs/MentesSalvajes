@@ -1,4 +1,4 @@
-const pool = require("../pg");
+import pool from "../pg.js";
 
 // Validación auxiliar para entradas
 const validateInteger = (value) => Number.isInteger(parseInt(value, 10));
@@ -6,7 +6,7 @@ const validateNonEmptyString = (value) =>
   typeof value === "string" && value.trim().length > 0;
 
 // Obtener todas las alternativas por cuestionario
-const getAlternativasPorCuestionario = async (req, res) => {
+export const getAlternativasPorCuestionario = async (req, res) => {
   const { idcuestionario } = req.params;
 
   if (!validateInteger(idcuestionario)) {
@@ -32,7 +32,7 @@ const getAlternativasPorCuestionario = async (req, res) => {
 };
 
 // Obtener alternativas por pregunta
-const getAlternativasPorPregunta = async (req, res) => {
+export const getAlternativasPorPregunta = async (req, res) => {
   const { idpregunta } = req.params;
 
   if (!validateInteger(idpregunta)) {
@@ -54,7 +54,7 @@ const getAlternativasPorPregunta = async (req, res) => {
 };
 
 // Crear una nueva alternativa
-const crearAlternativa = async (req, res) => {
+export const crearAlternativa = async (req, res) => {
   const { idpregunta, textoalternativa, caracteristicaalternativa } = req.body;
 
   if (!validateInteger(idpregunta)) {
@@ -88,7 +88,7 @@ const crearAlternativa = async (req, res) => {
 };
 
 // Obtener alternativas por característica
-const getAlternativasPorCaracteristica = async (req, res) => {
+export const getAlternativasPorCaracteristica = async (req, res) => {
   const { caracteristica } = req.query;
 
   if (!validateNonEmptyString(caracteristica)) {
@@ -112,7 +112,7 @@ const getAlternativasPorCaracteristica = async (req, res) => {
 };
 
 // Obtener alternativas por rango de preguntas
-const getAlternativasPorRango = async (req, res) => {
+export const getAlternativasPorRango = async (req, res) => {
   const { idcuestionario } = req.params;
   const { inicio, fin } = req.query;
 
@@ -127,12 +127,10 @@ const getAlternativasPorRango = async (req, res) => {
     !validateInteger(fin) ||
     parseInt(inicio, 10) > parseInt(fin, 10)
   ) {
-    return res
-      .status(400)
-      .json({
-        error:
-          "El rango debe ser válido y el inicio debe ser menor o igual al fin.",
-      });
+    return res.status(400).json({
+      error:
+        "El rango debe ser válido y el inicio debe ser menor o igual al fin.",
+    });
   }
 
   try {
@@ -147,12 +145,4 @@ const getAlternativasPorRango = async (req, res) => {
     console.error("Error al obtener alternativas por rango:", error);
     res.status(500).json({ error: "Error al obtener alternativas por rango" });
   }
-};
-
-module.exports = {
-  getAlternativasPorPregunta,
-  crearAlternativa,
-  getAlternativasPorCaracteristica,
-  getAlternativasPorCuestionario,
-  getAlternativasPorRango,
 };

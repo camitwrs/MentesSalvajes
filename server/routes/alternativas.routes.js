@@ -1,11 +1,11 @@
-const { Router } = require("express");
-const {
+import { Router } from "express";
+import {
   getAlternativasPorPregunta,
   crearAlternativa,
   getAlternativasPorCaracteristica,
   getAlternativasPorCuestionario,
   getAlternativasPorRango,
-} = require("../controllers/alternativas.controller");
+} from "../controllers/alternativas.controller.js";
 
 const router = Router();
 
@@ -15,4 +15,4 @@ router.get("/caracteristica", getAlternativasPorCaracteristica);
 router.get("/cuestionario/:idcuestionario", getAlternativasPorCuestionario);
 router.get("/cuestionario/:idcuestionario/rango", getAlternativasPorRango);
 
-module.exports = router;
+export default router;

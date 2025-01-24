@@ -1,11 +1,13 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
-const pool = require("../pg");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+import pool from "../pg.js"; // Asegúrate de que `pg` exporte su contenido usando `export default`
+import bcrypt from "bcrypt";
+
+import { crearTokenAcceso } from "../libs/jwt.js";
 
 // Registrar un usuario
-const registrarUsuario = async (req, res, rol) => {
+export const registrarUsuario = async (req, res, rol) => {
   const { nombre, apellido, email, password } = req.body;
 
   try {
@@ -30,8 +32,12 @@ const registrarUsuario = async (req, res, rol) => {
       [nombre, apellido, email, hashedPassword, rol]
     );
 
-    console.log("contraseña hasheada:", hashedPassword);
+    // Obtener el usuario recién creado
+    const nuevoUsuario = resultado.rows[0];
 
+    const token = await crearTokenAcceso({ id: nuevoUsuario.id });
+
+    res.cookie("token", token);
     res.status(201).json({ mensaje: "Usuario registrado exitosamente." });
   } catch (error) {
     console.error(error);
@@ -40,7 +46,7 @@ const registrarUsuario = async (req, res, rol) => {
 };
 
 // Loguear un usuario
-const loginUsuario = async (req, res) => {
+export const loginUsuario = async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -54,24 +60,19 @@ const loginUsuario = async (req, res) => {
     }
 
     // Verificar la contraseña
-    const usuarioData = usuario.rows[0];
+    const usuarioEncontrado = usuario.rows[0];
     const esPasswordCorrecta = await bcrypt.compare(
       password,
-      usuarioData.password
+      usuarioEncontrado.password
     );
+
     if (!esPasswordCorrecta) {
       return res.status(401).json({ mensaje: "Contraseña incorrecta." });
     }
 
-    // Generar un token JWT
-    const token = jwt.sign(
-      { id: usuarioData.id, email: usuarioData.email },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
+    const token = await crearTokenAcceso({ id: usuarioEncontrado.id });
 
-    console.log("Token generado:", token);
-
+    res.cookie("token", token);
     res.status(200).json({ mensaje: "Inicio de sesión exitoso.", token });
   } catch (error) {
     console.error(error);
@@ -79,7 +80,10 @@ const loginUsuario = async (req, res) => {
   }
 };
 
-module.exports = {
-  registrarUsuario,
-  loginUsuario,
+// Logout un usuario
+export const logoutUsuario = async (req, res) => {
+  res.cookie("token", "", {
+    expires: new Date(0),
+  });
+  return res.sendStatus(200);
 };
