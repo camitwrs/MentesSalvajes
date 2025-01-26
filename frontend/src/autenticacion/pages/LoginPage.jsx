@@ -1,20 +1,8 @@
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema } from "../../../../global/schemas/autenticacion.schema";
 import logo from "../../shared/assets/logo.svg";
 import { EnvelopeIcon, LockClosedIcon } from "@heroicons/react/24/outline";
-
-// Definir el esquema de validación con Zod
-const loginSchema = z.object({
-  correousuario: z
-    .string()
-    .email("Por favor, introduce un correo válido.")
-    .nonempty("El correo es obligatorio."),
-  contrasenausuario: z
-    .string()
-    .min(6, "La contraseña debe tener al menos 6 caracteres.")
-    .nonempty("La contraseña es obligatoria."),
-});
 
 const LoginPage = () => {
   const {

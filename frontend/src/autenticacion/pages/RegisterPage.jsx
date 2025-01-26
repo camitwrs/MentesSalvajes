@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { registerSchema } from "../../../../global/schemas/autenticacion.schema";
 import logo from "../../shared/assets/logo.svg";
 import {
   UserIcon,
@@ -8,43 +8,12 @@ import {
   LockClosedIcon,
   BookOpenIcon,
   PuzzlePieceIcon,
+  GlobeAmericasIcon,
+  CakeIcon,
+  BuildingOffice2Icon,
+  UsersIcon,
+  AcademicCapIcon,
 } from "@heroicons/react/24/outline";
-
-// Definir el esquema de validación con Zod
-const registerSchema = z.object({
-  correousuario: z
-    .string()
-    .email("Por favor, introduce un correo válido.")
-    .nonempty("El correo es obligatorio."),
-  contrasenausuario: z
-    .string()
-    .min(6, "La contraseña debe tener al menos 6 caracteres.")
-    .nonempty("La contraseña es obligatoria."),
-  nombreusuario: z
-    .string()
-    .nonempty("El nombre es obligatorio.")
-    .refine((value) => isNaN(Number(value)), {
-      message: "El nombre no puede ser un número.",
-    }),
-  apellidousuario: z
-    .string()
-    .nonempty("El apellido es obligatorio.")
-    .refine((value) => isNaN(Number(value)), {
-      message: "El apellido no puede ser un número.",
-    }),
-  tituloprofesionaleducador: z
-    .string()
-    .nonempty("Los estudios son obligatorios.")
-    .refine((value) => isNaN(Number(value)), {
-      message: "Los estudios no pueden ser un número.",
-    }),
-  intereseseducador: z
-    .string()
-    .optional()
-    .refine((value) => isNaN(Number(value)), {
-      message: "Los intereses no pueden ser un número.",
-    }),
-});
 
 const RegisterPage = () => {
   const {
@@ -61,19 +30,21 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-3xl">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+      <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-lg sm:max-w-2xl">
         <div className="text-center mb-4">
           <img
             src={logo}
             alt="Mentes Salvajes"
-            className="mx-auto w-14 h-14 p-2 mb-2 my-3 bg-YankeesBlue rounded-full"
+            className="mx-auto w-12 h-12 p-2 mb-2 bg-YankeesBlue rounded-full"
           />
-          <h1 className="text-2xl font-bold mt-3 text-gray-800">Regístrate</h1>
+          <h1 className="text-xl sm:text-2xl font-bold mt-3 text-gray-800">
+            Regístrate
+          </h1>
         </div>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6"
         >
           {/* Columna Izquierda */}
           <div className="space-y-4">
@@ -90,8 +61,8 @@ const RegisterPage = () => {
                   placeholder="¿Cuál es tu nombre?"
                   id="nombreusuario"
                   {...register("nombreusuario")}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm  focus:outline-none focus:border-orange-500 text-sm h-12 pl-10 ${
-                    errors.nombreusuario ? "  " : ""
+                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm text-sm pl-10 h-10 sm:h-12 focus:outline-none focus:ring-orange-500 focus:border-orange-500 ${
+                    errors.nombreusuario ? "border-red-500" : ""
                   }`}
                 />
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -246,13 +217,170 @@ const RegisterPage = () => {
                 </p>
               )}
             </div>
+
+            <div>
+              <label
+                htmlFor="paiseducador"
+                className="block text-sm font-medium text-gray-700"
+              >
+                País
+              </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                  <GlobeAmericasIcon className="h-5 w-5 text-gray-400" />
+                </span>
+                <select
+                  id="paiseducador"
+                  {...register("paiseducador")}
+                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm pl-10 pr-3 h-10 ${
+                    errors.paiseducador ? "border-red-500" : ""
+                  }`}
+                >
+                  <option value="" disabled>
+                    Selecciona tu país
+                  </option>
+                  <option value="Chile">Chile</option>
+                </select>
+              </div>
+              {errors.paiseducador && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.paiseducador.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label
+                htmlFor="edadeducador"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Edad
+              </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                  <CakeIcon className="h-5 w-5 text-gray-400" />
+                </span>
+                <input
+                  type="number"
+                  id="edadeducador"
+                  {...register("edadeducador")}
+                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm pl-10 pr-3 h-10 ${
+                    errors.edadeducador ? "border-red-500" : ""
+                  }`}
+                  placeholder="Ingresa tu edad"
+                  min="18"
+                  max="65"
+                />
+              </div>
+              {errors.edadeducador && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.edadeducador.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label
+                htmlFor="institucioneducador"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Institución
+              </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                  <BuildingOffice2Icon className="h-5 w-5 text-gray-400" />
+                </span>
+                <select
+                  id="institucioneducador"
+                  {...register("institucioneducador")}
+                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm pl-10 pr-3 h-10 ${
+                    errors.institucioneducador ? "border-red-500" : ""
+                  }`}
+                >
+                  <option value="" disabled>
+                    Selecciona dónde te desempeñas
+                  </option>
+                  <option value="PUCV">PUCV</option>
+                </select>
+              </div>
+              {errors.institucioneducador && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.institucioneducador.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label
+                htmlFor="sexoeducador"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Sexo
+              </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                  <UsersIcon className="h-5 w-5 text-gray-400" />
+                </span>
+                <select
+                  id="sexoeducador"
+                  {...register("sexoeducador")}
+                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm pl-10 pr-3 h-10 ${
+                    errors.sexoeducador ? "border-red-500" : ""
+                  }`}
+                >
+                  <option value="" disabled>
+                    Selecciona tu sexo
+                  </option>
+                  <option value="Femenino">Femenino</option>
+                  <option value="Masculino">Masculino</option>
+                  <option value="Otro">Prefiero no decirlo</option>
+                </select>
+              </div>
+              {errors.sexoeducador && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.sexoeducador.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label
+                htmlFor="anosexperienciaeducador"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Años de experiencia
+              </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                  <AcademicCapIcon className="h-5 w-5 text-gray-400" />
+                </span>
+                <input
+                  type="number"
+                  id="anosexperienciaeducador"
+                  {...register("anosexperienciaeducador")}
+                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm pl-10 pr-3 h-10 ${
+                    errors.anosexperienciaeducador ? "border-red-500" : ""
+                  }`}
+                  placeholder="Ingresa tus años de experiencia"
+                  min="0"
+                  onInput={(e) => {
+                    if (e.target.value < 0) e.target.value = 0;
+                  }}
+                />
+              </div>
+              {errors.anosexperienciaeducador && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.anosexperienciaeducador.message}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Botón de Registro */}
-          <div className="col-span-1 md:col-span-2 text-center">
+          <div className="col-span-1 sm:col-span-2 text-center">
             <button
               type="submit"
-              className="w-full bg-Moonstone text-white py-2 px-4 rounded-md hover:bg-cyan-700 focus:outline-none focus:border-orange-500"
+              className="w-full bg-Moonstone text-white py-2 px-4 rounded-md hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
               Registrarse
             </button>
