@@ -1,30 +1,25 @@
 import { Router } from "express";
 import {
-  registrarUsuario,
+  registrarEducador,
   loginUsuario,
-  logoutUsuario,  
+  logoutUsuario,
+  perfilUsuario,
 } from "../controllers/autenticacion.controller.js";
+import { autenticacionRequerida } from "../middlewares/validarToken.js";
+import { validarSchema } from "./../middlewares/validarSchema.js";
+import {
+  registerSchema,
+  loginSchema,
+} from "../../global/schemas/autenticacion.schema.js";
 
 const router = Router();
 
-router.post("/registro/educador", (req, res) => {
-  registrarUsuario(req, res, 1);
-});
+router.post("/registro", validarSchema(registerSchema), registrarEducador);
 
-router.post("/registro/administrador", (req, res) => {
-  registrarUsuario(req, res, 2);
-});
+router.post("/entrar", validarSchema(loginSchema), loginUsuario);
 
-router.post("/registro/revisor", (req, res) => {
-  registrarUsuario(req, res, 3);
-});
+router.post("/salir", logoutUsuario);
 
-router.post("/registro/disenador", (req, res) => {
-  registrarUsuario(req, res, 4);
-});
-
-router.post("/login", loginUsuario);
-
-router.post("/logout", logoutUsuario);
+router.get("/perfil", autenticacionRequerida, perfilUsuario);
 
 export default router;
