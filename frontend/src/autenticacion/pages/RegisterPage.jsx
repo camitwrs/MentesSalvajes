@@ -1,6 +1,12 @@
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "../../../../global/schemas/autenticacion.schema";
+import { registrarEducadorRequest } from "../../api/autenticacion";
+import {
+  getAlternativasPorPreguntaRequest,
+  getUniversidadesPorPaisRequest,
+} from "../../api/alternativas";
 import logo from "../../shared/assets/logo.svg";
 import {
   UserIcon,
@@ -22,11 +28,50 @@ const RegisterPage = () => {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(registerSchema),
+    defaultValues: {
+      paiseducador: "", // Valor predeterminado para el campo país
+      institucioneducador: "", // Valor predeterminado para el campo institución
+      sexoeducador: "", // Valor predeterminado para el campo sexo
+    },
   });
 
-  const onSubmit = (data) => {
+  const [paises, setPaises] = useState([]);
+  const [instituciones, setInstituciones] = useState([]);
+  const [selectedPais, setSelectedPais] = useState("");
+
+  // Cargar los países desde la API al renderizar el componente
+  useEffect(() => {
+    const getPaisesInstituciones = async () => {
+      try {
+        // Cargar países
+        const paisesResponse = await getAlternativasPorPreguntaRequest(5);
+        setPaises(paisesResponse.data);
+
+        // Si hay un país seleccionado, cargar instituciones para ese país
+        if (selectedPais) {
+          const institucionesResponse = await getUniversidadesPorPaisRequest(
+            selectedPais
+          );
+          const institucionesNombres = institucionesResponse.data.map(
+            (uni) => uni.name
+          );
+          setInstituciones(institucionesNombres);
+        } else {
+          setInstituciones([]); // Si no hay país seleccionado, limpiar instituciones
+        }
+      } catch (error) {
+        console.error("Error al cargar los países y las instituciones:", error);
+      }
+    };
+
+    getPaisesInstituciones();
+  }, [selectedPais]);
+
+  // Enviar los datos del registro  a la API
+  const onSubmit = async (data) => {
     console.log("Datos enviados:", data);
-    // enviar los datos a la api
+    const respuesta = await registrarEducadorRequest(data);
+    console.log("Datos recibidos:", respuesta);
   };
 
   return (
@@ -62,7 +107,7 @@ const RegisterPage = () => {
                   id="nombreusuario"
                   {...register("nombreusuario")}
                   className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm text-sm pl-10 h-10 sm:h-12 focus:outline-none focus:ring-orange-500 focus:border-orange-500 ${
-                    errors.nombreusuario ? "border-red-500" : ""
+                    errors.nombreusuario ? "border-orange-500" : ""
                   }`}
                 />
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -70,7 +115,7 @@ const RegisterPage = () => {
                 </span>
               </div>
               {errors.nombreusuario && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-orange-500 text-xs mt-1">
                   {errors.nombreusuario.message}
                 </p>
               )}
@@ -90,7 +135,7 @@ const RegisterPage = () => {
                   placeholder="¿Cuál es tu apellido?"
                   {...register("apellidousuario")}
                   className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm h-12 pl-10 ${
-                    errors.apellidousuario ? "border-red-500" : ""
+                    errors.apellidousuario ? "border-orange-500" : ""
                   }`}
                 />
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -98,7 +143,7 @@ const RegisterPage = () => {
                 </span>
               </div>
               {errors.apellidousuario && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-orange-500 text-xs mt-1">
                   {errors.apellidousuario.message}
                 </p>
               )}
@@ -118,7 +163,7 @@ const RegisterPage = () => {
                   id="correousuario"
                   {...register("correousuario")}
                   className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm h-12 pl-10 ${
-                    errors.correousuario ? "border-red-500" : ""
+                    errors.correousuario ? "border-orange-500" : ""
                   }`}
                 />
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -126,7 +171,7 @@ const RegisterPage = () => {
                 </span>
               </div>
               {errors.correousuario && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-orange-500 text-xs mt-1">
                   {errors.correousuario.message}
                 </p>
               )}
@@ -146,7 +191,7 @@ const RegisterPage = () => {
                   id="contrasenausuario"
                   {...register("contrasenausuario")}
                   className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm h-12 pl-10 ${
-                    errors.contrasenausuario ? "border-red-500" : ""
+                    errors.contrasenausuario ? "border-orange-500" : ""
                   }`}
                 />
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -154,7 +199,7 @@ const RegisterPage = () => {
                 </span>
               </div>
               {errors.contrasenausuario && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-orange-500 text-xs mt-1">
                   {errors.contrasenausuario.message}
                 </p>
               )}
@@ -177,7 +222,7 @@ const RegisterPage = () => {
                   id="tituloprofesionaleducador"
                   {...register("tituloprofesionaleducador")}
                   className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm h-12 pl-10 ${
-                    errors.tituloprofesionaleducador ? "border-red-500" : ""
+                    errors.tituloprofesionaleducador ? "border-orange-500" : ""
                   }`}
                 />
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -185,7 +230,7 @@ const RegisterPage = () => {
                 </span>
               </div>
               {errors.tituloprofesionaleducador && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-orange-500 text-xs mt-1">
                   {errors.tituloprofesionaleducador.message}
                 </p>
               )}
@@ -204,7 +249,7 @@ const RegisterPage = () => {
                   placeholder="¿Qué hobbies tienes? ¿Qué temas te apasionan?"
                   {...register("intereseseducador")}
                   className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm h-28 pl-10 pr-3 pt-2 resize-none ${
-                    errors.intereseseducador ? "border-red-500" : ""
+                    errors.intereseseducador ? "border-orange-500" : ""
                   }`}
                 ></textarea>
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -212,7 +257,7 @@ const RegisterPage = () => {
                 </span>
               </div>
               {errors.intereseseducador && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-orange-500 text-xs mt-1">
                   {errors.intereseseducador.message}
                 </p>
               )}
@@ -232,18 +277,26 @@ const RegisterPage = () => {
                 <select
                   id="paiseducador"
                   {...register("paiseducador")}
+                  onChange={(e) => setSelectedPais(e.target.value)} // Cambiar país seleccionado
                   className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm pl-10 pr-3 h-10 ${
-                    errors.paiseducador ? "border-red-500" : ""
+                    errors.paiseducador ? "border-orange-500" : ""
                   }`}
                 >
                   <option value="" disabled>
                     Selecciona tu país
                   </option>
-                  <option value="Chile">Chile</option>
+                  {paises.map((pais) => (
+                    <option
+                      key={pais.idalternativa}
+                      value={pais.textoalternativa}
+                    >
+                      {pais.textoalternativa}
+                    </option>
+                  ))}
                 </select>
               </div>
               {errors.paiseducador && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-orange-500 text-xs mt-1">
                   {errors.paiseducador.message}
                 </p>
               )}
@@ -265,7 +318,7 @@ const RegisterPage = () => {
                   id="edadeducador"
                   {...register("edadeducador")}
                   className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm pl-10 pr-3 h-10 ${
-                    errors.edadeducador ? "border-red-500" : ""
+                    errors.edadeducador ? "border-orange-500" : ""
                   }`}
                   placeholder="Ingresa tu edad"
                   min="18"
@@ -273,7 +326,7 @@ const RegisterPage = () => {
                 />
               </div>
               {errors.edadeducador && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-orange-500 text-xs mt-1">
                   {errors.edadeducador.message}
                 </p>
               )}
@@ -294,17 +347,21 @@ const RegisterPage = () => {
                   id="institucioneducador"
                   {...register("institucioneducador")}
                   className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm pl-10 pr-3 h-10 ${
-                    errors.institucioneducador ? "border-red-500" : ""
+                    errors.institucioneducador ? "border-orange-500" : ""
                   }`}
                 >
                   <option value="" disabled>
-                    Selecciona dónde te desempeñas
+                    Selecciona tu institución
                   </option>
-                  <option value="PUCV">PUCV</option>
+                  {instituciones.map((institucion, index) => (
+                    <option key={index} value={institucion}>
+                      {institucion}
+                    </option>
+                  ))}
                 </select>
               </div>
               {errors.institucioneducador && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-orange-500 text-xs mt-1">
                   {errors.institucioneducador.message}
                 </p>
               )}
@@ -325,7 +382,7 @@ const RegisterPage = () => {
                   id="sexoeducador"
                   {...register("sexoeducador")}
                   className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm pl-10 pr-3 h-10 ${
-                    errors.sexoeducador ? "border-red-500" : ""
+                    errors.sexoeducador ? "border-orange-500" : ""
                   }`}
                 >
                   <option value="" disabled>
@@ -337,7 +394,7 @@ const RegisterPage = () => {
                 </select>
               </div>
               {errors.sexoeducador && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-orange-500 text-xs mt-1">
                   {errors.sexoeducador.message}
                 </p>
               )}
@@ -359,7 +416,7 @@ const RegisterPage = () => {
                   id="anosexperienciaeducador"
                   {...register("anosexperienciaeducador")}
                   className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm pl-10 pr-3 h-10 ${
-                    errors.anosexperienciaeducador ? "border-red-500" : ""
+                    errors.anosexperienciaeducador ? "border-orange-500" : ""
                   }`}
                   placeholder="Ingresa tus años de experiencia"
                   min="0"
@@ -369,7 +426,7 @@ const RegisterPage = () => {
                 />
               </div>
               {errors.anosexperienciaeducador && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-orange-500 text-xs mt-1">
                   {errors.anosexperienciaeducador.message}
                 </p>
               )}
