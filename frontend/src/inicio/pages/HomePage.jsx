@@ -1,17 +1,20 @@
 import prototipo from "../../shared/assets/prototipo4.png";
 import logo from "../../shared/assets/logo.svg";
-import { ArrowRightIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowRightIcon,
+  ClipboardDocumentListIcon,
+} from "@heroicons/react/24/outline";
 
 import { Link } from "react-router-dom";
 
 const HomePage = () => {
   return (
     <div className="flex flex-col min-h-screen">
-      <nav className="bg-YankeesBlue h-24 px-6 sm:px-8 lg:px-12 flex items-center justify-between">
+      <nav className="bg-YankeesBlue h-20 px-4 sm:px-6 md:px-8 flex items-center justify-between">
         {/* Logo y Título */}
-        <div className="flex items-center gap-x-4">
-          <img src={logo} alt="Logo" className="h-12 sm:h-16 lg:h-20 mr-4" />
-          <span className="hidden sm:block text-white text-lg sm:text-xl lg:text-3xl font-bold">
+        <div className="flex items-center gap-x-3">
+          <img src={logo} alt="Logo" className="h-10 sm:h-12 md:h-16 mr-3" />
+          <span className="hidden sm:block text-white text-base sm:text-lg md:text-xl font-bold">
             MENTES SALVAJES
           </span>
         </div>
@@ -19,46 +22,47 @@ const HomePage = () => {
         {/* Botón */}
         <Link
           to="/login"
-          className="bg-white text-YankeesBlue py-2 px-4 sm:py-3 sm:px-6 rounded-md text-sm sm:text-base lg:text-lg hover:bg-gray-200 hover:shadow-md transition-all flex items-center gap-2"
+          className="bg-white text-YankeesBlue py-2 px-3 sm:py-2.5 sm:px-4 md:py-3 md:px-5 rounded-md text-xs sm:text-sm md:text-base hover:bg-gray-200 hover:shadow-md transition-all flex items-center gap-2"
         >
-          <ArrowRightIcon className="h-6 w-6 stroke-YankeesBlue" />
+          <ArrowRightIcon className="h-5 w-5 stroke-YankeesBlue" />
           Ingresar
         </Link>
       </nav>
 
       {/* Main Content */}
       <main className="flex-grow bg-white flex justify-center items-center">
-        <div className="container mx-auto px-4 flex flex-col lg:flex-row items-center justify-between lg:px-12">
+        <div className="container mx-auto px-3 flex flex-col md:flex-row items-center justify-center md:px-8 gap-6">
           {/* Text Section */}
-          <div className="lg:pl-12 text-center lg:text-left mt-8 sm:mt-12 lg:mt-16">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-black mb-4">
+          <div className="md:pl-8 text-center md:text-left">
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-black mb-3">
               Los Educadores de Emprendimiento <br />
               son Mamíferos Marinos.
             </h1>
-            <p className="text-base sm:text-lg lg:text-xl xl:text-2xl text-gray-600 mb-6">
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 mb-4">
               Descubre con nosotros tu perfil educativo.
             </p>
             <Link
               to="/cuestionario"
-              className="bg-YankeesBlue text-white px-4 py-2 sm:px-6 sm:py-3 lg:px-8 lg:py-4 xl:px-10 xl:py-5 rounded-md text-sm sm:text-base lg:text-lg xl:text-xl inline-block hover:scale-105 transition-transform"
+              className="bg-YankeesBlue text-white px-3 py-2 sm:px-4 sm:py-2.5 md:px-5 md:py-3 lg:px-6 lg:py-4 rounded-md text-xs sm:text-sm md:text-base lg:text-lg inline-flex items-center gap-2 hover:scale-105 transition-transform"
             >
-              &gt;&gt; Haz el cuestionario aquí
+              <ClipboardDocumentListIcon className="h-6 w-6 stroke-white" />
+              Haz el cuestionario aquí
             </Link>
           </div>
 
-          <div className="mt-8 lg:mt-0">
+          <div className="">
             <img
               src={prototipo}
               alt="Mamifero Marino"
-              className="w-48 sm:w-64 lg:w-80 xl:w-[28rem] h-auto"
+              className="w-40 sm:w-48 md:w-64 lg:w-72 h-auto"
             />
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="bg-custom-lightgray py-4 text-center">
-        <p className="text-gray-500 text-xs sm:text-xs lg:text-xs">
+      <footer className="bg-custom-lightgray py-3 text-center">
+        <p className="text-gray-500 text-xs">
           © 2025 Jan Houter & Camila Torres TODOS LOS DERECHOS RESERVADOS.
         </p>
       </footer>

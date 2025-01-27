@@ -1,20 +1,8 @@
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema } from "../../../../global/schemas/autenticacion.schema";
 import logo from "../../shared/assets/logo.svg";
 import { EnvelopeIcon, LockClosedIcon } from "@heroicons/react/24/outline";
-
-// Definir el esquema de validación con Zod
-const loginSchema = z.object({
-  correousuario: z
-    .string()
-    .email("Por favor, introduce un correo válido.")
-    .nonempty("El correo es obligatorio."),
-  contrasenausuario: z
-    .string()
-    .min(6, "La contraseña debe tener al menos 6 caracteres.")
-    .nonempty("La contraseña es obligatoria."),
-});
 
 const LoginPage = () => {
   const {
@@ -37,7 +25,7 @@ const LoginPage = () => {
           <img
             src={logo}
             alt="Mentes Salvajes"
-            className="mx-auto w-14 h-14 p-2 mb-2 my-3 bg-Moonstone rounded-full"
+            className="mx-auto w-14 h-14 p-2 mb-2 my-3 bg-YankeesBlue rounded-full"
           />
           <h1 className="text-2xl font-bold mt-3 text-gray-800">
             Iniciar sesión
@@ -55,6 +43,7 @@ const LoginPage = () => {
               <input
                 type="email"
                 id="correousuario"
+                placeholder="Ingresa tu correo"
                 {...register("correousuario")}
                 className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm h-12 pl-10 ${
                   errors.correousuario ? "border-red-500" : ""
@@ -81,6 +70,7 @@ const LoginPage = () => {
             <div className="relative">
               <input
                 type="password"
+                placeholder="Ingresa tu contraseña"
                 id="contrasenausuario"
                 {...register("contrasenausuario")}
                 className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm h-12 pl-10 ${
