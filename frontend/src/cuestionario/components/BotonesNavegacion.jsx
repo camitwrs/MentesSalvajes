@@ -10,7 +10,7 @@ const BotonesNavegacion = ({
   isLastQuestion,
 }) => {
   return (
-    <div className="flex justify-between mt-4 w-full">
+    <div className="flex justify-between w-full">
       {/* Botón Anterior */}
       <button
         onClick={handlePrev}
@@ -44,7 +44,7 @@ const BotonesNavegacion = ({
 
 BotonesNavegacion.propTypes = {
   currentQuestionIndex: PropTypes.number.isRequired,
-  totalQuestions: PropTypes.number.isRequired,
+  totalQuestions: PropTypes.number.isRequired, // Esto es obligatorio
   handleNext: PropTypes.func.isRequired,
   handlePrev: PropTypes.func.isRequired,
   handleSendQuiz: PropTypes.func.isRequired,
