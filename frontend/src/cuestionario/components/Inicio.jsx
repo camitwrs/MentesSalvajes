@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 
-const InicioCuestionario = ({
+const Inicio = ({
   aceptaTerminos,
   setAceptaTerminos,
   handleStartQuiz,
@@ -55,7 +55,7 @@ const InicioCuestionario = ({
   );
 };
 
-InicioCuestionario.propTypes = {
+Inicio.propTypes = {
   aceptaTerminos: PropTypes.bool.isRequired,
   setAceptaTerminos: PropTypes.func.isRequired,
   handleStartQuiz: PropTypes.func.isRequired,
@@ -63,4 +63,4 @@ InicioCuestionario.propTypes = {
   setStartQuizError: PropTypes.func.isRequired,
 };
 
-export default InicioCuestionario;
+export default Inicio;

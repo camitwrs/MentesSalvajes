@@ -2,19 +2,17 @@ import { useContext, useState, useEffect, useCallback } from "react";
 import { FormContext } from "../context/FormContext";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import InicioCuestionario from "../components/InicioCuestionario";
-import EstadoCargaYError from "../components/EstadoCargaYError";
+import Inicio from "../components/Inicio";
+import Carga from "../components/Carga";
 import RenderizarPreguntas from "../components/RenderizarPreguntas";
 import BotonesNavegacion from "../components/BotonesNavegacion";
 import { useCuestionario } from "../hooks/useCuestionario";
 import { useInicializarAlternativas } from "../hooks/useInicializarAlternativas";
 import { useManejoEnvio } from "../hooks/useManejoEnvio";
+import { validateCurrentInput } from "../utils/handlesCuestionario";
 import {
-  validateCurrentInput,
-} from "../utils/utils";
-import {
-  handleNextQuestion,
-  handlePrevQuestion,
+  handleNextSeccion,
+  handlePrevSeccion,
 } from "../utils/navegacionCuestionario";
 
 const CuestionarioPage = () => {
@@ -39,14 +37,20 @@ const CuestionarioPage = () => {
     useManejoEnvio(submitData);
 
   // Valores constantes para el rango de edades
-  const MIN_NUMBER = 18;
+  const MIN_NUMBER = 1;
   const MAX_NUMBER = 80;
 
   // Cargar preguntas y alternativas desde el backend
-  const { preguntas, alternativas, isLoading, loadError} = useCuestionario(1);
+  const { preguntas, alternativas, isLoading, loadError } = useCuestionario(1);
 
   // Este efecto se activa cada vez que cambia la pregunta actual
-  useInicializarAlternativas(preguntas, currentQuestionIndex, alternativas, userData, setUserData);
+  useInicializarAlternativas(
+    preguntas,
+    currentQuestionIndex,
+    alternativas,
+    userData,
+    setUserData
+  );
 
   const handleStartQuiz = () => {
     if (aceptaTerminos) {
@@ -84,30 +88,37 @@ const CuestionarioPage = () => {
   // Determinar si hay un error en la pregunta actual
   const hasError = !!checkboxError || !!numberError || !!submitError;
 
+  const [seccionActual, setSeccionActual] = useState("a");
+  const nombresSecciones = [
+    "a",
+    "b",
+    "c",
+    "d",
+    "e",
+    "f",
+    "g",
+    "h",
+    "i",
+    "j",
+  ];
+
   return (
-    <div className="flex flex-col w-screen h-screen bg-pulpo-pattern bg-gray-200 bg-cover bg-center bg-no-repeat p-0">
-      <div className="flex justify-start mb-4">
-        <Header />
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-grow flex items-center justify-center">
-        {/* Mostrar carga o errores */}
-        <EstadoCargaYError isLoading={isLoading} loadError={loadError} />
-
-        {/* Mostrar el contenido principal del cuestionario si no hay carga ni error */}
+    <div className="flex flex-col min-h-screen bg-gray-200">
+      <Header />
+      <div className="flex-grow flex flex-col items-center justify-center p-8">
+        <Carga isLoading={isLoading} loadError={loadError} />
         {!isLoading && !loadError && (
           <>
             {!isQuizStarted ? (
-              <InicioCuestionario
-              aceptaTerminos={aceptaTerminos}
-              setAceptaTerminos={setAceptaTerminos}
-              handleStartQuiz={handleStartQuiz}
-              startQuizError={startQuizError}
-              setStartQuizError={setStartQuizError}
-            />
+              <Inicio
+                aceptaTerminos={aceptaTerminos}
+                setAceptaTerminos={setAceptaTerminos}
+                handleStartQuiz={handleStartQuiz}
+                startQuizError={startQuizError}
+                setStartQuizError={setStartQuizError}
+              />
             ) : (
-              <div className="flex flex-col items-center justify-center bg-white p-6 sm:p-8 shadow-xl rounded-xl max-w-md sm:max-w-lg md:max-w-xl w-full transition-opacity duration-500 ease-in-out">
+              <div className="justify-center bg-white rounded-3xl p-4 sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-3xl 2xl:max-w-4xl">
                 {submitSuccess ? (
                   <div className="text-center transition-opacity duration-300 ease-in-out">
                     <h2 className="text-2xl sm:text-3xl font-bold text-green-600 mb-4">
@@ -122,7 +133,7 @@ const CuestionarioPage = () => {
                     <RenderizarPreguntas
                       preguntas={preguntas}
                       alternativas={alternativas}
-                      currentQuestionIndex={currentQuestionIndex}
+                      seccionActual={seccionActual}
                       userData={userData}
                       setUserData={setUserData}
                       checkboxError={checkboxError}
@@ -132,28 +143,36 @@ const CuestionarioPage = () => {
                       submitError={submitError}
                     />
 
-                    <div className="flex justify-between mt-4 w-full">
+                    <div className="flex">
                       <BotonesNavegacion
-                        currentQuestionIndex={currentQuestionIndex}
-                        totalQuestions={preguntas.length}
+                        currentQuestionIndex={nombresSecciones.indexOf(
+                          seccionActual
+                        )}
+                        totalQuestions={nombresSecciones.length}
                         handleNext={() =>
-                          handleNextQuestion(
-                            currentQuestionIndex,
-                            setCurrentQuestionIndex,
-                            preguntas.length
+                          handleNextSeccion(
+                            seccionActual,
+                            setSeccionActual,
+                            nombresSecciones
                           )
                         }
                         handlePrev={() =>
-                          handlePrevQuestion(
-                            currentQuestionIndex,
-                            setCurrentQuestionIndex
+                          handlePrevSeccion(
+                            seccionActual,
+                            setSeccionActual,
+                            nombresSecciones
                           )
                         }
-                        handleSendQuiz={handleSendQuiz} // Asegúrate de pasar esta función
+                        handleSendQuiz={() => {
+                          if (!hasError) {
+                            handleSendQuiz();
+                          }
+                        }}
                         hasError={hasError}
                         isSubmitting={isSubmitting}
                         isLastQuestion={
-                          currentQuestionIndex === preguntas.length - 1
+                          seccionActual ===
+                          nombresSecciones[nombresSecciones.length - 1]
                         }
                       />
                     </div>
@@ -164,7 +183,6 @@ const CuestionarioPage = () => {
           </>
         )}
       </div>
-
       <Footer />
     </div>
   );
