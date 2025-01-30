@@ -39,39 +39,63 @@ const RegisterPage = () => {
   const [instituciones, setInstituciones] = useState([]);
   const [selectedPais, setSelectedPais] = useState("");
 
-  // Cargar los países desde la API al renderizar el componente
+  // Cargar los países una sola vez al montar el componente
   useEffect(() => {
-    const getPaisesInstituciones = async () => {
+    const cargarPaises = async () => {
       try {
-        // Cargar países
         const paisesResponse = await getAlternativasPorPreguntaRequest(5);
         setPaises(paisesResponse.data);
-
-        // Si hay un país seleccionado, cargar instituciones para ese país
-        if (selectedPais) {
-          const institucionesResponse = await getUniversidadesPorPaisRequest(
-            selectedPais
-          );
-          const institucionesNombres = institucionesResponse.data.map(
-            (uni) => uni.name
-          );
-          setInstituciones(institucionesNombres);
-        } else {
-          setInstituciones([]); // Si no hay país seleccionado, limpiar instituciones
-        }
       } catch (error) {
-        console.error("Error al cargar los países y las instituciones:", error);
+        console.error("Error al cargar los países:", error);
       }
     };
 
-    getPaisesInstituciones();
-  }, [selectedPais]);
+    cargarPaises();
+  }, []);
 
-  // Enviar los datos del registro  a la API
+  // Cargar instituciones solo cuando cambia `selectedPais`
+  useEffect(() => {
+    if (!selectedPais) {
+      setInstituciones([]); // Limpiar instituciones si no hay país seleccionado
+      return;
+    }
+
+    const cargarInstituciones = async () => {
+      try {
+        const institucionesResponse = await getUniversidadesPorPaisRequest(
+          selectedPais
+        );
+        const institucionesNombres = institucionesResponse.data.map(
+          (uni) => uni.name
+        );
+        setInstituciones(institucionesNombres);
+      } catch (error) {
+        console.error("Error al cargar las instituciones:", error);
+      }
+    };
+
+    cargarInstituciones();
+  }, [selectedPais]); // Se ejecuta solo cuando `selectedPais` cambia
+
+  // Enviar los datos del registro al backend
   const onSubmit = async (data) => {
     console.log("Datos enviados:", data);
-    const respuesta = await registrarEducadorRequest(data);
-    console.log("Datos recibidos:", respuesta);
+    try {
+      const response = await registrarEducadorRequest(data);
+      console.log("Usuario registrado:", response);
+    } catch (error) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.mensaje
+      ) {
+        console.error("Error al registrar:", error.response.data.mensaje);
+        alert(error.response.data.mensaje); // Muestra el mensaje del backend
+      } else {
+        console.error("Error inesperado:", error);
+        alert("Ocurrió un error inesperado. Inténtalo de nuevo.");
+      }
+    }
   };
 
   return (
@@ -316,7 +340,7 @@ const RegisterPage = () => {
                 <input
                   type="number"
                   id="edadeducador"
-                  {...register("edadeducador")}
+                  {...register("edadeducador", { valueAsNumber: true })}
                   className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm pl-10 pr-3 h-10 ${
                     errors.edadeducador ? "border-orange-500" : ""
                   }`}
@@ -414,7 +438,9 @@ const RegisterPage = () => {
                 <input
                   type="number"
                   id="anosexperienciaeducador"
-                  {...register("anosexperienciaeducador")}
+                  {...register("anosexperienciaeducador", {
+                    valueAsNumber: true,
+                  })}
                   className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm pl-10 pr-3 h-10 ${
                     errors.anosexperienciaeducador ? "border-orange-500" : ""
                   }`}
