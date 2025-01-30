@@ -213,7 +213,7 @@ const RegisterPage = () => {
                 htmlFor="tituloprofesionaleducador"
                 className="block text-sm font-medium text-gray-700"
               >
-                Estudios
+                Profesión
               </label>
               <div className="relative">
                 <input
