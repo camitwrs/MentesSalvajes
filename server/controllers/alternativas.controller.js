@@ -22,7 +22,7 @@ export const getAlternativasPorCuestionario = async (req, res) => {
 
 // Obtener alternativas por pregunta
 export const getAlternativasPorPregunta = async (req, res) => {
-  const { idpregunta } = req.query;
+  const { idpregunta } = req.params;
 
   try {
     const result = await pool.query(
@@ -51,5 +51,3 @@ export const crearAlternativa = async (req, res) => {
     res.status(500).json({ error: "Error al crear la alternativa" });
   }
 };
-
-

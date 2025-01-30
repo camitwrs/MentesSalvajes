@@ -2,7 +2,7 @@ import pool from "../pg.js";
 
 // Obtener preguntas por cuestionario
 export const getPreguntasPorCuestionario = async (req, res) => {
-  const { idcuestionario } = req.query;
+  const { idcuestionario } = req.params;
 
   try {
     const result = await pool.query(
@@ -34,7 +34,7 @@ export const crearPregunta = async (req, res) => {
 
 // Obtener preguntas por tipo
 export const getPreguntasPorTipo = async (req, res) => {
-  const { tipopregunta } = req.query;
+  const { tipopregunta } = req.params;
 
   try {
     const result = await pool.query(
