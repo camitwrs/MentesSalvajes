@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 
-const PreguntaTipoTexto = ({ idPregunta, userData, setUserData }) => {
+const PreguntaTexto = ({ idPregunta, userData, setUserData }) => {
   const handleTextChange = (e) => {
     const value = e.target.value; // Obtener el texto ingresado
     setUserData((prevUserData) => ({
@@ -23,10 +23,10 @@ const PreguntaTipoTexto = ({ idPregunta, userData, setUserData }) => {
   );
 };
 
-PreguntaTipoTexto.propTypes = {
+PreguntaTexto.propTypes = {
   idPregunta: PropTypes.number.isRequired,
   userData: PropTypes.object.isRequired,
   setUserData: PropTypes.func.isRequired,
 };
 
-export default PreguntaTipoTexto;
+export default PreguntaTexto;

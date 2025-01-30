@@ -1,12 +1,10 @@
 import PropTypes from "prop-types";
 
-const PreguntaTipoCheckbox = ({
+const PreguntaCheckbox = ({
   idPregunta,
   opciones,
   userData,
   setUserData,
-  checkboxError,
-  setCheckboxError,
 }) => {
   const handleCheckboxChange = (e) => {
     const selectedId = parseInt(e.target.value, 10); // Convertir a número
@@ -14,21 +12,15 @@ const PreguntaTipoCheckbox = ({
       ? userData[idPregunta]
       : [];
 
-    // Limitar la selección a 2 para la pregunta 8 (puedes personalizar esto)
-    if (idPregunta === 8 && updatedSelections.length >= 2 && e.target.checked) {
-      setCheckboxError(
-        "Puedes seleccionar un máximo de 2 opciones para esta pregunta."
-      );
+    // Validar el máximo de 2 selecciones
+    if (updatedSelections.length >= 2 && e.target.checked) {
       return; // No permite seleccionar más de 2 opciones
     }
 
-    let newSelections;
-    if (e.target.checked) {
-      newSelections = [...updatedSelections, selectedId];
-      setCheckboxError(""); // Limpiar errores si todo es válido
-    } else {
-      newSelections = updatedSelections.filter((id) => id !== selectedId);
-    }
+    // Actualizar las selecciones
+    const newSelections = e.target.checked
+      ? [...updatedSelections, selectedId]
+      : updatedSelections.filter((id) => id !== selectedId);
 
     setUserData({
       ...userData,
@@ -57,17 +49,11 @@ const PreguntaTipoCheckbox = ({
           </span>
         </label>
       ))}
-      {/* Mostrar error si existe */}
-      {checkboxError && (
-        <span className="text-red-600 text-xs sm:text-sm mt-2 block">
-          {checkboxError}
-        </span>
-      )}
     </div>
   );
 };
 
-PreguntaTipoCheckbox.propTypes = {
+PreguntaCheckbox.propTypes = {
   idPregunta: PropTypes.number.isRequired,
   opciones: PropTypes.arrayOf(
     PropTypes.shape({
@@ -77,8 +63,6 @@ PreguntaTipoCheckbox.propTypes = {
   ).isRequired,
   userData: PropTypes.object.isRequired,
   setUserData: PropTypes.func.isRequired,
-  checkboxError: PropTypes.string,
-  setCheckboxError: PropTypes.func.isRequired,
 };
 
-export default PreguntaTipoCheckbox;
+export default PreguntaCheckbox;
