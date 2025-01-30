@@ -28,9 +28,7 @@ export const registrarEducador = async (req, res) => {
       [correousuario]
     );
     if (usuarioExistente.rows.length > 0) {
-      return res
-        .status(400)
-        .json({ mensaje: "El usuario ya está registrado." });
+      return res.status(400).json({ mensaje: "El correo ya está registrado." });
     }
 
     // Hashear la contraseña

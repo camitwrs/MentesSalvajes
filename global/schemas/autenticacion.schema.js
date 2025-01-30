@@ -27,7 +27,12 @@ export const registerSchema = z.object({
   intereseseducador: z.string().nonempty("Por favor, ingresa tus intereses."),
   paiseducador: z.string().nonempty("Por favor, selecciona tu país."),
   edadeducador: z.preprocess(
-    (value) => (value === "" ? undefined : value),
+    (value) => {
+      if (value === "" || value === undefined || value === null)
+        return undefined; // Manejo de vacío
+      const num = Number(value);
+      return isNaN(num) ? undefined : num; // Evita NaN
+    },
     z
       .number({
         required_error: "Por favor, ingresa tu edad.",
@@ -41,10 +46,15 @@ export const registerSchema = z.object({
     .nonempty("Por favor, selecciona la institución donde te desempeñas."),
   sexoeducador: z.string().nonempty("Por favor, selecciona tu sexo."),
   anosexperienciaeducador: z.preprocess(
-    (value) => (value === "" ? undefined : value),
+    (value) => {
+      if (value === "" || value === undefined || value === null)
+        return undefined; // Manejo de vacío
+      const num = Number(value);
+      return isNaN(num) ? undefined : num; // Evita NaN
+    },
     z
       .number({
-        required_error: "Por favor, ingresa tus años de experiencia.",
+        required_error: "Por favor, ingresa tu edad.",
         invalid_type_error: "Parece que ingresaste un número no válido.",
       })
       .min(0, "Los años de experiencia deben ser positivos.")
