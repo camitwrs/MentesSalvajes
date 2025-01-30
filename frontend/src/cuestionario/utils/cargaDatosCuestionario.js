@@ -7,7 +7,7 @@ export const cargarDatosCuestionario = async (idCuestionario) => {
     const responsePreguntas = await getPreguntasPorCuestionarioRequest(
       idCuestionario
     );
-    let dataPreguntas = await responsePreguntas.json();
+    let dataPreguntas = responsePreguntas.data; // Axios ya parsea la respuesta
 
     // Ordenar preguntas por idPregunta
     dataPreguntas = dataPreguntas.sort((a, b) => a.idPregunta - b.idPregunta);
@@ -16,7 +16,7 @@ export const cargarDatosCuestionario = async (idCuestionario) => {
     const responseAlternativas = await getAlternativasPorCuestionarioRequest(
       idCuestionario
     );
-    const dataAlternativas = await responseAlternativas.json();
+    const dataAlternativas = responseAlternativas.data; // Axios ya parsea la respuesta
 
     // Agrupar alternativas por idPregunta
     const alternativasPorPregunta = dataAlternativas.reduce(

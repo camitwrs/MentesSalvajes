@@ -29,12 +29,12 @@ export const crearCuestionario = async (req, res) => {
 
 // Obtener cuestionarios por título (búsqueda)
 export const getCuestionariosPorTitulo = async (req, res) => {
-  const { titulo } = req.query;
+  const { titulocuestionario } = req.params;
 
   try {
     const result = await pool.query(
       `SELECT * FROM public.cuestionarios WHERE titulocuestionario ILIKE $1`,
-      [`%${titulo}%`]
+      [`%${titulocuestionario}%`]
     );
     res.json(result.rows);
   } catch (error) {

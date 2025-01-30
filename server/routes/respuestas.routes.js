@@ -8,7 +8,7 @@ import {
 const router = Router();
 
 router.post("/", registrarRespuesta);
-router.get("/buscar", getRespuestasPorUsuario);
-router.get("/buscar", getRespuestasPorCuestionario);
+router.get("/usuario/:idusuario", getRespuestasPorUsuario);
+router.get("/cuestionario/:idcuestionario", getRespuestasPorCuestionario);
 
 export default router;

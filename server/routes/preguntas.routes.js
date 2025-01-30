@@ -7,8 +7,8 @@ import {
 
 const router = Router();
 
-router.get("/buscar", getPreguntasPorCuestionario);
+router.get("/cuestionario/:idcuestionario", getPreguntasPorCuestionario);
 router.post("/", crearPregunta);
-router.get("/buscar", getPreguntasPorTipo);
+router.get("/tipo/:tipopregunta", getPreguntasPorTipo);
 
 export default router;

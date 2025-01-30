@@ -3,10 +3,10 @@ import axios from "axios";
 const API = "http://localhost:3000/api";
 
 export const getAlternativasPorPreguntaRequest = (idpregunta) =>
-  axios.get(`${API}/alternativas/buscar?idpregunta=${idpregunta}`);
+  axios.get(`${API}/alternativas/pregunta/${idpregunta}`);
 
 export const getAlternativasPorCuestionarioRequest = (idcuestionario) =>
-  axios.get(`${API}/alternativas/buscar?idcuestionario=${idcuestionario}`);
+  axios.get(`${API}/alternativas/cuestionario/${idcuestionario}`);
 
 export const crearAlternativaRequest = (alternativa) =>
   axios.post(`${API}/alternativas`, alternativa);

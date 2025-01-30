@@ -18,7 +18,7 @@ export const registrarRespuesta = async (req, res) => {
 
 // Obtener respuestas por usuario
 export const getRespuestasPorUsuario = async (req, res) => {
-  const { idusuario } = req.query;
+  const { idusuario } = req.params;
 
   try {
     const result = await pool.query(
@@ -34,7 +34,7 @@ export const getRespuestasPorUsuario = async (req, res) => {
 
 // Obtener respuestas por cuestionario
 export const getRespuestasPorCuestionario = async (req, res) => {
-  const { idcuestionario } = req.query;
+  const { idcuestionario } = req.params;
 
   try {
     const result = await pool.query(

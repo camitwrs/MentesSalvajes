@@ -8,4 +8,4 @@ export const crearCuestionariosRequest = (cuestionario) =>
   axios.post(`${API}/cuestionarios`, cuestionario);
 
 export const getCuestionariosPorTituloRequest = (titulocuestionario) =>
-  axios.get(`${API}/buscar?titulo=${titulocuestionario}`);
+  axios.get(`${API}/cuestionarios/titulo/${titulocuestionario}`);
