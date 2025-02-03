@@ -28,7 +28,7 @@ export const registrarEducador = async (req, res) => {
       [correousuario]
     );
     if (usuarioExistente.rows.length > 0) {
-      return res.status(400).json({ mensaje: "El correo ya está registrado." });
+      return res.status(400).json(["El usuario ya existe"]);
     }
 
     // Hashear la contraseña
@@ -84,14 +84,10 @@ export const registrarEducador = async (req, res) => {
     const token = await crearTokenAcceso({ idusuario: idUsuarioResult });
 
     res.cookie("token", token);
-    res
-      .status(201)
-      .json({ message: "Usuario y educador creados exitosamente" });
+    res.status(201).json(["Usuario y educador creados exitosamente"]);
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({ mensaje: "Error al registrar el usuario y educador." });
+    res.status(400).json(["Error al registrar el usuario y educador."]);
   }
 };
 
@@ -106,7 +102,7 @@ export const loginUsuario = async (req, res) => {
       [correousuario]
     );
     if (usuarioResult.rows.length === 0) {
-      return res.status(400).json({ mensaje: "El usuario no existe." });
+      return res.status(400).json(["El usuario no existe."]);
     }
 
     // Verificar la contraseña
@@ -117,7 +113,7 @@ export const loginUsuario = async (req, res) => {
     );
 
     if (!esPasswordCorrecta) {
-      return res.status(401).json({ mensaje: "Contraseña incorrecta." });
+      return res.status(401).json(["Contraseña incorrecta."]);
     }
 
     const token = await crearTokenAcceso({
@@ -128,7 +124,7 @@ export const loginUsuario = async (req, res) => {
     res.status(200).json({ mensaje: "Inicio de sesión exitoso.", token });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ mensaje: "Error al iniciar sesión." });
+    res.status(500).json(["Error al iniciar sesión."]);
   }
 };
 
@@ -167,13 +163,13 @@ export const perfilUsuario = async (req, res) => {
 
     // Verificar si existe el usuario
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
+      return res.status(404).json(["Usuario no encontrado"]);
     }
 
     // Retornar los datos del usuario
     return res.status(200).json(result.rows[0]);
   } catch (error) {
     console.error("Error al obtener el perfil del usuario:", error);
-    return res.status(500).json({ error: "Error interno del servidor" });
+    return res.status(500).json(["Error interno del servidor"]);
   }
 };
