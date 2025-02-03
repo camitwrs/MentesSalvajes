@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "../../../../global/schemas/autenticacion.schema";
-import { registrarEducadorRequest } from "../../api/autenticacion";
+import { useAuth } from "../context/AuthContext";
 import {
   getAlternativasPorPreguntaRequest,
   getUniversidadesPorPaisRequest,
 } from "../../api/alternativas";
 import logo from "../../shared/assets/logo.svg";
+import { useNavigate } from "react-router-dom";
 import {
   UserIcon,
   EnvelopeIcon,
@@ -34,6 +35,13 @@ const RegisterPage = () => {
       sexoeducador: "", // Valor predeterminado para el campo sexo
     },
   });
+
+  const { registrarse, estaAutenticado, registerErrors } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (estaAutenticado) navigate("/dashboard");
+  }, [estaAutenticado]);
 
   const [paises, setPaises] = useState([]);
   const [instituciones, setInstituciones] = useState([]);
@@ -79,23 +87,7 @@ const RegisterPage = () => {
 
   // Enviar los datos del registro al backend
   const onSubmit = async (data) => {
-    console.log("Datos enviados:", data);
-    try {
-      const response = await registrarEducadorRequest(data);
-      console.log("Usuario registrado:", response);
-    } catch (error) {
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.mensaje
-      ) {
-        console.error("Error al registrar:", error.response.data.mensaje);
-        alert(error.response.data.mensaje); // Muestra el mensaje del backend
-      } else {
-        console.error("Error inesperado:", error);
-        alert("Ocurrió un error inesperado. Inténtalo de nuevo.");
-      }
-    }
+    registrarse(data);
   };
 
   return (
@@ -111,6 +103,13 @@ const RegisterPage = () => {
             Regístrate
           </h1>
         </div>
+        {Array.isArray(registerErrors) &&
+          registerErrors.length > 0 &&
+          registerErrors.map((error, i) => (
+            <div className="text-center text-orange-500 p-2 m-2" key={i}>
+              {error}
+            </div>
+          ))}
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6"
