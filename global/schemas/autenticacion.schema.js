@@ -64,10 +64,10 @@ export const registerSchema = z.object({
 export const loginSchema = z.object({
   correousuario: z
     .string()
-    .email("El correo electrónico no tiene un formato válido.")
-    .nonempty("Por favor, ingresa tu correo electrónico."),
+    .nonempty("Por favor, ingresa tu correo electrónico.")
+    .email("El correo electrónico no tiene un formato válido."),
   contrasenausuario: z
     .string()
-    .min(6, "La contraseña debe tener al menos 6 caracteres.")
-    .nonempty("Por favor, ingresa tu contraseña."),
+    .nonempty("Por favor, ingresa tu contraseña.")
+    .min(6, "La contraseña debe tener al menos 6 caracteres."),
 });

@@ -8,7 +8,7 @@ import {
   getUniversidadesPorPaisRequest,
 } from "../../api/alternativas";
 import logo from "../../shared/assets/logo.svg";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import {
   UserIcon,
   EnvelopeIcon,
@@ -36,7 +36,7 @@ const RegisterPage = () => {
     },
   });
 
-  const { registrarse, estaAutenticado, registerErrors } = useAuth();
+  const { registrarse, estaAutenticado, errors: registerErrors } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -91,28 +91,26 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-lg sm:max-w-2xl">
-        <div className="text-center mb-4">
+    <div className="min-h-screen flex items-center justify-center  px-6">
+      <div className="bg-white px-8 py-6 w-full max-w-3xl">
+        <div className="text-center mb-6">
           <img
             src={logo}
             alt="Mentes Salvajes"
-            className="mx-auto w-12 h-12 p-2 mb-2 bg-YankeesBlue rounded-full"
+            className="mx-auto w-14 h-14 p-2 mb-3 bg-YankeesBlue rounded-full"
           />
-          <h1 className="text-xl sm:text-2xl font-bold mt-3 text-gray-800">
-            Regístrate
-          </h1>
+          <h1 className="text-2xl font-semibold text-gray-800">Regístrate</h1>
         </div>
         {Array.isArray(registerErrors) &&
           registerErrors.length > 0 &&
           registerErrors.map((error, i) => (
-            <div className="text-center text-orange-500 p-2 m-2" key={i}>
+            <div className="text-center text-orange-500 text-sm p-2" key={i}>
               {error}
             </div>
           ))}
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6"
+          className="grid grid-cols-1 gap-5 sm:grid-cols-2"
         >
           {/* Columna Izquierda */}
           <div className="space-y-4">
@@ -129,7 +127,7 @@ const RegisterPage = () => {
                   placeholder="¿Cuál es tu nombre?"
                   id="nombreusuario"
                   {...register("nombreusuario")}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm text-sm pl-10 h-10 sm:h-12 focus:outline-none focus:ring-orange-500 focus:border-orange-500 ${
+                  className={`input-field ${
                     errors.nombreusuario ? "border-orange-500" : ""
                   }`}
                 />
@@ -157,7 +155,7 @@ const RegisterPage = () => {
                   id="apellidousuario"
                   placeholder="¿Cuál es tu apellido?"
                   {...register("apellidousuario")}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm h-12 pl-10 ${
+                  className={`input-field ${
                     errors.apellidousuario ? "border-orange-500" : ""
                   }`}
                 />
@@ -185,7 +183,7 @@ const RegisterPage = () => {
                   placeholder="Ingresa tu correo"
                   id="correousuario"
                   {...register("correousuario")}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm h-12 pl-10 ${
+                  className={`input-field ${
                     errors.correousuario ? "border-orange-500" : ""
                   }`}
                 />
@@ -213,7 +211,7 @@ const RegisterPage = () => {
                   placeholder="Ingresa tu contraseña"
                   id="contrasenausuario"
                   {...register("contrasenausuario")}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm h-12 pl-10 ${
+                  className={`input-field ${
                     errors.contrasenausuario ? "border-orange-500" : ""
                   }`}
                 />
@@ -227,10 +225,7 @@ const RegisterPage = () => {
                 </p>
               )}
             </div>
-          </div>
 
-          {/* Columna Derecha */}
-          <div className="space-y-4">
             <div>
               <label
                 htmlFor="tituloprofesionaleducador"
@@ -244,7 +239,7 @@ const RegisterPage = () => {
                   placeholder="¿Cuál es tu ocupación?"
                   id="tituloprofesionaleducador"
                   {...register("tituloprofesionaleducador")}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm h-12 pl-10 ${
+                  className={`input-field ${
                     errors.tituloprofesionaleducador ? "border-orange-500" : ""
                   }`}
                 />
@@ -258,7 +253,10 @@ const RegisterPage = () => {
                 </p>
               )}
             </div>
+          </div>
 
+          {/* Columna Derecha */}
+          <div className="space-y-4">
             <div>
               <label
                 htmlFor="intereseseducador"
@@ -271,9 +269,13 @@ const RegisterPage = () => {
                   id="intereseseducador"
                   placeholder="¿Qué hobbies tienes? ¿Qué temas te apasionan?"
                   {...register("intereseseducador")}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm h-28 pl-10 pr-3 pt-2 resize-none ${
+                  className={`input-field pt-1 ${
                     errors.intereseseducador ? "border-orange-500" : ""
                   }`}
+                  onInput={(e) => {
+                    e.target.style.height = "auto"; // Restablece el tamaño
+                    e.target.style.height = `${e.target.scrollHeight}px`; // Ajusta al contenido
+                  }}
                 ></textarea>
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                   <PuzzlePieceIcon className="h-5 w-5 text-gray-400" />
@@ -301,7 +303,7 @@ const RegisterPage = () => {
                   id="paiseducador"
                   {...register("paiseducador")}
                   onChange={(e) => setSelectedPais(e.target.value)} // Cambiar país seleccionado
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm pl-10 pr-3 h-10 ${
+                  className={`input-field ${
                     errors.paiseducador ? "border-orange-500" : ""
                   }`}
                 >
@@ -340,7 +342,7 @@ const RegisterPage = () => {
                   type="number"
                   id="edadeducador"
                   {...register("edadeducador", { valueAsNumber: true })}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm pl-10 pr-3 h-10 ${
+                  className={`input-field ${
                     errors.edadeducador ? "border-orange-500" : ""
                   }`}
                   placeholder="Ingresa tu edad"
@@ -369,7 +371,7 @@ const RegisterPage = () => {
                 <select
                   id="institucioneducador"
                   {...register("institucioneducador")}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm pl-10 pr-3 h-10 ${
+                  className={`input-field ${
                     errors.institucioneducador ? "border-orange-500" : ""
                   }`}
                 >
@@ -404,7 +406,7 @@ const RegisterPage = () => {
                 <select
                   id="sexoeducador"
                   {...register("sexoeducador")}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm pl-10 pr-3 h-10 ${
+                  className={`input-field ${
                     errors.sexoeducador ? "border-orange-500" : ""
                   }`}
                 >
@@ -440,7 +442,7 @@ const RegisterPage = () => {
                   {...register("anosexperienciaeducador", {
                     valueAsNumber: true,
                   })}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm pl-10 pr-3 h-10 ${
+                  className={`input-field ${
                     errors.anosexperienciaeducador ? "border-orange-500" : ""
                   }`}
                   placeholder="Ingresa tus años de experiencia"
@@ -468,6 +470,18 @@ const RegisterPage = () => {
             </button>
           </div>
         </form>
+
+        <div className="text-center mt-4">
+          <p className="text-sm text-gray-600">
+            ¿Ya tienes una cuenta?{" "}
+            <Link
+              to="/login"
+              className="text-Moonstone hover:text-cyan-700 font-medium"
+            >
+              Iniciar sesión
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
