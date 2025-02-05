@@ -6,9 +6,7 @@ export const registrarEducadorRequest = (user) =>
   axios.post(`${API}/autenticacion/registro`, user);
 
 export const loginUsuarioRequest = (credenciales) =>
-  axios.post(`${API}/autenticacion/entrar`, credenciales, {
-    withCredentials: true,
-  });
+  axios.post(`${API}/autenticacion/entrar`, credenciales);
 
 export const logoutUsuarioRequest = () =>
   axios.post(

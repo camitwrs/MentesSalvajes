@@ -14,7 +14,7 @@ const HomePage = () => {
         {/* Logo y Título */}
         <div className="flex items-center gap-x-3">
           <img src={logo} alt="Logo" className="h-10 sm:h-12 md:h-16 mr-3" />
-          <span className="hidden sm:block text-white text-base sm:text-lg md:text-xl font-bold">
+          <span className="hidden sm:block text-white font-logolike text-base sm:text-lg md:text-3xl font-bold">
             MENTES SALVAJES
           </span>
         </div>
