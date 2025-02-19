@@ -109,9 +109,28 @@ const RenderizarPreguntas = ({
     }
   };
 
+  // Títulos por sección
+  const titulosSecciones = {
+    a: "Caracterización General",
+    b: "Caracterización General",
+    c: "Vínculo con el Emprendimiento",
+    d: "Vínculo con el Emprendimiento",
+    e: "Competencias Emprendedoras",
+    f: "Competencias Emprendedoras",
+    g: "Competencias Emprendedoras",
+    h: "Competencias Emprendedoras",
+    i: "Competencias Emprendedoras",
+    j: "Caracterización de Formadores de Emprendimiento",
+  };
+
   // Renderizar todas las preguntas de la sección actual
   return (
-    <div>
+    <div className="space-y-6">
+      {/* Mostrar el título de la sección actual */}
+      <h2 className="font-bold text-right text-gray-800 mb-6">
+        {titulosSecciones[seccionActual]}
+      </h2>
+
       {preguntasFiltradas.map((pregunta) => {
         const opciones = (alternativas[pregunta.idpregunta] || []).sort(
           (a, b) => {
@@ -132,16 +151,16 @@ const RenderizarPreguntas = ({
         const preguntaClass =
           pregunta.tipopregunta === "enunciado"
             ? ""
-            : "w-full bg-white border border-gray-400 rounded-lg p-6 transition-transform duration-300 ease-in-out mb-6";
+            : "border border-gray-100 rounded-xl p-6";
 
         return (
           <div key={pregunta.idpregunta} className={preguntaClass}>
-            <h2 className="text-base sm:text-xl text-center font-semibold mb-4 text-Moonstone">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
               {pregunta.textopregunta}
             </h2>
             {renderInputByType(pregunta, opciones)}
             {submitError && (
-              <span className="text-red-600 text-xs sm:text-sm mt-2 block">
+              <span className="text-red-600 text-sm mt-2 block">
                 {submitError}
               </span>
             )}

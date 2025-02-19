@@ -8,11 +8,11 @@ const Inicio = ({
   setStartQuizError,
 }) => {
   return (
-    <div className="flex flex-col items-center justify-center bg-white p-6 sm:p-8 shadow-xl rounded-xl max-w-md sm:max-w-lg md:max-w-xl w-full transition-opacity duration-500 ease-in-out">
-      <h3 className="font-bold text-xl sm:text-2xl text-center mb-4 text-Moonstone">
+    <div>
+      <h3 className="font-bold text-xl text-right mb-6 text-gray-800">
         Términos y Condiciones
       </h3>
-      <p className="text-gray-600 text-xs sm:text-sm text-center mb-4">
+      <p className="text-gray-600 text-sm text-center mb-6">
         Autorizo el uso de los datos para el proceso de investigación y
         difusión del proyecto Wild E, que tiene por objetivo fortalecer la
         educación en emprendimiento en instituciones de educación superior de
@@ -24,14 +24,14 @@ const Inicio = ({
         consecuencia alguna por tal decisión. De tener preguntas, reclamos o
         comentarios sobre la participación en este proyecto, contactar al
         equipo responsable Pablo Zamora (pablo.zamora@pucv.cl) y Patricia
-        Ibáñez (patricia.iban@gmail.com).
+        Ibáñez (patricia.ibanez@gmail.com).
       </p>
       {startQuizError && (
-        <span className="text-red-600 text-xs sm:text-sm mb-2 block">
+        <span className="text-red-600 text-sm mb-4 block">
           {startQuizError}
         </span>
       )}
-      <label className="flex items-center mb-4 transition-colors duration-200 ease-in-out hover:bg-gray-100 rounded-md p-2 w-full">
+      <label className="flex items-center mb-6">
         <input
           type="checkbox"
           checked={aceptaTerminos}
@@ -39,18 +39,22 @@ const Inicio = ({
             setAceptaTerminos(e.target.checked);
             if (startQuizError) setStartQuizError("");
           }}
-          className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-600"
+          className="mr-3 h-5 w-5 text-blue-600 rounded"
         />
-        <span className="text-gray-700 text-sm sm:text-base">
+        <span className="text-gray-700 text-sm font-bold">
           Acepto los términos y condiciones
         </span>
       </label>
       <button
         onClick={handleStartQuiz}
-        className="bg-Moonstone rounded-full text-white font-semibold py-2 px-4 sm:py-3 sm:px-6 w-full transition-transform duration-200 ease-in-out transform hover:scale-105"
+        //className="bg-Moonstone rounded-full text-white font-semibold py-3 px-6 w-full transition-transform duration-200 ease-in-out transform hover:scale-105"
+        className="w-full font-bold bg-Moonstone text-white py-2 px-4 rounded-md hover:bg-cyan-700 focus:outline-none focus:border-orange-500"
       >
         Iniciar Cuestionario
       </button>
+      <p className="mt-4 px-4 text-xs text-center sm:text-sm text-gray-700 p-2 rounded">
+        La duración del cuestionario es de 20 minutos aproximadamente.
+      </p>
     </div>
   );
 };

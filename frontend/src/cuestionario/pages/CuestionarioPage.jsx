@@ -1,7 +1,6 @@
 import { useContext, useState, useEffect, useCallback } from "react";
 import { FormContext } from "../context/FormContext";
 import Header from "../components/Header";
-import Footer from "../components/Footer";
 import Inicio from "../components/Inicio";
 import Carga from "../components/Carga";
 import RenderizarPreguntas from "../components/RenderizarPreguntas";
@@ -114,68 +113,69 @@ const CuestionarioPage = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <Header />
-      <div className="flex-grow flex flex-col items-center justify-center p-8">
-        <Carga isLoading={isLoading} loadError={loadError} />
-        {!isLoading && !loadError && (
-          <>
-            {!isQuizStarted ? (
-              <Inicio
-                aceptaTerminos={aceptaTerminos}
-                setAceptaTerminos={setAceptaTerminos}
-                handleStartQuiz={handleStartQuiz}
-                startQuizError={startQuizError}
-                setStartQuizError={setStartQuizError}
-              />
-            ) : (
-              <div className="bg-white rounded-3xl p-4 sm:max-w-lg md:max-w-xl lg:max-w-2xl">
-                {submitSuccess ? (
-                  <div className="text-center">
-                    <h2 className="text-2xl font-bold text-green-600 mb-4">
-                      ¡Gracias por completar el cuestionario!
-                    </h2>
-                    <p className="text-gray-700">Hemos recibido tus respuestas.</p>
-                  </div>
-                ) : (
-                  <>
-                    <RenderizarPreguntas
-                      preguntas={preguntas}
-                      alternativas={alternativas}
-                      seccionActual={seccionActual}
-                      userData={userData}
-                      setUserData={setUserData}
-                      checkboxError={checkboxError}
-                      setCheckboxError={setCheckboxError}
-                      numberError={numberError}
-                      setNumberError={setNumberError}
-                      submitError={submitError}
-                    />
-
-                    <div className="flex">
-                      <BotonesNavegacion
-                        currentQuestionIndex={nombresSecciones.indexOf(seccionActual)}
-                        totalQuestions={nombresSecciones.length}
-                        handleNext={() => {
-                          if (isSeccionCompleta()) {
-                            handleNextSeccion(seccionActual, setSeccionActual, nombresSecciones);
-                          }
-                        }}
-                        handlePrev={() =>
-                          handlePrevSeccion(seccionActual, setSeccionActual, nombresSecciones)
-                        }
-                        handleSendQuiz={handleSendQuiz}
-                        hasError={!isSeccionCompleta()}
-                        isSubmitting={isSubmitting}
-                        isLastQuestion={seccionActual === nombresSecciones[nombresSecciones.length - 1]}
-                      />
+      <div className="flex-grow flex items-center justify-center p-6 sm:p-8">
+        <div className="bg-white rounded-lg w-full max-w-4xl p-6 sm:p-8">
+          <Carga isLoading={isLoading} loadError={loadError} />
+          {!isLoading && !loadError && (
+            <>
+              {!isQuizStarted ? (
+                <Inicio
+                  aceptaTerminos={aceptaTerminos}
+                  setAceptaTerminos={setAceptaTerminos}
+                  handleStartQuiz={handleStartQuiz}
+                  startQuizError={startQuizError}
+                  setStartQuizError={setStartQuizError}
+                />
+              ) : (
+                <>
+                  {submitSuccess ? (
+                    <div className="text-center">
+                      <h2 className="text-2xl font-bold text-green-600 mb-4">
+                        ¡Gracias por completar el cuestionario!
+                      </h2>
+                      <p className="text-gray-700">Hemos recibido tus respuestas.</p>
                     </div>
-                  </>
-                )}
-              </div>
-            )}
-          </>
-        )}
+                  ) : (
+                    <>
+                      <RenderizarPreguntas
+                        preguntas={preguntas}
+                        alternativas={alternativas}
+                        seccionActual={seccionActual}
+                        userData={userData}
+                        setUserData={setUserData}
+                        checkboxError={checkboxError}
+                        setCheckboxError={setCheckboxError}
+                        numberError={numberError}
+                        setNumberError={setNumberError}
+                        submitError={submitError}
+                      />
+
+                      <div className="flex justify-between mt-6">
+                        <BotonesNavegacion
+                          currentQuestionIndex={nombresSecciones.indexOf(seccionActual)}
+                          totalQuestions={nombresSecciones.length}
+                          handleNext={() => {
+                            if (isSeccionCompleta()) {
+                              handleNextSeccion(seccionActual, setSeccionActual, nombresSecciones);
+                            }
+                          }}
+                          handlePrev={() =>
+                            handlePrevSeccion(seccionActual, setSeccionActual, nombresSecciones)
+                          }
+                          handleSendQuiz={handleSendQuiz}
+                          hasError={!isSeccionCompleta()}
+                          isSubmitting={isSubmitting}
+                          isLastQuestion={seccionActual === nombresSecciones[nombresSecciones.length - 1]}
+                        />
+                      </div>
+                    </>
+                  )}
+                </>
+              )}
+            </>
+          )}
+        </div>
       </div>
-      <Footer />
     </div>
   );
 };

@@ -14,7 +14,7 @@ const BotonesNavegacion = ({
       <button
         onClick={handlePrev}
         disabled={currentQuestionIndex === 0}
-        className={`bg-gray-700 text-white py-2 px-4 rounded-full ${
+        className={`bg-Moonstone text-white py-2 px-4 rounded-md ${
           currentQuestionIndex === 0 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-600 hover:scale-105"
         }`}
       >
@@ -24,11 +24,11 @@ const BotonesNavegacion = ({
       <button
         onClick={isLastQuestion ? handleSendQuiz : handleNext}
         disabled={hasError || isSubmitting}
-        className={`py-2 px-4 rounded-full ${
+        className={`py-2 px-4 rounded-md ${
           hasError || isSubmitting
-            ? "bg-gray-400 cursor-not-allowed"
+            ? "bg-gray-400 cursor-not-allowed text-white"
             : isLastQuestion
-            ? "bg-green-600 hover:bg-green-500 text-white"
+            ? "bg-green-600 hover:bg-green-500 text-white font-bold"
             : "bg-Moonstone text-white hover:scale-105"
         }`}
       >
