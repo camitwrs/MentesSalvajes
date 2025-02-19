@@ -2,40 +2,50 @@ import PropTypes from "prop-types";
 import { useEffect } from "react";
 
 const PreguntaRange = ({ idPregunta, opciones, userData, setUserData }) => {
-  // Selección inicial por defecto
   useEffect(() => {
     if (!userData[idPregunta] && opciones.length > 0) {
-      setUserData((prevUserData) => ({
-        ...prevUserData,
-        [idPregunta]: opciones[0].idalternativa, // Seleccionar automáticamente la primera opción
-      }));
+      setUserData((prevUserData) => {
+        const updatedUserData = { ...prevUserData };
+
+        // Verificar si la pregunta 56 tiene seleccionada la alternativa 154
+        if (prevUserData[56] === 154) {
+          delete updatedUserData[60];
+          delete updatedUserData[61];
+          delete updatedUserData[62];
+          delete updatedUserData[64];
+          delete updatedUserData[65];
+        } else {
+          updatedUserData[idPregunta] = opciones[0].idalternativa;
+        }
+
+        return updatedUserData;
+      });
     }
   }, [idPregunta, opciones, userData, setUserData]);
 
   const handleRangeChange = (e) => {
-    const selectedIndex = parseInt(e.target.value, 10); // Convertir el valor del rango a número
-    const selectedAlternativa = opciones[selectedIndex]; // Obtener la opción seleccionada
+    const selectedIndex = parseInt(e.target.value, 10);
+    const selectedAlternativa = opciones[selectedIndex];
 
     setUserData((prevUserData) => ({
       ...prevUserData,
       [idPregunta]: selectedAlternativa
         ? selectedAlternativa.idalternativa
-        : null, // Guardar la idAlternativa seleccionada
+        : null,
     }));
   };
 
-  // Determinar la opción seleccionada actualmente
   const selectedId = userData[idPregunta];
   const selectedIndex = opciones.findIndex(
     (opcion) => opcion.idalternativa === selectedId
   );
 
-  // Ordenar las opciones antes de usarlas
-  const opcionesOrdenadas = [...opciones].sort((a, b) => a.idalternativa - b.idalternativa);
+  const opcionesOrdenadas = [...opciones].sort(
+    (a, b) => a.idalternativa - b.idalternativa
+  );
 
   return (
     <div className="w-full">
-      {/* Control deslizante */}
       <input
         type="range"
         min="0"
@@ -46,15 +56,15 @@ const PreguntaRange = ({ idPregunta, opciones, userData, setUserData }) => {
         className="w-full h-3 sm:h-4 bg-gray-200 rounded-lg appearance-none cursor-pointer transition-transform duration-200 ease-in-out"
       />
 
-      {/* Mostrar opción seleccionada solo en pantallas pequeñas */}
       <div className="block sm:hidden mt-2 text-center text-sm text-gray-600">
         {opcionesOrdenadas[selectedIndex]?.textoalternativa}
       </div>
 
-      {/* Mostrar todas las opciones en pantallas medianas o más grandes */}
       <div
         className="hidden sm:grid sm:grid-cols-5 gap-2 mt-2 sm:mt-4 text-xs sm:text-sm text-gray-600 w-full px-2"
-        style={{ gridTemplateColumns: `repeat(${opcionesOrdenadas.length}, 1fr)` }}
+        style={{
+          gridTemplateColumns: `repeat(${opcionesOrdenadas.length}, 1fr)`,
+        }}
       >
         {opcionesOrdenadas.map((opcion) => (
           <span

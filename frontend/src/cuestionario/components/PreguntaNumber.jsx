@@ -4,11 +4,12 @@ const PreguntaNumber = ({
   idPregunta,
   userData,
   setUserData,
-  min,
-  max,
   numberError,
   setNumberError,
 }) => {
+  const min = 1; // Valor mínimo permitido
+  const max = 65; // Valor máximo permitido
+
   const handleNumberChange = (e) => {
     const value = e.target.value === "" ? "" : parseInt(e.target.value, 10); // Convertir a número o mantener vacío
 
@@ -58,8 +59,6 @@ PreguntaNumber.propTypes = {
   idPregunta: PropTypes.number.isRequired,
   userData: PropTypes.object.isRequired,
   setUserData: PropTypes.func.isRequired,
-  min: PropTypes.number.isRequired,
-  max: PropTypes.number.isRequired,
   numberError: PropTypes.string,
   setNumberError: PropTypes.func.isRequired,
 };
