@@ -11,7 +11,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["NUD Std", "sans-serif"],
+        sans: ["Poppins", "sans-serif"],
+        logolike: ["Jua", "serif"], // Esta es la fuente específica
       },
       colors: {
         CadmiumOrange: "#eb8933",

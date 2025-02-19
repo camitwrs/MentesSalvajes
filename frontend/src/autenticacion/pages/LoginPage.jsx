@@ -1,6 +1,8 @@
 import { useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "../../../../global/schemas/autenticacion.schema";
+import { useAuth } from "../context/AuthContext";
 import logo from "../../shared/assets/logo.svg";
 import { EnvelopeIcon, LockClosedIcon } from "@heroicons/react/24/outline";
 
@@ -13,14 +15,15 @@ const LoginPage = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = (data) => {
-    console.log("Datos enviados:", data);
-    // enviar los datos a la api
-  };
+  const { logearse, errors: loginErrors } = useAuth();
+
+  const onSubmit = handleSubmit((data) => {
+    logearse(data);
+  });
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="bg-white p-8 w-full max-w-md">
         <div className="text-center mb-6">
           <img
             src={logo}
@@ -28,9 +31,19 @@ const LoginPage = () => {
             className="mx-auto w-14 h-14 p-2 mb-2 my-3 bg-YankeesBlue rounded-full"
           />
           <h1 className="text-2xl font-bold mt-3 text-gray-800">
-            Iniciar sesión
+            Inicia sesión
           </h1>
         </div>
+        {Array.isArray(loginErrors) &&
+          loginErrors.length > 0 &&
+          loginErrors.map((error, i) => (
+            <div
+              className="text-center font-bold text-orange-500 text-sm p-2"
+              key={i}
+            >
+              {error}
+            </div>
+          ))}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label
@@ -45,7 +58,7 @@ const LoginPage = () => {
                 id="correousuario"
                 placeholder="Ingresa tu correo"
                 {...register("correousuario")}
-                className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm h-12 pl-10 ${
+                className={`input-field ${
                   errors.correousuario ? "border-red-500" : ""
                 }`}
               />
@@ -73,7 +86,7 @@ const LoginPage = () => {
                 placeholder="Ingresa tu contraseña"
                 id="contrasenausuario"
                 {...register("contrasenausuario")}
-                className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm h-12 pl-10 ${
+                className={`input-field ${
                   errors.contrasenausuario ? "border-red-500" : ""
                 }`}
               />
@@ -99,12 +112,12 @@ const LoginPage = () => {
         <div className="text-center mt-4">
           <p className="text-sm text-gray-600">
             ¿Eres nuevo?{" "}
-            <a
-              href="/register"
+            <Link
+              to="/register"
               className="text-Moonstone hover:text-cyan-700 font-medium"
             >
               Crear una cuenta
-            </a>
+            </Link>
           </p>
         </div>
       </div>
