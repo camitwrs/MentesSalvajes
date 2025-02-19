@@ -41,7 +41,7 @@ const RegisterPage = () => {
 
   useEffect(() => {
     if (estaAutenticado) navigate("/dashboard");
-  }, [estaAutenticado]);
+  }, [estaAutenticado, navigate]);
 
   const [paises, setPaises] = useState([]);
   const [instituciones, setInstituciones] = useState([]);
