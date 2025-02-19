@@ -10,7 +10,9 @@ export const useCuestionario = (idCuestionario) => {
   useEffect(() => {
     const cargarDatos = async () => {
       try {
-        const { preguntas, alternativas } = await cargarDatosCuestionario(idCuestionario);
+        const { preguntas, alternativas } = await cargarDatosCuestionario(
+          idCuestionario
+        );
         setPreguntas(preguntas);
         setAlternativas(alternativas);
         setIsLoading(false);
@@ -22,5 +24,5 @@ export const useCuestionario = (idCuestionario) => {
     cargarDatos();
   }, [idCuestionario]);
 
-  return { preguntas, alternativas, isLoading, loadError};
+  return { preguntas, alternativas, isLoading, loadError };
 };

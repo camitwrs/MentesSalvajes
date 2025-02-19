@@ -1,35 +1,8 @@
 import pool from "../pg.js";
 
-// Validación auxiliar para entradas
-const validateInteger = (value) => Number.isInteger(parseInt(value, 10));
-
 // Registrar una respuesta
 export const registrarRespuesta = async (req, res) => {
   const { idusuario, idpregunta, idalternativa, idcuestionario } = req.body;
-
-  if (!validateInteger(idusuario)) {
-    return res
-      .status(400)
-      .json({ error: "El idusuario debe ser un número válido." });
-  }
-
-  if (!validateInteger(idpregunta)) {
-    return res
-      .status(400)
-      .json({ error: "El idpregunta debe ser un número válido." });
-  }
-
-  if (!validateInteger(idalternativa)) {
-    return res
-      .status(400)
-      .json({ error: "El idalternativa debe ser un número válido." });
-  }
-
-  if (!validateInteger(idcuestionario)) {
-    return res
-      .status(400)
-      .json({ error: "El idcuestionario debe ser un número válido." });
-  }
 
   try {
     await pool.query(
@@ -47,12 +20,6 @@ export const registrarRespuesta = async (req, res) => {
 export const getRespuestasPorUsuario = async (req, res) => {
   const { idusuario } = req.params;
 
-  if (!validateInteger(idusuario)) {
-    return res
-      .status(400)
-      .json({ error: "El idusuario debe ser un número válido." });
-  }
-
   try {
     const result = await pool.query(
       `SELECT * FROM public.respuestas WHERE idusuario = $1`,
@@ -68,12 +35,6 @@ export const getRespuestasPorUsuario = async (req, res) => {
 // Obtener respuestas por cuestionario
 export const getRespuestasPorCuestionario = async (req, res) => {
   const { idcuestionario } = req.params;
-
-  if (!validateInteger(idcuestionario)) {
-    return res
-      .status(400)
-      .json({ error: "El idcuestionario debe ser un número válido." });
-  }
 
   try {
     const result = await pool.query(

@@ -9,6 +9,6 @@ const router = Router();
 
 router.get("/cuestionario/:idcuestionario", getPreguntasPorCuestionario);
 router.post("/", crearPregunta);
-router.get("/tipo", getPreguntasPorTipo);
+router.get("/tipo/:tipopregunta", getPreguntasPorTipo);
 
 export default router;

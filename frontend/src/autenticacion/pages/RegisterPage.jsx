@@ -1,7 +1,14 @@
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "../../../../global/schemas/autenticacion.schema";
+import { useAuth } from "../context/AuthContext";
+import {
+  getAlternativasPorPreguntaRequest,
+  getUniversidadesPorPaisRequest,
+} from "../../api/alternativas";
 import logo from "../../shared/assets/logo.svg";
+import { useNavigate, Link } from "react-router-dom";
 import {
   UserIcon,
   EnvelopeIcon,
@@ -22,29 +29,88 @@ const RegisterPage = () => {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(registerSchema),
+    defaultValues: {
+      paiseducador: "", // Valor predeterminado para el campo país
+      institucioneducador: "", // Valor predeterminado para el campo institución
+      sexoeducador: "", // Valor predeterminado para el campo sexo
+    },
   });
 
-  const onSubmit = (data) => {
-    console.log("Datos enviados:", data);
-    // enviar los datos a la api
+  const { registrarse, estaAutenticado, errors: registerErrors } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (estaAutenticado) navigate("/dashboard");
+  }, [estaAutenticado]);
+
+  const [paises, setPaises] = useState([]);
+  const [instituciones, setInstituciones] = useState([]);
+  const [selectedPais, setSelectedPais] = useState("");
+
+  // Cargar los países una sola vez al montar el componente
+  useEffect(() => {
+    const cargarPaises = async () => {
+      try {
+        const paisesResponse = await getAlternativasPorPreguntaRequest(5);
+        setPaises(paisesResponse.data);
+      } catch (error) {
+        console.error("Error al cargar los países:", error);
+      }
+    };
+
+    cargarPaises();
+  }, []);
+
+  // Cargar instituciones solo cuando cambia `selectedPais`
+  useEffect(() => {
+    if (!selectedPais) {
+      setInstituciones([]); // Limpiar instituciones si no hay país seleccionado
+      return;
+    }
+
+    const cargarInstituciones = async () => {
+      try {
+        const institucionesResponse = await getUniversidadesPorPaisRequest(
+          selectedPais
+        );
+        const institucionesNombres = institucionesResponse.data.map(
+          (uni) => uni.name
+        );
+        setInstituciones(institucionesNombres);
+      } catch (error) {
+        console.error("Error al cargar las instituciones:", error);
+      }
+    };
+
+    cargarInstituciones();
+  }, [selectedPais]); // Se ejecuta solo cuando `selectedPais` cambia
+
+  // Enviar los datos del registro al backend
+  const onSubmit = async (data) => {
+    registrarse(data);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-lg sm:max-w-2xl">
-        <div className="text-center mb-4">
+    <div className="min-h-screen flex items-center justify-center  px-6">
+      <div className="bg-white px-8 py-6 w-full max-w-3xl">
+        <div className="text-center mb-6">
           <img
             src={logo}
             alt="Mentes Salvajes"
-            className="mx-auto w-12 h-12 p-2 mb-2 bg-YankeesBlue rounded-full"
+            className="mx-auto w-14 h-14 p-2 mb-3 bg-YankeesBlue rounded-full"
           />
-          <h1 className="text-xl sm:text-2xl font-bold mt-3 text-gray-800">
-            Regístrate
-          </h1>
+          <h1 className="text-2xl font-semibold text-gray-800">Regístrate</h1>
         </div>
+        {Array.isArray(registerErrors) &&
+          registerErrors.length > 0 &&
+          registerErrors.map((error, i) => (
+            <div className="text-center text-orange-500 text-sm p-2" key={i}>
+              {error}
+            </div>
+          ))}
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6"
+          className="grid grid-cols-1 gap-5 sm:grid-cols-2"
         >
           {/* Columna Izquierda */}
           <div className="space-y-4">
@@ -61,8 +127,8 @@ const RegisterPage = () => {
                   placeholder="¿Cuál es tu nombre?"
                   id="nombreusuario"
                   {...register("nombreusuario")}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm text-sm pl-10 h-10 sm:h-12 focus:outline-none focus:ring-orange-500 focus:border-orange-500 ${
-                    errors.nombreusuario ? "border-red-500" : ""
+                  className={`input-field ${
+                    errors.nombreusuario ? "border-orange-500" : ""
                   }`}
                 />
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -70,7 +136,7 @@ const RegisterPage = () => {
                 </span>
               </div>
               {errors.nombreusuario && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-orange-500 text-xs mt-1">
                   {errors.nombreusuario.message}
                 </p>
               )}
@@ -89,8 +155,8 @@ const RegisterPage = () => {
                   id="apellidousuario"
                   placeholder="¿Cuál es tu apellido?"
                   {...register("apellidousuario")}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm h-12 pl-10 ${
-                    errors.apellidousuario ? "border-red-500" : ""
+                  className={`input-field ${
+                    errors.apellidousuario ? "border-orange-500" : ""
                   }`}
                 />
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -98,7 +164,7 @@ const RegisterPage = () => {
                 </span>
               </div>
               {errors.apellidousuario && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-orange-500 text-xs mt-1">
                   {errors.apellidousuario.message}
                 </p>
               )}
@@ -117,8 +183,8 @@ const RegisterPage = () => {
                   placeholder="Ingresa tu correo"
                   id="correousuario"
                   {...register("correousuario")}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm h-12 pl-10 ${
-                    errors.correousuario ? "border-red-500" : ""
+                  className={`input-field ${
+                    errors.correousuario ? "border-orange-500" : ""
                   }`}
                 />
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -126,7 +192,7 @@ const RegisterPage = () => {
                 </span>
               </div>
               {errors.correousuario && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-orange-500 text-xs mt-1">
                   {errors.correousuario.message}
                 </p>
               )}
@@ -145,8 +211,8 @@ const RegisterPage = () => {
                   placeholder="Ingresa tu contraseña"
                   id="contrasenausuario"
                   {...register("contrasenausuario")}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm h-12 pl-10 ${
-                    errors.contrasenausuario ? "border-red-500" : ""
+                  className={`input-field ${
+                    errors.contrasenausuario ? "border-orange-500" : ""
                   }`}
                 />
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -154,21 +220,18 @@ const RegisterPage = () => {
                 </span>
               </div>
               {errors.contrasenausuario && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-orange-500 text-xs mt-1">
                   {errors.contrasenausuario.message}
                 </p>
               )}
             </div>
-          </div>
 
-          {/* Columna Derecha */}
-          <div className="space-y-4">
             <div>
               <label
                 htmlFor="tituloprofesionaleducador"
                 className="block text-sm font-medium text-gray-700"
               >
-                Estudios
+                Profesión
               </label>
               <div className="relative">
                 <input
@@ -176,8 +239,8 @@ const RegisterPage = () => {
                   placeholder="¿Cuál es tu ocupación?"
                   id="tituloprofesionaleducador"
                   {...register("tituloprofesionaleducador")}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm h-12 pl-10 ${
-                    errors.tituloprofesionaleducador ? "border-red-500" : ""
+                  className={`input-field ${
+                    errors.tituloprofesionaleducador ? "border-orange-500" : ""
                   }`}
                 />
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -185,12 +248,15 @@ const RegisterPage = () => {
                 </span>
               </div>
               {errors.tituloprofesionaleducador && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-orange-500 text-xs mt-1">
                   {errors.tituloprofesionaleducador.message}
                 </p>
               )}
             </div>
+          </div>
 
+          {/* Columna Derecha */}
+          <div className="space-y-4">
             <div>
               <label
                 htmlFor="intereseseducador"
@@ -203,16 +269,20 @@ const RegisterPage = () => {
                   id="intereseseducador"
                   placeholder="¿Qué hobbies tienes? ¿Qué temas te apasionan?"
                   {...register("intereseseducador")}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm h-28 pl-10 pr-3 pt-2 resize-none ${
-                    errors.intereseseducador ? "border-red-500" : ""
+                  className={`input-field pt-1 ${
+                    errors.intereseseducador ? "border-orange-500" : ""
                   }`}
+                  onInput={(e) => {
+                    e.target.style.height = "auto"; // Restablece el tamaño
+                    e.target.style.height = `${e.target.scrollHeight}px`; // Ajusta al contenido
+                  }}
                 ></textarea>
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                   <PuzzlePieceIcon className="h-5 w-5 text-gray-400" />
                 </span>
               </div>
               {errors.intereseseducador && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-orange-500 text-xs mt-1">
                   {errors.intereseseducador.message}
                 </p>
               )}
@@ -232,18 +302,26 @@ const RegisterPage = () => {
                 <select
                   id="paiseducador"
                   {...register("paiseducador")}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm pl-10 pr-3 h-10 ${
-                    errors.paiseducador ? "border-red-500" : ""
+                  onChange={(e) => setSelectedPais(e.target.value)} // Cambiar país seleccionado
+                  className={`input-field ${
+                    errors.paiseducador ? "border-orange-500" : ""
                   }`}
                 >
                   <option value="" disabled>
                     Selecciona tu país
                   </option>
-                  <option value="Chile">Chile</option>
+                  {paises.map((pais) => (
+                    <option
+                      key={pais.idalternativa}
+                      value={pais.textoalternativa}
+                    >
+                      {pais.textoalternativa}
+                    </option>
+                  ))}
                 </select>
               </div>
               {errors.paiseducador && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-orange-500 text-xs mt-1">
                   {errors.paiseducador.message}
                 </p>
               )}
@@ -263,9 +341,9 @@ const RegisterPage = () => {
                 <input
                   type="number"
                   id="edadeducador"
-                  {...register("edadeducador")}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm pl-10 pr-3 h-10 ${
-                    errors.edadeducador ? "border-red-500" : ""
+                  {...register("edadeducador", { valueAsNumber: true })}
+                  className={`input-field ${
+                    errors.edadeducador ? "border-orange-500" : ""
                   }`}
                   placeholder="Ingresa tu edad"
                   min="18"
@@ -273,7 +351,7 @@ const RegisterPage = () => {
                 />
               </div>
               {errors.edadeducador && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-orange-500 text-xs mt-1">
                   {errors.edadeducador.message}
                 </p>
               )}
@@ -293,18 +371,22 @@ const RegisterPage = () => {
                 <select
                   id="institucioneducador"
                   {...register("institucioneducador")}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm pl-10 pr-3 h-10 ${
-                    errors.institucioneducador ? "border-red-500" : ""
+                  className={`input-field ${
+                    errors.institucioneducador ? "border-orange-500" : ""
                   }`}
                 >
                   <option value="" disabled>
-                    Selecciona dónde te desempeñas
+                    Selecciona tu institución
                   </option>
-                  <option value="PUCV">PUCV</option>
+                  {instituciones.map((institucion, index) => (
+                    <option key={index} value={institucion}>
+                      {institucion}
+                    </option>
+                  ))}
                 </select>
               </div>
               {errors.institucioneducador && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-orange-500 text-xs mt-1">
                   {errors.institucioneducador.message}
                 </p>
               )}
@@ -324,8 +406,8 @@ const RegisterPage = () => {
                 <select
                   id="sexoeducador"
                   {...register("sexoeducador")}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm pl-10 pr-3 h-10 ${
-                    errors.sexoeducador ? "border-red-500" : ""
+                  className={`input-field ${
+                    errors.sexoeducador ? "border-orange-500" : ""
                   }`}
                 >
                   <option value="" disabled>
@@ -337,7 +419,7 @@ const RegisterPage = () => {
                 </select>
               </div>
               {errors.sexoeducador && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-orange-500 text-xs mt-1">
                   {errors.sexoeducador.message}
                 </p>
               )}
@@ -357,9 +439,11 @@ const RegisterPage = () => {
                 <input
                   type="number"
                   id="anosexperienciaeducador"
-                  {...register("anosexperienciaeducador")}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 shadow-sm focus:outline-none focus:border-orange-500 text-sm pl-10 pr-3 h-10 ${
-                    errors.anosexperienciaeducador ? "border-red-500" : ""
+                  {...register("anosexperienciaeducador", {
+                    valueAsNumber: true,
+                  })}
+                  className={`input-field ${
+                    errors.anosexperienciaeducador ? "border-orange-500" : ""
                   }`}
                   placeholder="Ingresa tus años de experiencia"
                   min="0"
@@ -369,7 +453,7 @@ const RegisterPage = () => {
                 />
               </div>
               {errors.anosexperienciaeducador && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-orange-500 text-xs mt-1">
                   {errors.anosexperienciaeducador.message}
                 </p>
               )}
@@ -386,6 +470,18 @@ const RegisterPage = () => {
             </button>
           </div>
         </form>
+
+        <div className="text-center mt-4">
+          <p className="text-sm text-gray-600">
+            ¿Ya tienes una cuenta?{" "}
+            <Link
+              to="/login"
+              className="text-Moonstone hover:text-cyan-700 font-medium"
+            >
+              Iniciar sesión
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
