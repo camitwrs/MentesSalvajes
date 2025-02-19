@@ -9,6 +9,9 @@ const PreguntaSelect = ({ idPregunta, opciones, userData, setUserData }) => {
     }));
   };
 
+  // Ordenar las opciones por idalternativa de menor a mayor
+  const opcionesOrdenadas = opciones.sort((a, b) => a.idalternativa - b.idalternativa);
+
   return (
     <div className="w-full">
       <select
@@ -19,7 +22,7 @@ const PreguntaSelect = ({ idPregunta, opciones, userData, setUserData }) => {
         <option value="" disabled hidden>
           Seleccione una opción
         </option>
-        {opciones.map((opcion) => (
+        {opcionesOrdenadas.map((opcion) => (
           <option key={opcion.idalternativa} value={opcion.idalternativa}>
             {opcion.textoalternativa}
           </option>

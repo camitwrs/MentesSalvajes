@@ -14,6 +14,7 @@ import {
   handleNextSeccion,
   handlePrevSeccion,
 } from "../utils/navegacionCuestionario";
+import SeccionesCuestionario from "../components/SeccionesCuestionario";
 
 const CuestionarioPage = () => {
   const {
@@ -26,24 +27,19 @@ const CuestionarioPage = () => {
 
   const [aceptaTerminos, setAceptaTerminos] = useState(false);
   const [isQuizStarted, setIsQuizStarted] = useState(false);
+  const [seccionActual, setSeccionActual] = useState("a");
+  const nombresSecciones = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"];
 
-  // Estados para mensajes de error
+  // Estados de error
   const [startQuizError, setStartQuizError] = useState("");
   const [checkboxError, setCheckboxError] = useState("");
   const [numberError, setNumberError] = useState("");
 
-  // Manejar el envío del cuestionario
   const { isSubmitting, submitSuccess, submitError, handleSendQuiz } =
     useManejoEnvio(submitData);
 
-  // Valores constantes para el rango de edades
-  const MIN_NUMBER = 1;
-  const MAX_NUMBER = 80;
-
-  // Cargar preguntas y alternativas desde el backend
   const { preguntas, alternativas, isLoading, loadError } = useCuestionario(1);
 
-  // Este efecto se activa cada vez que cambia la pregunta actual
   useInicializarAlternativas(
     preguntas,
     currentQuestionIndex,
@@ -58,9 +54,7 @@ const CuestionarioPage = () => {
       setCurrentQuestionIndex(0);
       setStartQuizError("");
     } else {
-      setStartQuizError(
-        "Debes aceptar los términos y condiciones para continuar."
-      );
+      setStartQuizError("Debes aceptar los términos y condiciones para continuar.");
     }
   };
 
@@ -69,41 +63,56 @@ const CuestionarioPage = () => {
       preguntas,
       currentQuestionIndex,
       userData,
-      MIN_NUMBER,
-      MAX_NUMBER,
+      1, // Mínimo
+      80, // Máximo
       setNumberError
     );
-  }, [preguntas, currentQuestionIndex, userData, MIN_NUMBER, MAX_NUMBER]);
+  }, [preguntas, currentQuestionIndex, userData]);
 
-  // Limpiar mensajes de error al cambiar de pregunta y validar el input actual
   useEffect(() => {
     setCheckboxError("");
     setNumberError("");
     setStartQuizError("");
-
-    // Validar el input actual después de limpiar los errores
     validateCurrentInputWrapper();
   }, [currentQuestionIndex, preguntas, validateCurrentInputWrapper]);
 
-  // Determinar si hay un error en la pregunta actual
-  const hasError = !!checkboxError || !!numberError || !!submitError;
+  // Verificar si todas las preguntas visibles de la sección actual están respondidas
+  const isSeccionCompleta = () => {
+    const secciones = SeccionesCuestionario();
+    const preguntasVisibles = preguntas.filter((pregunta) => {
+      const perteneceASeccion = secciones[seccionActual]?.includes(pregunta.idpregunta);
 
-  const [seccionActual, setSeccionActual] = useState("a");
-  const nombresSecciones = [
-    "a",
-    "b",
-    "c",
-    "d",
-    "e",
-    "f",
-    "g",
-    "h",
-    "i",
-    "j",
-  ];
+      // Aplicar condiciones de preguntas dependientes
+      if (pregunta.idpregunta === 21) return userData[20] === 66 && perteneceASeccion;
+      if (pregunta.idpregunta >= 57) return userData[56] === 153 && perteneceASeccion;
+
+      return perteneceASeccion;
+    });
+
+    // Filtrar preguntas que no son de tipo "enunciado"
+    const preguntasRequeridas = preguntasVisibles.filter(
+      (pregunta) => pregunta.tipopregunta !== "enunciado"
+    );
+
+    // Verificar si todas las preguntas requeridas están respondidas y son válidas
+    const todasRespondidas = preguntasRequeridas.every((pregunta) => {
+      if (pregunta.tipopregunta === "number") {
+        const value = userData[pregunta.idpregunta];
+        return (
+          value !== undefined &&
+          !isNaN(value) &&
+          value >= 1 &&
+          value <= 65
+        );
+      }
+      return userData[pregunta.idpregunta] !== undefined;
+    });
+
+    return todasRespondidas;
+  };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-200">
+    <div className="flex flex-col min-h-screen bg-gray-100">
       <Header />
       <div className="flex-grow flex flex-col items-center justify-center p-8">
         <Carga isLoading={isLoading} loadError={loadError} />
@@ -118,15 +127,13 @@ const CuestionarioPage = () => {
                 setStartQuizError={setStartQuizError}
               />
             ) : (
-              <div className="justify-center bg-white rounded-3xl p-4 sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-3xl 2xl:max-w-4xl">
+              <div className="bg-white rounded-3xl p-4 sm:max-w-lg md:max-w-xl lg:max-w-2xl">
                 {submitSuccess ? (
-                  <div className="text-center transition-opacity duration-300 ease-in-out">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-green-600 mb-4">
+                  <div className="text-center">
+                    <h2 className="text-2xl font-bold text-green-600 mb-4">
                       ¡Gracias por completar el cuestionario!
                     </h2>
-                    <p className="text-gray-700 text-sm sm:text-base">
-                      Hemos recibido tus respuestas correctamente.
-                    </p>
+                    <p className="text-gray-700">Hemos recibido tus respuestas.</p>
                   </div>
                 ) : (
                   <>
@@ -145,35 +152,20 @@ const CuestionarioPage = () => {
 
                     <div className="flex">
                       <BotonesNavegacion
-                        currentQuestionIndex={nombresSecciones.indexOf(
-                          seccionActual
-                        )}
+                        currentQuestionIndex={nombresSecciones.indexOf(seccionActual)}
                         totalQuestions={nombresSecciones.length}
-                        handleNext={() =>
-                          handleNextSeccion(
-                            seccionActual,
-                            setSeccionActual,
-                            nombresSecciones
-                          )
-                        }
-                        handlePrev={() =>
-                          handlePrevSeccion(
-                            seccionActual,
-                            setSeccionActual,
-                            nombresSecciones
-                          )
-                        }
-                        handleSendQuiz={() => {
-                          if (!hasError) {
-                            handleSendQuiz();
+                        handleNext={() => {
+                          if (isSeccionCompleta()) {
+                            handleNextSeccion(seccionActual, setSeccionActual, nombresSecciones);
                           }
                         }}
-                        hasError={hasError}
-                        isSubmitting={isSubmitting}
-                        isLastQuestion={
-                          seccionActual ===
-                          nombresSecciones[nombresSecciones.length - 1]
+                        handlePrev={() =>
+                          handlePrevSeccion(seccionActual, setSeccionActual, nombresSecciones)
                         }
+                        handleSendQuiz={handleSendQuiz}
+                        hasError={!isSeccionCompleta()}
+                        isSubmitting={isSubmitting}
+                        isLastQuestion={seccionActual === nombresSecciones[nombresSecciones.length - 1]}
                       />
                     </div>
                   </>
