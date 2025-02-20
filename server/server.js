@@ -14,6 +14,7 @@ const app = express();
 app.use(
   cors({
     origin: "http://localhost:5173",
+    credentials: true,
   })
 ); // Permite solicitudes desde diferentes dominios
 app.use(morgan("dev")); // Registro de solicitudes en la consola
