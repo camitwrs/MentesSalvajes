@@ -1,5 +1,6 @@
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "../../../../global/schemas/autenticacion.schema";
 import { useAuth } from "../context/AuthContext";
@@ -15,7 +16,12 @@ const LoginPage = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  const { logearse, errors: loginErrors } = useAuth();
+  const { logearse, estaAutenticado, errors: loginErrors } = useAuth();
+
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (estaAutenticado) navigate("/dashboard-educator");
+  }, [estaAutenticado, navigate]);
 
   const onSubmit = handleSubmit((data) => {
     logearse(data);

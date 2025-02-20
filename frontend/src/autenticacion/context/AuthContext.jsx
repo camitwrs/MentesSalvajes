@@ -2,7 +2,9 @@ import { createContext, useState, useContext, useEffect } from "react";
 import {
   loginUsuarioRequest,
   registrarEducadorRequest,
+  verificarTokenRequest,
 } from "../../api/autenticacion";
+import Cookie from "js-cookie";
 
 export const AuthContext = createContext();
 
@@ -18,6 +20,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [estaAutenticado, setEstaAutenticado] = useState(false);
   const [errors, setErrors] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const registrarse = async (user) => {
     try {
@@ -41,6 +44,8 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await loginUsuarioRequest(user);
       console.log(res);
+      setEstaAutenticado(true);
+      setUser(res.data);
     } catch (error) {
       if (error.response) {
         if (Array.isArray(error.response.data))
@@ -62,6 +67,36 @@ export const AuthProvider = ({ children }) => {
     }
   }, [errors]);
 
+  useEffect(() => {
+    async function checkLogin() {
+      const cookies = Cookie.get();
+
+      if (!cookies.token) {
+        setEstaAutenticado(false);
+        setLoading(false);
+        return setUser(null);
+      }
+
+      try {
+        const res = await verificarTokenRequest(cookies.token);
+        if (!res.data) {
+          setEstaAutenticado(false);
+          setLoading(false);
+          return;
+        }
+        setEstaAutenticado(true);
+        setUser(res.data);
+        setLoading(false);
+      } catch (error) {
+        console.log(error);
+        setEstaAutenticado(false);
+        setUser(null);
+        setLoading(false);
+      }
+    }
+    checkLogin();
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -70,6 +105,7 @@ export const AuthProvider = ({ children }) => {
         user,
         estaAutenticado,
         errors,
+        loading,
       }}
     >
       {children}
