@@ -8,7 +8,9 @@ import LoginPage from "./autenticacion/pages/LoginPage";
 import RegisterPage from "./autenticacion/pages/RegisterPage";
 import IlustradorPage from "./ilustraciones/pages/IlustradorPage";
 import EducadorPage from "./cuestionario/pages/EducadorPage";
+import AdminPage from "./administracion/pages/AdminPage";
 import { AuthProvider } from "./autenticacion/context/AuthContext";
+import ProtectedRoutes from "./ProtectedRoutes";
 
 function App() {
   return (
@@ -24,10 +26,14 @@ function App() {
               </FormContext>
             }
           />
-          <Route path="/dashboard" element={<EducadorPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/illustrator" element={<IlustradorPage />} />
+
+          <Route element={<ProtectedRoutes />}>
+            <Route path="/dashboard-educator" element={<EducadorPage />} />
+            <Route path="/dashboard-artist" element={<IlustradorPage />} />
+            <Route path="/dashboard-admin" element={<AdminPage />} />
+          </Route>
         </Routes>
       </Router>
     </AuthProvider>
