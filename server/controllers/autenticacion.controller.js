@@ -1,5 +1,6 @@
 import pool from "../pg.js"; // Asegúrate de que `pg` exporte su contenido usando `export default`
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 import { crearTokenAcceso } from "../libs/jwt.js";
 
@@ -172,4 +173,30 @@ export const perfilUsuario = async (req, res) => {
     console.error("Error al obtener el perfil del usuario:", error);
     return res.status(500).json(["Error interno del servidor"]);
   }
+};
+
+export const verificarToken = async (req, res) => {
+  const { token } = req.cookies;
+
+  if (!token)
+    return res.status(401).json({ message: "No autorizado, no hay token" });
+
+  jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
+    if (err)
+      return res.status(401).json({ message: "No autorizado, hay error" });
+
+    const usuarioResult = await pool.query(
+      "SELECT * FROM usuarios WHERE idusuario = $1",
+      [user.idusuario]
+    );
+
+    if (usuarioResult.rows.length === 0) {
+      return res.status(401).json({ message: "No autorizado, no hay usuario" });
+    }
+
+    return res.json({
+      id: usuarioResult.rows[0].idusuario,
+      correousuario: usuarioResult.rows[0].correousuario,
+    });
+  });
 };

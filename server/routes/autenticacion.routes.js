@@ -4,6 +4,7 @@ import {
   loginUsuario,
   logoutUsuario,
   perfilUsuario,
+  verificarToken,
 } from "../controllers/autenticacion.controller.js";
 import { autenticacionRequerida } from "../middlewares/validarToken.js";
 import { validarSchema } from "./../middlewares/validarSchema.js";
@@ -19,6 +20,8 @@ router.post("/registro", validarSchema(registerSchema), registrarEducador);
 router.post("/entrar", validarSchema(loginSchema), loginUsuario);
 
 router.post("/salir", logoutUsuario);
+
+router.get("/verifytoken", verificarToken);
 
 router.get("/perfil", autenticacionRequerida, perfilUsuario);
 
