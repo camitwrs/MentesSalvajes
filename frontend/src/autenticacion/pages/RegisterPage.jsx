@@ -8,7 +8,7 @@ import {
   getUniversidadesPorPaisRequest,
 } from "../../api/alternativas";
 import logo from "../../shared/assets/logo.svg";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   UserIcon,
   EnvelopeIcon,
@@ -36,12 +36,7 @@ const RegisterPage = () => {
     },
   });
 
-  const { registrarse, estaAutenticado, errors: registerErrors } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (estaAutenticado) navigate("/dashboard");
-  }, [estaAutenticado, navigate]);
+  const { registrarse, errors: registerErrors } = useAuth();
 
   const [paises, setPaises] = useState([]);
   const [instituciones, setInstituciones] = useState([]);

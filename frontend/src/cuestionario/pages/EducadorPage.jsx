@@ -1,7 +1,7 @@
 const EducadorPage = () => {
   return (
     <div>
-      <h1>Estás en el dashboard del Educador</h1>
+      <h1 className="text-4xl">Estás en el dashboard del Educador</h1>
     </div>
   );
 };
