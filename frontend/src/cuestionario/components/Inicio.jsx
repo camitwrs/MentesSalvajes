@@ -1,4 +1,7 @@
 import PropTypes from "prop-types";
+import {
+  ClipboardDocumentListIcon,
+} from "@heroicons/react/24/outline";
 
 const Inicio = ({
   aceptaTerminos,
@@ -10,6 +13,7 @@ const Inicio = ({
   return (
     <div>
       <h3 className="font-bold text-xl text-right mb-6 text-gray-800">
+        <ClipboardDocumentListIcon className="h-5 w-5 inline-block mr-2"/>
         Términos y Condiciones
       </h3>
       <p className="text-gray-600 text-sm text-center mb-6">

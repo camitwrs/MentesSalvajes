@@ -6,6 +6,12 @@ import PreguntaCheckbox from "./PreguntaCheckbox";
 import PreguntaSelect from "./PreguntaSelect";
 import PreguntaRange from "./PreguntaRange";
 import PreguntaNumber from "./PreguntaNumber";
+import {
+  UserGroupIcon,
+  LinkIcon,
+  LightBulbIcon,
+  AcademicCapIcon,
+} from "@heroicons/react/24/outline";
 
 const RenderizarPreguntas = ({
   preguntas,
@@ -23,7 +29,9 @@ const RenderizarPreguntas = ({
   const secciones = SeccionesCuestionario();
   const preguntasFiltradas = preguntas.filter((pregunta) => {
     // Filtrar preguntas por sección
-    const perteneceASeccion = secciones[seccionActual]?.includes(pregunta.idpregunta);
+    const perteneceASeccion = secciones[seccionActual]?.includes(
+      pregunta.idpregunta
+    );
 
     // Verificar si la pregunta es condicional
     if (pregunta.idpregunta === 21) {
@@ -123,12 +131,27 @@ const RenderizarPreguntas = ({
     j: "Caracterización de Formadores de Emprendimiento",
   };
 
+  // Iconos por sección
+  const iconosSecciones = {
+    a: <UserGroupIcon className="h-5 w-5 inline-block mr-2" />,
+    b: <UserGroupIcon className="h-5 w-5 inline-block mr-2" />,
+    c: <LinkIcon className="h-5 w-5 inline-block mr-2" />,
+    d: <LinkIcon className="h-5 w-5 inline-block mr-2" />,
+    e: <LightBulbIcon className="h-5 w-5 inline-block mr-2" />,
+    f: <LightBulbIcon className="h-5 w-5 inline-block mr-2" />,
+    g: <LightBulbIcon className="h-5 w-5 inline-block mr-2" />,
+    h: <LightBulbIcon className="h-5 w-5 inline-block mr-2" />,
+    i: <LightBulbIcon className="h-5 w-5 inline-block mr-2" />,
+    j: <AcademicCapIcon className="h-5 w-5 inline-block mr-2" />,
+  };
+
   // Renderizar todas las preguntas de la sección actual
   return (
     <div className="space-y-6">
-      {/* Mostrar el título de la sección actual */}
+      {/* Mostrar el título de la sección actual con el icono */}
       <h2 className="font-bold text-right text-gray-800 mb-6">
-        {titulosSecciones[seccionActual]}
+        {iconosSecciones[seccionActual]} {/* Icono */}
+        {titulosSecciones[seccionActual]} {/* Título */}
       </h2>
 
       {preguntasFiltradas.map((pregunta) => {
@@ -151,7 +174,7 @@ const RenderizarPreguntas = ({
         const preguntaClass =
           pregunta.tipopregunta === "enunciado"
             ? ""
-            : "border border-gray-100 rounded-xl p-6";
+            : "border border-gray-300 rounded-xl p-6";
 
         return (
           <div key={pregunta.idpregunta} className={preguntaClass}>

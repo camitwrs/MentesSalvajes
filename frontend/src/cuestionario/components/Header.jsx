@@ -7,7 +7,7 @@ const Header = () => {
     <header className="absolute top-4 left-4">
       <Link
         to="/"
-        className="flex items-center bg-Moonstone text-white font-bold py-2 px-4 rounded-md hover:bg-cyan-700"
+        className="hidden md:flex items-center bg-Moonstone text-white font-bold py-2 px-4 rounded-md hover:bg-cyan-700"
       >
         <img src={logo} alt="Logo del Proyecto" className="h-8 w-auto mr-2" />
         <ArrowLeftIcon className="h-6 w-6" />
