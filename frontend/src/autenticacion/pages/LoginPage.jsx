@@ -16,12 +16,27 @@ const LoginPage = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  const { logearse, estaAutenticado, errors: loginErrors } = useAuth();
+  const { logearse, estaAutenticado, user, errors: loginErrors } = useAuth();
 
   const navigate = useNavigate();
   useEffect(() => {
-    if (estaAutenticado) navigate("/dashboard-educator");
-  }, [estaAutenticado, navigate]);
+    if (estaAutenticado) {
+      console.log("User after login:", user);
+      switch (user?.idrol) {
+        case 1:
+          navigate("/dashboard-educator");
+          break;
+        case 2:
+          navigate("/dashboard-admin");
+          break;
+        case 4:
+          navigate("/dashboard-artist");
+          break;
+        default:
+          navigate("/");
+      }
+    }
+  }, [estaAutenticado, navigate, user?.idrol]);
 
   const onSubmit = handleSubmit((data) => {
     logearse(data);
