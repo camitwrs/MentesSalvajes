@@ -14,6 +14,7 @@ import {
   handlePrevSeccion,
 } from "../utils/navegacionCuestionario";
 import SeccionesCuestionario from "../components/SeccionesCuestionario";
+import Final from "../components/Final";
 
 const CuestionarioPage = () => {
   const {
@@ -129,12 +130,8 @@ const CuestionarioPage = () => {
               ) : (
                 <>
                   {submitSuccess ? (
-                    <div className="text-center">
-                      <h2 className="text-2xl font-bold text-green-600 mb-4">
-                        ¡Gracias por completar el cuestionario!
-                      </h2>
-                      <p className="text-gray-700">Hemos recibido tus respuestas.</p>
-                    </div>
+                    <Final
+                    />
                   ) : (
                     <>
                       <RenderizarPreguntas
