@@ -29,10 +29,17 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          <Route element={<ProtectedRoutes />}>
+          {/* Protected routes with role-based access */}
+          <Route element={<ProtectedRoutes requiredRole={1} />}>
             <Route path="/dashboard-educator" element={<EducadorPage />} />
-            <Route path="/dashboard-artist" element={<IlustradorPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoutes requiredRole={2} />}>
             <Route path="/dashboard-admin" element={<AdminPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoutes requiredRole={4} />}>
+            <Route path="/dashboard-artist" element={<IlustradorPage />} />
           </Route>
         </Routes>
       </Router>

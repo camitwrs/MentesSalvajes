@@ -5,17 +5,21 @@ import {
   logoutUsuario,
   perfilUsuario,
   verificarToken,
+  registrarUsuario,
 } from "../controllers/autenticacion.controller.js";
 import { autenticacionRequerida } from "../middlewares/validarToken.js";
 import { validarSchema } from "./../middlewares/validarSchema.js";
 import {
-  registerSchema,
+  registerEducatorSchema,
+  registerUserSchema,
   loginSchema,
 } from "../../global/schemas/autenticacion.schema.js";
 
 const router = Router();
 
-router.post("/registro", validarSchema(registerSchema), registrarEducador);
+router.post("/registroeducador", validarSchema(registerEducatorSchema), registrarEducador);
+
+router.post("/registrousuario", validarSchema(registerUserSchema), registrarUsuario);
 
 router.post("/entrar", validarSchema(loginSchema), loginUsuario);
 

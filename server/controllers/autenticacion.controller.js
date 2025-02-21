@@ -47,7 +47,7 @@ export const registrarEducador = async (req, res) => {
         idrol
       ) 
       VALUES ($1, $2, $3, $4, $5)
-      RETURNING idusuario
+      RETURNING idusuario, nombreusuario, apellidousuario, correousuario, idrol
       `,
       [nombreusuario, apellidousuario, correousuario, hashedPassword, idrol]
     );
@@ -82,13 +82,80 @@ export const registrarEducador = async (req, res) => {
       ]
     );
 
+    const userSaved = usuarioResult.rows[0];
     const token = await crearTokenAcceso({ idusuario: idUsuarioResult });
 
     res.cookie("token", token);
-    res.status(201).json(["Usuario y educador creados exitosamente"]);
+
+    return res.json({
+      idusuario: idUsuarioResult,
+      nombreusuario: userSaved.nombreusuario,
+      apellidousuario: userSaved.apellidousuario,
+      correousuario: userSaved.correousuario,
+      idrol: userSaved.idrol,
+    });
   } catch (error) {
     console.error(error);
     res.status(400).json(["Error al registrar el usuario y educador."]);
+  }
+};
+
+// Registrar Admin o Ilustrador o Revisor
+export const registrarUsuario = async (req, res) => {
+  const {
+    nombreusuario,
+    apellidousuario,
+    correousuario,
+    contrasenausuario,
+    idrol,
+  } = req.body;
+
+  try {
+    // Verificar si el admin ya existe
+    const usuarioExistente = await pool.query(
+      "SELECT * FROM usuarios WHERE correousuario = $1",
+      [correousuario]
+    );
+    if (usuarioExistente.rows.length > 0) {
+      return res.status(400).json(["El usuario ya existe"]);
+    }
+
+    // Hashear la contraseña
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(contrasenausuario, salt);
+
+    // Insertar el admin en la tabla usuarios
+    const usuarioResult = await pool.query(
+      `
+      INSERT INTO usuarios (
+        nombreusuario, 
+        apellidousuario, 
+        correousuario, 
+        contrasenausuario,
+        idrol
+      ) 
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING idusuario, nombreusuario, apellidousuario, correousuario, idrol
+      `,
+      [nombreusuario, apellidousuario, correousuario, hashedPassword, idrol]
+    );
+
+    const userSaved = usuarioResult.rows[0];
+    console.log(userSaved);
+    const token = await crearTokenAcceso({ idusuario: userSaved.idusuario });
+
+    res.cookie("token", token);
+
+    return res.json({
+      idusuario: userSaved.idusuario,
+      nombreusuario: userSaved.nombreusuario,
+      apellidousuario: userSaved.apellidousuario,
+      correousuario: userSaved.correousuario,
+      idrol: userSaved.idrol,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json(["Error al registrar el usuario."]);
   }
 };
 
@@ -122,7 +189,15 @@ export const loginUsuario = async (req, res) => {
     });
 
     res.cookie("token", token);
-    res.status(200).json({ mensaje: "Inicio de sesión exitoso.", token });
+    //res.status(200).json({ mensaje: "Inicio de sesión exitoso.", token });
+
+    return res.json({
+      idusuario: usuarioEncontrado.idusuario,
+      nombreusuario: usuarioEncontrado.nombreusuario,
+      apellidousuario: usuarioEncontrado.apellidousuario,
+      correousuario: usuarioEncontrado.correousuario,
+      idrol: usuarioEncontrado.idrol,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json(["Error al iniciar sesión."]);
@@ -175,6 +250,7 @@ export const perfilUsuario = async (req, res) => {
   }
 };
 
+// Verificar token
 export const verificarToken = async (req, res) => {
   const { token } = req.cookies;
 
@@ -197,6 +273,7 @@ export const verificarToken = async (req, res) => {
     return res.json({
       id: usuarioResult.rows[0].idusuario,
       correousuario: usuarioResult.rows[0].correousuario,
+      idrol: usuarioResult.rows[0].idrol,
     });
   });
 };
