@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const registerSchema = z.object({
+export const registerEducatorSchema = z.object({
   nombreusuario: z
     .string()
     .nonempty("Por favor, ingresa tu nombre.")
@@ -70,4 +70,28 @@ export const loginSchema = z.object({
     .string()
     .nonempty("Por favor, ingresa tu contraseña.")
     .min(6, "La contraseña debe tener al menos 6 caracteres."),
+});
+
+export const registerUserSchema = z.object({
+  correousuario: z
+    .string()
+    .nonempty("Por favor, ingresa tu correo electrónico.")
+    .email("El correo electrónico no tiene un formato válido."),
+  contrasenausuario: z
+    .string()
+    .nonempty("Por favor, ingresa tu contraseña.")
+    .min(6, "La contraseña debe tener al menos 6 caracteres."),
+  nombreusuario: z
+    .string()
+    .nonempty("Por favor, ingresa tu nombre.")
+    .refine((val) => isNaN(Number(val)), {
+      message: "El nombre debe contener solo letras.",
+    }),
+  apellidousuario: z
+    .string()
+    .nonempty("Por favor, ingresa tu apellido.")
+    .refine((val) => isNaN(Number(val)), {
+      message: "El apellido debe contener solo letras.",
+    }),
+  idrol: z.number(),
 });

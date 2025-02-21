@@ -1,7 +1,10 @@
 import axios from "./axios-config";
 
 export const registrarEducadorRequest = (user) =>
-  axios.post(`autenticacion/registro`, user);
+  axios.post(`autenticacion/registroeducador`, user);
+
+export const registrarUsuarioRequest = (user) =>
+  axios.post(`autenticacion/registrousuario`, user);
 
 export const loginUsuarioRequest = (credenciales) =>
   axios.post(`/autenticacion/entrar`, credenciales);

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { registerSchema } from "../../../../global/schemas/autenticacion.schema";
+import { registerEducatorSchema } from "../../../../global/schemas/autenticacion.schema";
 import { useAuth } from "../context/AuthContext";
 import {
   getAlternativasPorPreguntaRequest,
@@ -28,7 +28,7 @@ const RegisterPage = () => {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(registerEducatorSchema),
     defaultValues: {
       paiseducador: "", // Valor predeterminado para el campo país
       institucioneducador: "", // Valor predeterminado para el campo institución
