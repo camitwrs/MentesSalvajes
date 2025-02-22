@@ -1,6 +1,5 @@
 import pool from "../pg.js";
 
-// Registrar una respuesta
 export const guardarRespuesta = async (req, res) => {
   const { idusuario, respuestas, idcuestionario } = req.body;
 
