@@ -1,10 +1,12 @@
+import imagen from "../assets/orca.svg"
+
 const Final = () => {
 
   return (
     <div>
       {/* Mensaje de agradecimiento */}
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-Moonstone mb-4">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-Moonstone mb-4">
           ¡Gracias por completar el cuestionario!
         </h2>
         <p className="text-gray-800">Hemos recibido tus respuestas.</p>
@@ -15,7 +17,7 @@ const Final = () => {
         {/* Texto a la izquierda */}
         <div className="w-full md:w-1/2 prose prose-gray max-w-none">
           <p className="text-gray-600 font-bold mb-2">
-            Hemos descubierto su perfil !
+           ¡Hemos descubierto su perfil!
           </p>
           <p className="text-gray-600 mb-4"> {/* Agregado mb-4 para margen inferior */}
             El profesor ___ A.1.1.____.
@@ -34,8 +36,9 @@ const Final = () => {
         </div>
 
         {/* Imagen a la derecha */}
-        <div className="w-full md:w-1/2">
+        <div className="w-full md:w-1/2 border border-gray-300 rounded-lg">
           <div className="relative h-[400px] w-full rounded-lg overflow-hidden">
+            <img src={imagen} alt="" />
           </div>
         </div>
       </div>

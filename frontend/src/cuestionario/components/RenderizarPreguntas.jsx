@@ -149,7 +149,7 @@ const RenderizarPreguntas = ({
   return (
     <div className="space-y-6">
       {/* Mostrar el título de la sección actual con el icono */}
-      <h2 className="font-bold text-right text-gray-800 mb-6">
+      <h2 className="font-bold text-xl text-right text-Moonstone mb-6">
         {iconosSecciones[seccionActual]} {/* Icono */}
         {titulosSecciones[seccionActual]} {/* Título */}
       </h2>
