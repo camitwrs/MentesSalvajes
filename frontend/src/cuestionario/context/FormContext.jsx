@@ -9,16 +9,22 @@ const FormProvider = ({ children }) => {
   const [userData, setUserData] = useState({});
   const [finalData, setFinalData] = useState([]);
   const [isQuizStarted, setIsQuizStarted] = useState(false); // Estado para iniciar el cuestionario
+  const [currentQuizId, setCurrentQuizId] = useState(null);
 
-  function handleStartQuiz() {
+  function handleStartQuiz(quizId) {
     setIsQuizStarted(true); // Cambiar el estado para iniciar el cuestionario
+    setCurrentQuizId(quizId);
   }
 
   function submitData() {
-    setFinalData((prevFinalData) => [...prevFinalData, userData]);
+    setFinalData((prevFinalData) => [
+      ...prevFinalData,
+      { quizId: currentQuizId, ...userData },
+    ]);
     setUserData({});
     setCurrentQuestionIndex(0);
     setIsQuizStarted(false); // Reiniciar el estado al enviar los datos
+    setCurrentQuizId(null); // Opcional: reinicias el id tras enviar los datos
   }
 
   useEffect(() => {
@@ -40,7 +46,9 @@ const FormProvider = ({ children }) => {
         setFinalData,
         isQuizStarted,
         setIsQuizStarted,
-        handleStartQuiz,
+        currentQuizId, // Expones el id del cuestionario
+        setCurrentQuizId,
+        handleStartQuiz, // Función para iniciar el cuestionario con el id seleccionado
         submitData,
       }}
     >
