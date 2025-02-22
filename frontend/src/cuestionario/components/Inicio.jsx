@@ -12,7 +12,7 @@ const Inicio = ({
 }) => {
   return (
     <div>
-      <h3 className="font-bold text-xl text-right mb-6 text-gray-800">
+      <h3 className="font-bold text-xl text-right mb-6 text-Moonstone">
         <ClipboardDocumentListIcon className="h-5 w-5 inline-block mr-2"/>
         Términos y Condiciones
       </h3>
