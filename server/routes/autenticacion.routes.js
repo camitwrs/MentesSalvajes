@@ -8,7 +8,7 @@ import {
   registrarUsuario,
 } from "../controllers/autenticacion.controller.js";
 import { autenticacionRequerida } from "../middlewares/validarToken.js";
-import { validarSchema } from "./../middlewares/validarSchema.js";
+import { validarSchema } from "../middlewares/validarSchema.js";
 import {
   registerEducatorSchema,
   registerUserSchema,
