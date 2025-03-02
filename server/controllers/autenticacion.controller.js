@@ -83,9 +83,6 @@ export const registrarEducador = async (req, res) => {
     );
 
     const userSaved = usuarioResult.rows[0];
-    const token = await crearTokenAcceso({ idusuario: idUsuarioResult });
-
-    res.cookie("token", token);
 
     return res.json({
       idusuario: idUsuarioResult,

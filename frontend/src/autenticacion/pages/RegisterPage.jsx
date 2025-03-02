@@ -8,7 +8,7 @@ import {
   getUniversidadesPorPaisRequest,
 } from "../../api/alternativas";
 import logo from "../../shared/assets/logo.svg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import {
   User,
@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 
 const RegisterPage = () => {
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -42,6 +43,7 @@ const RegisterPage = () => {
   const [paises, setPaises] = useState([]);
   const [instituciones, setInstituciones] = useState([]);
   const [selectedPais, setSelectedPais] = useState("");
+  const [mensaje, setMensaje] = useState("");
 
   // Cargar los países una sola vez al montar el componente
   useEffect(() => {
@@ -84,6 +86,10 @@ const RegisterPage = () => {
   // Enviar los datos del registro al backend
   const onSubmit = async (data) => {
     registrarse(data);
+    setMensaje("¡Registro exitoso! Redirigiendo...");
+    setTimeout(() => {
+      navigate("/login"); // Redirigir después de 2 segundos
+    }, 2000);
   };
 
   return (
@@ -97,13 +103,7 @@ const RegisterPage = () => {
           />
           <h1 className="text-2xl font-semibold text-gray-800">Regístrate</h1>
         </div>
-        {Array.isArray(registerErrors) &&
-          registerErrors.length > 0 &&
-          registerErrors.map((error, i) => (
-            <div className="text-center text-orange-500 text-sm p-2" key={i}>
-              {error}
-            </div>
-          ))}
+
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="grid grid-cols-1 gap-5 sm:grid-cols-2"
@@ -466,6 +466,21 @@ const RegisterPage = () => {
             </button>
           </div>
         </form>
+        {Array.isArray(registerErrors) &&
+          registerErrors.length > 0 &&
+          registerErrors.map((error, i) => (
+            <div
+              className="text-center text-orange-500 text-sm p-2 mt-2"
+              key={i}
+            >
+              {error}
+            </div>
+          ))}
+        {mensaje && (
+          <div className="text-center text-sm p-2 mt-2 text-green-500">
+            {mensaje}
+          </div>
+        )}
 
         <div className="text-center mt-4">
           <p className="text-sm text-gray-600">
