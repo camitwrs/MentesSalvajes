@@ -19,9 +19,8 @@ export const AuthProvider = ({ children }) => {
   const registrarse = async (user) => {
     try {
       const res = await registrarEducadorRequest(user);
-      console.log(res.data);
       setUser(res.data);
-      setEstaAutenticado(true);
+      setEstaAutenticado(false);
     } catch (error) {
       if (error.response) {
         if (Array.isArray(error.response.data))
@@ -68,34 +67,34 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     async function checkLogin() {
-        const cookies = Cookie.get();
+      const cookies = Cookie.get();
 
-        if (!cookies.token) {
-            setUser(null);
-            setEstaAutenticado(false);
-            setLoading(false);
-            return;
-        }
+      if (!cookies.token) {
+        setUser(null);
+        setEstaAutenticado(false);
+        setLoading(false);
+        return;
+      }
 
-        try {
-            const res = await verificarTokenRequest(cookies.token);
-            if (res.data) {
-                setUser(res.data);
-                setEstaAutenticado(true);
-            } else {
-                setUser(null);
-                setEstaAutenticado(false);
-            }
-        } catch (error) {
-            console.error("Error al verificar el token:", error);
-            setUser(null);
-            setEstaAutenticado(false);
-        } finally {
-            setLoading(false);
+      try {
+        const res = await verificarTokenRequest(cookies.token);
+        if (res.data) {
+          setUser(res.data);
+          setEstaAutenticado(true);
+        } else {
+          setUser(null);
+          setEstaAutenticado(false);
         }
+      } catch (error) {
+        console.error("Error al verificar el token:", error);
+        setUser(null);
+        setEstaAutenticado(false);
+      } finally {
+        setLoading(false);
+      }
     }
     checkLogin();
-}, []);
+  }, []);
 
   return (
     <AuthContext.Provider
