@@ -43,6 +43,9 @@ const RegisterPage = () => {
   const [paises, setPaises] = useState([]);
   const [instituciones, setInstituciones] = useState([]);
   const [selectedPais, setSelectedPais] = useState("");
+  const [paisesSinUniversidades, setPaisesSinUniversidades] = useState(
+    new Set()
+  );
   const [mensaje, setMensaje] = useState("");
 
   // Cargar los países una sola vez al montar el componente
@@ -66,17 +69,30 @@ const RegisterPage = () => {
       return;
     }
 
+    // Si el país está en la lista de países sin universidades, limpiar las instituciones y salir
+    if (paisesSinUniversidades.has(selectedPais)) {
+      setInstituciones([]); // Limpiar instituciones si el país no tiene universidades
+      return;
+    }
+
     const cargarInstituciones = async () => {
       try {
         const institucionesResponse = await getUniversidadesPorPaisRequest(
           selectedPais
         );
-        const institucionesNombres = institucionesResponse.data.map(
-          (uni) => uni.name
-        );
-        setInstituciones(institucionesNombres);
+        if (institucionesResponse.data.length === 0) {
+          // Si no hay universidades, deshabilitar el país
+          setPaisesSinUniversidades((prev) => new Set(prev).add(selectedPais));
+          setInstituciones([]); // Vaciar lista de instituciones
+        } else {
+          // Si hay universidades, actualizar la lista
+          setInstituciones(institucionesResponse.data.map((uni) => uni.name));
+        }
       } catch (error) {
         console.error("Error al cargar las instituciones:", error);
+        // Si la API falla, también deshabilitar el país
+        setPaisesSinUniversidades((prev) => new Set(prev).add(selectedPais));
+        setInstituciones([]); // Vaciar lista de instituciones en caso de error
       }
     };
 
@@ -310,8 +326,14 @@ const RegisterPage = () => {
                     <option
                       key={pais.idalternativa}
                       value={pais.textoalternativa}
+                      disabled={paisesSinUniversidades.has(
+                        pais.textoalternativa
+                      )}
                     >
                       {pais.textoalternativa}
+                      {paisesSinUniversidades.has(pais.textoalternativa)
+                        ? " (No disponible)"
+                        : ""}
                     </option>
                   ))}
                 </select>
@@ -367,12 +389,15 @@ const RegisterPage = () => {
                 <select
                   id="institucioneducador"
                   {...register("institucioneducador")}
+                  disabled={instituciones.length === 0}
                   className={`input-field ${
                     errors.institucioneducador ? "border-orange-500" : ""
                   }`}
                 >
                   <option value="" disabled>
-                    Selecciona tu institución
+                    {instituciones.length === 0
+                      ? "No hay universidades disponibles"
+                      : "Selecciona tu institución"}
                   </option>
                   {instituciones.map((institucion, index) => (
                     <option key={index} value={institucion}>
