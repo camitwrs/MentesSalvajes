@@ -79,6 +79,7 @@ const CuestionarioPage = () => {
   // Verificar si todas las preguntas visibles de la sección actual están respondidas
   const isSeccionCompleta = () => {
     const secciones = SeccionesCuestionario();
+
     const preguntasVisibles = preguntas.filter((pregunta) => {
       const perteneceASeccion = secciones[seccionActual]?.includes(pregunta.idpregunta);
 

@@ -1,7 +1,5 @@
 import PropTypes from "prop-types";
-import {
-  ClipboardDocumentListIcon,
-} from "@heroicons/react/24/outline";
+import { ClipboardList } from "lucide-react";
 
 const Inicio = ({
   aceptaTerminos,
@@ -13,22 +11,22 @@ const Inicio = ({
   return (
     <div>
       <h3 className="font-bold text-xl text-right mb-6 text-Moonstone">
-        <ClipboardDocumentListIcon className="h-5 w-5 inline-block mr-2"/>
+        <ClipboardList className="h-5 w-5 inline-block mr-2" />
         Términos y Condiciones
       </h3>
       <p className="text-gray-600 text-sm text-center mb-6">
-        Autorizo el uso de los datos para el proceso de investigación y
-        difusión del proyecto Wild E, que tiene por objetivo fortalecer la
-        educación en emprendimiento en instituciones de educación superior de
-        América y Europa, a través de un modelo teórico y la utilización de
-        recursos audiovisuales inspirados en la naturaleza y la fauna local. He
-        sido informado(a) de que se puede hacer preguntas sobre la
-        investigación en cualquier momento y que es posible el retractar mi
-        decisión al respecto, sin tener que dar explicaciones ni sufrir
-        consecuencia alguna por tal decisión. De tener preguntas, reclamos o
-        comentarios sobre la participación en este proyecto, contactar al
-        equipo responsable Pablo Zamora (pablo.zamora@pucv.cl) y Patricia
-        Ibáñez (patricia.ibanez@gmail.com).
+        Autorizo el uso de los datos para el proceso de investigación y difusión
+        del proyecto Wild E, que tiene por objetivo fortalecer la educación en
+        emprendimiento en instituciones de educación superior de América y
+        Europa, a través de un modelo teórico y la utilización de recursos
+        audiovisuales inspirados en la naturaleza y la fauna local. He sido
+        informado(a) de que se puede hacer preguntas sobre la investigación en
+        cualquier momento y que es posible el retractar mi decisión al respecto,
+        sin tener que dar explicaciones ni sufrir consecuencia alguna por tal
+        decisión. De tener preguntas, reclamos o comentarios sobre la
+        participación en este proyecto, contactar al equipo responsable Pablo
+        Zamora (pablo.zamora@pucv.cl) y Patricia Ibáñez
+        (patricia.ibanez@gmail.com).
       </p>
       {startQuizError && (
         <span className="text-red-600 text-sm mb-4 block">

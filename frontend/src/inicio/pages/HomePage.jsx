@@ -1,9 +1,6 @@
 import prototipo from "../../shared/assets/prototipo4.png";
 import logo from "../../shared/assets/logo.svg";
-import {
-  ArrowRightIcon,
-  ClipboardDocumentListIcon,
-} from "@heroicons/react/24/outline";
+import { MoveRight, Clipboard } from "lucide-react";
 
 import { Link } from "react-router-dom";
 
@@ -24,7 +21,7 @@ const HomePage = () => {
           to="/login"
           className="bg-white text-YankeesBlue py-2 px-3 sm:py-2.5 sm:px-4 md:py-3 md:px-5 rounded-md text-xs sm:text-sm md:text-base hover:bg-gray-200 hover:shadow-md transition-all flex items-center gap-2"
         >
-          <ArrowRightIcon className="h-5 w-5 stroke-YankeesBlue" />
+          <MoveRight className="h-5 w-5 stroke-YankeesBlue" />
           Ingresar
         </Link>
       </nav>
@@ -45,7 +42,7 @@ const HomePage = () => {
               to="/cuestionario"
               className="bg-YankeesBlue text-white px-3 py-2 sm:px-4 sm:py-2.5 md:px-5 md:py-3 lg:px-6 lg:py-4 rounded-md text-xs sm:text-sm md:text-base lg:text-lg inline-flex items-center gap-2 hover:scale-105 transition-transform"
             >
-              <ClipboardDocumentListIcon className="h-6 w-6 stroke-white" />
+              <Clipboard className="h-6 w-6 stroke-white" />
               Haz el cuestionario aquí
             </Link>
           </div>

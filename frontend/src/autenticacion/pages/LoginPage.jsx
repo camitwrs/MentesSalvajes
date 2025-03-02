@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "../../../../global/schemas/autenticacion.schema";
 import { useAuth } from "../context/AuthContext";
 import logo from "../../shared/assets/logo.svg";
-import { EnvelopeIcon, LockClosedIcon } from "@heroicons/react/24/outline";
+import { Mail, Lock } from "lucide-react";
 
 const LoginPage = () => {
   const {
@@ -21,7 +21,6 @@ const LoginPage = () => {
   const navigate = useNavigate();
   useEffect(() => {
     if (estaAutenticado) {
-      console.log("User after login:", user);
       switch (user?.idrol) {
         case 1:
           navigate("/dashboard-educator");
@@ -84,7 +83,7 @@ const LoginPage = () => {
                 }`}
               />
               <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                <EnvelopeIcon className="h-5 w-5 text-gray-400" />
+                <Mail className="h-5 w-5 text-gray-400" />
               </span>
             </div>
             {errors.correousuario && (
@@ -112,7 +111,7 @@ const LoginPage = () => {
                 }`}
               />
               <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                <LockClosedIcon className="h-5 w-5 text-gray-400" />
+                <Lock className="h-5 w-5 text-gray-400" />
               </span>
             </div>
             {errors.contrasenausuario && (

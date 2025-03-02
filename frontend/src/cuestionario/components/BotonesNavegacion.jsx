@@ -1,9 +1,6 @@
 import PropTypes from "prop-types";
-import {
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  PaperAirplaneIcon,
-} from "@heroicons/react/24/outline";
+
+import { MoveLeft, MoveRight, SendHorizontal } from "lucide-react";
 
 const BotonesNavegacion = ({
   currentQuestionIndex,
@@ -19,13 +16,13 @@ const BotonesNavegacion = ({
       <button
         onClick={handlePrev}
         disabled={currentQuestionIndex === 0}
-        className={`flex items-center bg-Moonstone text-white py-2 px-4 rounded-md ${
+        className={`   ${
           currentQuestionIndex === 0
             ? "opacity-50 cursor-not-allowed"
             : "hover:bg-gray-600 hover:scale-105"
         }`}
       >
-        <ArrowLeftIcon className="h-5 w-5 mr-2" />{" "}
+        <MoveLeft className="h-5 w-5 mr-2" />{" "}
         {/* Añade mr-2 para un margen a la derecha */}
         Anterior
       </button>
@@ -47,13 +44,13 @@ const BotonesNavegacion = ({
           ) : (
             <>
               Enviar
-              <PaperAirplaneIcon className="h-5 w-5 ml-2" />
+              <SendHorizontal className="h-5 w-5 ml-2" />
             </>
           )
         ) : (
           "Siguiente"
         )}
-        {!isLastQuestion && <ArrowRightIcon className="h-5 w-5 ml-2" />}
+        {!isLastQuestion && <MoveRight className="h-5 w-5 ml-2" />}
       </button>
     </div>
   );

@@ -271,11 +271,11 @@ export const verificarToken = async (req, res) => {
     }
 
     return res.json({
-      id: usuarioResult.rows[0].idusuario,
+      idusuario: usuarioResult.rows[0].idusuario,
+      nombreusuario: usuarioResult.rows[0].nombreusuario,
+      apellidousuario: usuarioResult.rows[0].apellidousuario,
       correousuario: usuarioResult.rows[0].correousuario,
       idrol: usuarioResult.rows[0].idrol,
     });
   });
 };
-
-
