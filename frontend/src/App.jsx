@@ -12,38 +12,42 @@ import AdminPage from "./administracion/pages/AdminPage";
 import { AuthProvider } from "./autenticacion/context/AuthContext";
 import ProtectedRoutes from "./ProtectedRoutes";
 
+import { HeroUIProvider } from "@heroui/react";
+
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route
-            path="/cuestionario"
-            element={
-              <FormContext>
-                <CuestionarioPage />
-              </FormContext>
-            }
-          />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+    <HeroUIProvider>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route
+              path="/cuestionario"
+              element={
+                <FormContext>
+                  <CuestionarioPage />
+                </FormContext>
+              }
+            />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
-          {/* Protected routes with role-based access */}
-          <Route element={<ProtectedRoutes requiredRole={1} />}>
-            <Route path="/dashboard-educator" element={<EducadorPage />} />
-          </Route>
+            {/* Protected routes with role-based access */}
+            <Route element={<ProtectedRoutes requiredRole={1} />}>
+              <Route path="/dashboard-educator" element={<EducadorPage />} />
+            </Route>
 
-          <Route element={<ProtectedRoutes requiredRole={2} />}>
-            <Route path="/dashboard-admin" element={<AdminPage />} />
-          </Route>
+            <Route element={<ProtectedRoutes requiredRole={2} />}>
+              <Route path="/dashboard-admin" element={<AdminPage />} />
+            </Route>
 
-          <Route element={<ProtectedRoutes requiredRole={4} />}>
-            <Route path="/dashboard-artist" element={<IlustradorPage />} />
-          </Route>
-        </Routes>
-      </Router>
-    </AuthProvider>
+            <Route element={<ProtectedRoutes requiredRole={4} />}>
+              <Route path="/dashboard-artist" element={<IlustradorPage />} />
+            </Route>
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </HeroUIProvider>
   );
 }
 

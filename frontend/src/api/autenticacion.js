@@ -80,19 +80,17 @@ export const loginUsuarioRequest = (credenciales) =>
   Acción:
     - Elimina la cookie "token" estableciendo su fecha de expiración en el pasado.
   Respuesta:
-    - Devuelve un status 200 indicando que el usuario se ha desconectado correctamente.
+    - Devuelve un status 200 indicando que el usuario s e ha desconectado correctamente.
 */
 
-/*
 export const logoutUsuarioRequest = () =>
   axios.post(
-    `$/autenticacion/salir`,
+    `/autenticacion/salir`,
     {},
     {
       withCredentials: true,
     }
   );
-*/
 
 /*
   Funcion: perfilUsuario
@@ -125,7 +123,9 @@ export const perfilUsuarioRequest = () => axios.get(`/autenticacion/perfil`);
   Respuesta:
     - Si el token es válido y el usuario existe, devuelve un objeto JSON con:
       {
-        id: number,
+        idusuario: number,
+        nombreusuario: string,
+        apellidousuario: string,
         correousuario: string,
         idrol: number
       }

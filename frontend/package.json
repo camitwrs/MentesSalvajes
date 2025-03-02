@@ -10,12 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@heroicons/react": "^2.2.0",
+    "@heroui/react": "^2.7.2",
     "@hookform/resolvers": "^3.10.0",
     "axios": "^1.7.9",
+    "framer-motion": "^12.4.7",
     "frontend": "file:",
     "js-cookie": "^3.0.5",
-    "preline": "^2.7.0",
+    "lucide-react": "^0.475.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.54.2",

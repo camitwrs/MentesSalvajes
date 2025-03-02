@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useState, useContext, useEffect } from "react";
 import {
   loginUsuarioRequest,
@@ -5,16 +6,9 @@ import {
   verificarTokenRequest,
 } from "../../api/autenticacion";
 import Cookie from "js-cookie";
+import PropTypes from "prop-types";
 
 export const AuthContext = createContext();
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -35,7 +29,7 @@ export const AuthProvider = ({ children }) => {
         setErrors([error.response.data.message]);
       } else {
         console.log("Error de conexión o respuesta no disponible:", error);
-        setErrors(["Error de conexión. Inténtalo de nuevo más tarde."]); // Mensaje genérico
+        setErrors(["Error de conexión. Inténtalo de nuevo más tarde."]);
       }
     }
   };
@@ -52,55 +46,63 @@ export const AuthProvider = ({ children }) => {
         setErrors([error.response.data.message]);
       } else {
         console.log("Error de conexión o respuesta no disponible:", error);
-        setErrors(["Error de conexión. Inténtalo de nuevo más tarde."]); // Mensaje genérico
+        setErrors(["Error de conexión. Inténtalo de nuevo más tarde."]);
       }
     }
+  };
+
+  const logout = () => {
+    Cookie.remove("token");
+    setUser(null);
+    setEstaAutenticado(false);
   };
 
   useEffect(() => {
     if (errors.length > 0) {
       const timer = setTimeout(() => {
         setErrors([]);
-      }, 10000); // despues de 10 segundos se borran los errores
+      }, 10000);
       return () => clearTimeout(timer);
     }
   }, [errors]);
 
   useEffect(() => {
     async function checkLogin() {
-      const cookies = Cookie.get();
+        const cookies = Cookie.get();
 
-      if (!cookies.token) {
-        setEstaAutenticado(false);
-        setLoading(false);
-        return setUser(null);
-      }
-
-      try {
-        const res = await verificarTokenRequest(cookies.token);
-        if (!res.data) {
-          setEstaAutenticado(false);
-          setLoading(false);
-          return;
+        if (!cookies.token) {
+            setUser(null);
+            setEstaAutenticado(false);
+            setLoading(false);
+            return;
         }
-        setEstaAutenticado(true);
-        setUser(res.data);
-        setLoading(false);
-      } catch (error) {
-        console.log(error);
-        setEstaAutenticado(false);
-        setUser(null);
-        setLoading(false);
-      }
+
+        try {
+            const res = await verificarTokenRequest(cookies.token);
+            if (res.data) {
+                setUser(res.data);
+                setEstaAutenticado(true);
+            } else {
+                setUser(null);
+                setEstaAutenticado(false);
+            }
+        } catch (error) {
+            console.error("Error al verificar el token:", error);
+            setUser(null);
+            setEstaAutenticado(false);
+        } finally {
+            setLoading(false);
+        }
     }
     checkLogin();
-  }, []);
+}, []);
 
   return (
     <AuthContext.Provider
       value={{
         registrarse,
         logearse,
+        logout,
         user,
         estaAutenticado,
         errors,
@@ -111,3 +113,11 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+// Validación de las props
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
+// Exportación directa del useAuth
+export const useAuth = () => useContext(AuthContext);

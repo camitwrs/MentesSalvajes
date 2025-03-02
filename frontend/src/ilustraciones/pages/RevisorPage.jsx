@@ -1,5 +1,11 @@
+import Navbar from "../../shared/components/Navbar";
+
 function RevisorPage() {
-  return <div>Estas en la pagina del Revisor</div>;
+  return(
+    <div>
+      <Navbar />
+    </div>
+  );
 }
 
 export default RevisorPage;

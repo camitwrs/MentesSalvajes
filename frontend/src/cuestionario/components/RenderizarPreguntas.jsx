@@ -6,12 +6,8 @@ import PreguntaCheckbox from "./PreguntaCheckbox";
 import PreguntaSelect from "./PreguntaSelect";
 import PreguntaRange from "./PreguntaRange";
 import PreguntaNumber from "./PreguntaNumber";
-import {
-  UserGroupIcon,
-  LinkIcon,
-  LightBulbIcon,
-  AcademicCapIcon,
-} from "@heroicons/react/24/outline";
+
+import { Users, Link, Lightbulb, GraduationCap } from "lucide-react";
 
 const RenderizarPreguntas = ({
   preguntas,
@@ -133,16 +129,16 @@ const RenderizarPreguntas = ({
 
   // Iconos por sección
   const iconosSecciones = {
-    a: <UserGroupIcon className="h-5 w-5 inline-block mr-2" />,
-    b: <UserGroupIcon className="h-5 w-5 inline-block mr-2" />,
-    c: <LinkIcon className="h-5 w-5 inline-block mr-2" />,
-    d: <LinkIcon className="h-5 w-5 inline-block mr-2" />,
-    e: <LightBulbIcon className="h-5 w-5 inline-block mr-2" />,
-    f: <LightBulbIcon className="h-5 w-5 inline-block mr-2" />,
-    g: <LightBulbIcon className="h-5 w-5 inline-block mr-2" />,
-    h: <LightBulbIcon className="h-5 w-5 inline-block mr-2" />,
-    i: <LightBulbIcon className="h-5 w-5 inline-block mr-2" />,
-    j: <AcademicCapIcon className="h-5 w-5 inline-block mr-2" />,
+    a: <Users className="h-5 w-5 inline-block mr-2" />,
+    b: <Users className="h-5 w-5 inline-block mr-2" />,
+    c: <Link className="h-5 w-5 inline-block mr-2" />,
+    d: <Link className="h-5 w-5 inline-block mr-2" />,
+    e: <Lightbulb className="h-5 w-5 inline-block mr-2" />,
+    f: <Lightbulb className="h-5 w-5 inline-block mr-2" />,
+    g: <Lightbulb className="h-5 w-5 inline-block mr-2" />,
+    h: <Lightbulb className="h-5 w-5 inline-block mr-2" />,
+    i: <Lightbulb className="h-5 w-5 inline-block mr-2" />,
+    j: <GraduationCap className="h-5 w-5 inline-block mr-2" />,
   };
 
   // Renderizar todas las preguntas de la sección actual

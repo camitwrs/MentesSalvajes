@@ -9,18 +9,19 @@ import {
 } from "../../api/alternativas";
 import logo from "../../shared/assets/logo.svg";
 import { Link } from "react-router-dom";
+
 import {
-  UserIcon,
-  EnvelopeIcon,
-  LockClosedIcon,
-  BookOpenIcon,
-  PuzzlePieceIcon,
-  GlobeAmericasIcon,
-  CakeIcon,
-  BuildingOffice2Icon,
-  UsersIcon,
-  AcademicCapIcon,
-} from "@heroicons/react/24/outline";
+  User,
+  Mail,
+  Lock,
+  BookOpen,
+  Puzzle,
+  Earth,
+  Cake,
+  Building,
+  UsersRound,
+  GraduationCap,
+} from "lucide-react";
 
 const RegisterPage = () => {
   const {
@@ -127,7 +128,7 @@ const RegisterPage = () => {
                   }`}
                 />
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                  <UserIcon className="h-5 w-5 text-gray-400" />
+                  <User className="h-5 w-5 text-gray-400" />
                 </span>
               </div>
               {errors.nombreusuario && (
@@ -155,7 +156,7 @@ const RegisterPage = () => {
                   }`}
                 />
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                  <UserIcon className="h-5 w-5 text-gray-400" />
+                  <User className="h-5 w-5 text-gray-400" />
                 </span>
               </div>
               {errors.apellidousuario && (
@@ -183,7 +184,7 @@ const RegisterPage = () => {
                   }`}
                 />
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                  <EnvelopeIcon className="h-5 w-5 text-gray-400" />
+                  <Mail className="h-5 w-5 text-gray-400" />
                 </span>
               </div>
               {errors.correousuario && (
@@ -211,7 +212,7 @@ const RegisterPage = () => {
                   }`}
                 />
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                  <LockClosedIcon className="h-5 w-5 text-gray-400" />
+                  <Lock className="h-5 w-5 text-gray-400" />
                 </span>
               </div>
               {errors.contrasenausuario && (
@@ -239,7 +240,7 @@ const RegisterPage = () => {
                   }`}
                 />
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                  <BookOpenIcon className="h-5 w-5 text-gray-400" />
+                  <BookOpen className="h-5 w-5 text-gray-400" />
                 </span>
               </div>
               {errors.tituloprofesionaleducador && (
@@ -273,7 +274,7 @@ const RegisterPage = () => {
                   }}
                 ></textarea>
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                  <PuzzlePieceIcon className="h-5 w-5 text-gray-400" />
+                  <Puzzle className="h-5 w-5 text-gray-400" />
                 </span>
               </div>
               {errors.intereseseducador && (
@@ -292,7 +293,7 @@ const RegisterPage = () => {
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                  <GlobeAmericasIcon className="h-5 w-5 text-gray-400" />
+                  <Earth className="h-5 w-5 text-gray-400" />
                 </span>
                 <select
                   id="paiseducador"
@@ -331,7 +332,7 @@ const RegisterPage = () => {
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                  <CakeIcon className="h-5 w-5 text-gray-400" />
+                  <Cake className="h-5 w-5 text-gray-400" />
                 </span>
                 <input
                   type="number"
@@ -361,7 +362,7 @@ const RegisterPage = () => {
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                  <BuildingOffice2Icon className="h-5 w-5 text-gray-400" />
+                  <Building className="h-5 w-5 text-gray-400" />
                 </span>
                 <select
                   id="institucioneducador"
@@ -396,7 +397,7 @@ const RegisterPage = () => {
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                  <UsersIcon className="h-5 w-5 text-gray-400" />
+                  <UsersRound className="h-5 w-5 text-gray-400" />
                 </span>
                 <select
                   id="sexoeducador"
@@ -429,7 +430,7 @@ const RegisterPage = () => {
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                  <AcademicCapIcon className="h-5 w-5 text-gray-400" />
+                  <GraduationCap className="h-5 w-5 text-gray-400" />
                 </span>
                 <input
                   type="number"
