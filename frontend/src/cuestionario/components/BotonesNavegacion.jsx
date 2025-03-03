@@ -16,10 +16,10 @@ const BotonesNavegacion = ({
       <button
         onClick={handlePrev}
         disabled={currentQuestionIndex === 0}
-        className={`   ${
+        className={`flex items-center py-2 px-4 rounded-md ${
           currentQuestionIndex === 0
-            ? "opacity-50 cursor-not-allowed"
-            : "hover:bg-gray-600 hover:scale-105"
+            ? "bg-gray-400 cursor-not-allowed text-white"
+            : "bg-Moonstone text-white hover:scale-105"
         }`}
       >
         <MoveLeft className="h-5 w-5 mr-2" />{" "}

@@ -38,13 +38,13 @@ const HomePage = () => {
             <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 mb-4">
               Descubre con nosotros tu perfil educativo.
             </p>
-            <Link
+            {/*<Link
               to="/cuestionario"
               className="bg-YankeesBlue text-white px-3 py-2 sm:px-4 sm:py-2.5 md:px-5 md:py-3 lg:px-6 lg:py-4 rounded-md text-xs sm:text-sm md:text-base lg:text-lg inline-flex items-center gap-2 hover:scale-105 transition-transform"
             >
               <Clipboard className="h-6 w-6 stroke-white" />
               Haz el cuestionario aquí
-            </Link>
+            </Link>*/}
           </div>
 
           <div className="">

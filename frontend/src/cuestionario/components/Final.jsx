@@ -19,14 +19,14 @@ const Final = () => {
           <p className="text-gray-600 font-bold mb-2">
            ¡Hemos descubierto su perfil!
           </p>
-          <p className="text-gray-600 mb-4"> {/* Agregado mb-4 para margen inferior */}
+          <p className="text-gray-600 mb-4">
             El profesor ___ A.1.1.____.
             Su especie animal es ______C.1; C2 o C3_______ + ____Apellido del B.4.1____ + de____A.1.4.____.
             Su capacidad de sumergirse en las profundidades alcanza hasta los ____4.1____.
             Su velocidad de nado es de ___4.2____.
             La distancia que puede recorrer al salir del agua es de __4.3____.
           </p>
-          <p className="text-gray-600"> {/* Segundo párrafo */}
+          <p className="text-gray-600">
             Su morfología es de un ___ A,2___.
             Tiene rayas o lunares de color ___A.3___.
             Su tamaño es de __ B.1.2___.
@@ -35,7 +35,6 @@ const Final = () => {
           </p>
         </div>
 
-        {/* Imagen a la derecha */}
         <div className="w-full md:w-1/2 border border-gray-300 rounded-lg">
           <div className="relative h-[400px] w-full rounded-lg overflow-hidden">
             <img src={imagen} alt="" />
