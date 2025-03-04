@@ -54,7 +54,9 @@ const CuestionarioPage = () => {
       setCurrentQuestionIndex(0);
       setStartQuizError("");
     } else {
-      setStartQuizError("Debes aceptar los términos y condiciones para continuar.");
+      setStartQuizError(
+        "Debes aceptar los términos y condiciones para continuar."
+      );
     }
   };
 
@@ -81,11 +83,15 @@ const CuestionarioPage = () => {
     const secciones = SeccionesCuestionario();
 
     const preguntasVisibles = preguntas.filter((pregunta) => {
-      const perteneceASeccion = secciones[seccionActual]?.includes(pregunta.idpregunta);
+      const perteneceASeccion = secciones[seccionActual]?.includes(
+        pregunta.idpregunta
+      );
 
       // Aplicar condiciones de preguntas dependientes
-      if (pregunta.idpregunta === 21) return userData[20] === 66 && perteneceASeccion;
-      if (pregunta.idpregunta >= 57) return userData[56] === 153 && perteneceASeccion;
+      if (pregunta.idpregunta === 21)
+        return userData[20] === 66 && perteneceASeccion;
+      if (pregunta.idpregunta >= 57)
+        return userData[56] === 153 && perteneceASeccion;
 
       return perteneceASeccion;
     });
@@ -100,10 +106,7 @@ const CuestionarioPage = () => {
       if (pregunta.tipopregunta === "number") {
         const value = userData[pregunta.idpregunta];
         return (
-          value !== undefined &&
-          !isNaN(value) &&
-          value >= 1 &&
-          value <= 65
+          value !== undefined && !isNaN(value) && value >= 1 && value <= 65
         );
       }
       return userData[pregunta.idpregunta] !== undefined;
@@ -131,8 +134,7 @@ const CuestionarioPage = () => {
               ) : (
                 <>
                   {submitSuccess ? (
-                    <Final
-                    />
+                    <Final />
                   ) : (
                     <>
                       <RenderizarPreguntas
@@ -150,20 +152,33 @@ const CuestionarioPage = () => {
 
                       <div className="flex justify-between mt-6">
                         <BotonesNavegacion
-                          currentQuestionIndex={nombresSecciones.indexOf(seccionActual)}
+                          currentQuestionIndex={nombresSecciones.indexOf(
+                            seccionActual
+                          )}
                           totalQuestions={nombresSecciones.length}
                           handleNext={() => {
                             if (isSeccionCompleta()) {
-                              handleNextSeccion(seccionActual, setSeccionActual, nombresSecciones);
+                              handleNextSeccion(
+                                seccionActual,
+                                setSeccionActual,
+                                nombresSecciones
+                              );
                             }
                           }}
                           handlePrev={() =>
-                            handlePrevSeccion(seccionActual, setSeccionActual, nombresSecciones)
+                            handlePrevSeccion(
+                              seccionActual,
+                              setSeccionActual,
+                              nombresSecciones
+                            )
                           }
                           handleSendQuiz={handleSendQuiz}
                           hasError={!isSeccionCompleta()}
                           isSubmitting={isSubmitting}
-                          isLastQuestion={seccionActual === nombresSecciones[nombresSecciones.length - 1]}
+                          isLastQuestion={
+                            seccionActual ===
+                            nombresSecciones[nombresSecciones.length - 1]
+                          }
                         />
                       </div>
                     </>

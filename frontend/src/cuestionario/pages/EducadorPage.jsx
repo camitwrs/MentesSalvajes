@@ -1,14 +1,23 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom"; // Importamos Link
+import { useEffect, useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom"; // Importamos Link
 import Navbar from "../../shared/components/Navbar";
 import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
 import { Accordion, AccordionItem } from "@heroui/accordion";
 import { ClipboardList, User, Eye, EyeClosed, MoveRight } from "lucide-react"; // Importamos Clipboard
 import { getCuestionariosRequest } from "../../api/cuestionarios";
+import { FormContext } from "../context/FormContext";
 
 const EducadorPage = () => {
   const [cuestionarios, setCuestionarios] = useState([]);
   const [isAccordionVisible, setIsAccordionVisible] = useState(false);
+
+  const navigate = useNavigate();
+  const { setQuizId } = useContext(FormContext);
+
+  const handleSelectCuestionario = (id) => {
+    setQuizId(id); // Guardar el ID en el contexto
+    navigate(`/cuestionario/${id}`);
+  };
 
   useEffect(() => {
     const fetchCuestionarios = async () => {
@@ -31,12 +40,15 @@ const EducadorPage = () => {
           <CardHeader>
             <div className="flex items-center px-2 text-2xl">
               <ClipboardList className="w-5 h-5 mr-2 stroke-YankeesBlue" />
-              <h2 className="font-bold text-YankeesBlue">Realizar Cuestionario</h2>
+              <h2 className="font-bold text-YankeesBlue">
+                Realizar Cuestionario
+              </h2>
             </div>
           </CardHeader>
           <CardBody>
             <p className="text-gray-500 px-2">
-              Aquí puedes realizar un cuestionario para evaluar tus conocimientos.
+              Aquí puedes realizar un cuestionario para evaluar tus
+              conocimientos.
             </p>
           </CardBody>
           <CardFooter className="px-4 flex flex-col items-start">
@@ -61,7 +73,9 @@ const EducadorPage = () => {
             {/* Sección del Accordion con transición */}
             <div
               className={`w-full transition-all duration-300 ${
-                isAccordionVisible ? "opacity-100 max-h-screen mt-3" : "opacity-0 max-h-0 overflow-hidden"
+                isAccordionVisible
+                  ? "opacity-100 max-h-screen mt-3"
+                  : "opacity-0 max-h-0 overflow-hidden"
               }`}
             >
               <Accordion variant="shadow">
@@ -76,20 +90,34 @@ const EducadorPage = () => {
                     >
                       <div className="p-2 flex justify-between items-center">
                         {/* Mostrar descripción alineada a la izquierda */}
-                        <p className="text-gray-700">{cuestionario.descripcioncuestionario}</p>
+                        <p className="text-gray-700">
+                          {cuestionario.descripcioncuestionario}
+                        </p>
 
                         {/* Si el cuestionario es "Cuestionario 8.0", mostrar el botón de Responder con Link */}
-                        {cuestionario.titulocuestionario === "Cuestionario 8.0" ? (
-                          <Link
-                            to="/cuestionario"
+                        {cuestionario.titulocuestionario ===
+                        "Cuestionario 8.0" ? (
+                          <button
+                            key={cuestionario.idcuestionario}
+                            onClick={() =>
+                              handleSelectCuestionario(
+                                cuestionario.idcuestionario
+                              )
+                            }
                             className="flex items-center gap-2 bg-Moonstone text-white py-2 px-4 rounded-md"
                           >
                             Responder
                             <MoveRight className="h-4 w-4" />
-                          </Link>
+                          </button>
                         ) : (
                           // Para los demás cuestionarios, botón gris con "Próximamente"
                           <button
+                            key={cuestionario.idcuestionario}
+                            onClick={() =>
+                              handleSelectCuestionario(
+                                cuestionario.idcuestionario
+                              )
+                            }
                             className="flex items-center gap-2 bg-gray-400 text-white py-2 px-4 rounded-md cursor-not-allowed"
                             disabled
                           >
@@ -100,9 +128,15 @@ const EducadorPage = () => {
                     </AccordionItem>
                   ))
                 ) : (
-                  <AccordionItem key="no-data" aria-label="Sin datos" title="No hay cuestionarios disponibles">
+                  <AccordionItem
+                    key="no-data"
+                    aria-label="Sin datos"
+                    title="No hay cuestionarios disponibles"
+                  >
                     <div className="p-2">
-                      <p className="text-gray-500">No hay cuestionarios en la base de datos.</p>
+                      <p className="text-gray-500">
+                        No hay cuestionarios en la base de datos.
+                      </p>
                     </div>
                   </AccordionItem>
                 )}
