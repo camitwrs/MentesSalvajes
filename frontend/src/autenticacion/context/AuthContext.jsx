@@ -7,6 +7,7 @@ import {
 } from "../../api/autenticacion";
 import Cookie from "js-cookie";
 import PropTypes from "prop-types";
+import {Spinner} from "@heroui/spinner";
 
 export const AuthContext = createContext();
 
@@ -95,6 +96,10 @@ export const AuthProvider = ({ children }) => {
     }
     checkLogin();
   }, []);
+
+  if (loading) {
+    return <Spinner size="lg" label="Cargando..." color="Warning" />;
+  }
 
   return (
     <AuthContext.Provider
