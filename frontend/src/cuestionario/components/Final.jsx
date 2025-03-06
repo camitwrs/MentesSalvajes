@@ -1,7 +1,6 @@
-import imagen from "../assets/orca.svg"
+import imagen from "../assets/orca.svg";
 
 const Final = () => {
-
   return (
     <div>
       {/* Mensaje de agradecimiento */}
@@ -17,21 +16,20 @@ const Final = () => {
         {/* Texto a la izquierda */}
         <div className="w-full md:w-1/2 prose prose-gray max-w-none">
           <p className="text-gray-600 font-bold mb-2">
-           ¡Hemos descubierto su perfil!
+            ¡Hemos descubierto su perfil!
           </p>
           <p className="text-gray-600 mb-4">
-            El profesor ___ A.1.1.____.
-            Su especie animal es ______C.1; C2 o C3_______ + ____Apellido del B.4.1____ + de____A.1.4.____.
-            Su capacidad de sumergirse en las profundidades alcanza hasta los ____4.1____.
-            Su velocidad de nado es de ___4.2____.
-            La distancia que puede recorrer al salir del agua es de __4.3____.
+            El profesor ___ A.1.1.____. Su especie animal es ______C.1; C2 o
+            C3_______ + ____Apellido del B.4.1____ + de____A.1.4.____. Su
+            capacidad de sumergirse en las profundidades alcanza hasta los
+            ____4.1____. Su velocidad de nado es de ___4.2____. La distancia que
+            puede recorrer al salir del agua es de __4.3____.
           </p>
           <p className="text-gray-600">
-            Su morfología es de un ___ A,2___.
-            Tiene rayas o lunares de color ___A.3___.
-            Su tamaño es de __ B.1.2___.
-            Sus ojos son ____ B.3____.
-            Su hábitat está compuesto por: A4.1; A4.2; A4.3; A4.4; A4.5; A4.6; A4.7; A4.8; y A4.9.
+            Su morfología es de un ___ A,2___. Tiene rayas o lunares de color
+            ___A.3___. Su tamaño es de __ B.1.2___. Sus ojos son ____ B.3____.
+            Su hábitat está compuesto por: A4.1; A4.2; A4.3; A4.4; A4.5; A4.6;
+            A4.7; A4.8; y A4.9.
           </p>
         </div>
 

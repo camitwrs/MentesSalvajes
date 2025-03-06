@@ -11,7 +11,9 @@ export const FormProvider = ({ children }) => {
   const [userData, setUserData] = useState({});
   const [finalData, setFinalData] = useState({});
   const [isQuizStarted, setIsQuizStarted] = useState(false); // Estado para iniciar el cuestionario
-  const [quizId, setQuizId] = useState(null); // Nuevo estado para el ID del cuestionario
+  const [quizId, setQuizId] = useState(() => {
+    return localStorage.getItem("quizId") || null;
+  });
   const { user } = useAuth();
 
   function handleStartQuiz() {
@@ -32,12 +34,12 @@ export const FormProvider = ({ children }) => {
           acc[questionId] = userData[questionId];
 
           dependentIds.forEach((dependentId) => {
-            acc[dependentId] = userData[dependentId] ?? null;
+            acc[dependentId] = userData[dependentId] ?? "null";
           });
         } else {
-          acc[questionId] = null;
+          acc[questionId] = "null";
           dependentIds.forEach((dependentId) => {
-            acc[dependentId] = null;
+            acc[dependentId] = "null";
           });
         }
         return acc;
@@ -89,6 +91,12 @@ export const FormProvider = ({ children }) => {
   useEffect(() => {
     console.log("finalData actualizado:", finalData);
   }, [finalData]);
+
+  useEffect(() => {
+    if (quizId) {
+      localStorage.setItem("quizId", quizId);
+    }
+  }, [quizId]);
 
   return (
     <FormContext.Provider

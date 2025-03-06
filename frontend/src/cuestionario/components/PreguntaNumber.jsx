@@ -16,7 +16,7 @@ const PreguntaNumber = ({
     // Actualizar el estado con el valor ingresado
     setUserData((prevUserData) => ({
       ...prevUserData,
-      [idPregunta]: value,
+      [idPregunta]: value.toString(),
     }));
 
     // Validar el valor ingresado
