@@ -1,5 +1,7 @@
 import { useState, createContext, useEffect } from "react";
-import PropTypes from "prop-types"; // Importación de PropTypes
+import PropTypes from "prop-types";
+import { guardarRespuestaRequest } from "../../api/respuestas";
+import { useAuth } from "./../../autenticacion/context/AuthContext";
 
 // Crea el contexto fuera del componente
 export const FormContext = createContext();
@@ -10,33 +12,29 @@ export const FormProvider = ({ children }) => {
   const [finalData, setFinalData] = useState({});
   const [isQuizStarted, setIsQuizStarted] = useState(false); // Estado para iniciar el cuestionario
   const [quizId, setQuizId] = useState(null); // Nuevo estado para el ID del cuestionario
+  const { user } = useAuth();
 
   function handleStartQuiz() {
     setIsQuizStarted(true); // Cambiar el estado para iniciar el cuestionario
   }
 
   function submitData() {
-    // Definir las preguntas clave y sus dependencias
     const questionsConfig = {
-      20: [21], // Si 20 tiene valor, 21 debe ser null si no se responde
-      56: [57, 58, 60, 61, 62, 64, 65], // Si 56 tiene valor, las siguientes deben ser null si no se responden
+      20: [21],
+      56: [57, 58, 60, 61, 62, 64, 65],
     };
 
-    // Crear el objeto finalData con lógica condicional para las dependencias
     const completedUserData = Object.keys(questionsConfig).reduce(
       (acc, questionId) => {
         const dependentIds = questionsConfig[questionId];
 
-        // Si la pregunta principal tiene respuesta, copia el valor
         if (userData[questionId]) {
           acc[questionId] = userData[questionId];
 
-          // Para cada pregunta dependiente, asigna null si no tiene respuesta
           dependentIds.forEach((dependentId) => {
             acc[dependentId] = userData[dependentId] ?? null;
           });
         } else {
-          // Si la pregunta principal no tiene respuesta, asigna null a todo
           acc[questionId] = null;
           dependentIds.forEach((dependentId) => {
             acc[dependentId] = null;
@@ -47,18 +45,36 @@ export const FormProvider = ({ children }) => {
       {}
     );
 
-    // Copiar todas las respuestas de userData que no están en la lógica de dependencias
     Object.keys(userData).forEach((key) => {
       if (!(key in completedUserData)) {
         completedUserData[key] = userData[key];
       }
     });
 
-    // Actualizar el estado finalData con los valores procesados
-    setFinalData((prevFinalData) => ({
-      ...prevFinalData,
-      ...completedUserData,
-    }));
+    // Primero actualizamos finalData y luego enviamos al backend
+    setFinalData((prevFinalData) => {
+      const updatedFinalData = {
+        ...prevFinalData,
+        ...completedUserData,
+      };
+
+      // Enviar los datos al backend después de actualizar el estado
+      const finalDataToSend = {
+        idusuario: user.idusuario,
+        idcuestionario: quizId,
+        respuestas: updatedFinalData,
+      };
+
+      guardarRespuestaRequest(finalDataToSend)
+        .then((response) => {
+          console.log("Respuestas enviadas correctamente:", response.data);
+        })
+        .catch((error) => {
+          console.error("Error al enviar respuestas:", error);
+        });
+
+      return updatedFinalData; // Asegurar que el estado se actualiza con los datos correctos
+    });
 
     setUserData({});
     setCurrentQuestionIndex(0);
