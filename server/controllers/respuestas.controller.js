@@ -3,22 +3,62 @@ import pool from "../pg.js";
 export const guardarRespuesta = async (req, res) => {
   const { idusuario, respuestas, idcuestionario } = req.body;
 
-  if (typeof respuestas !== "object" || respuestas === null) {
-    return res
-      .status(400)
-      .json({ error: "Las respuestas deben ser un objeto JSON válido." });
-  }
-
   try {
-    // Se inserta la respuesta sin devolver la fila insertada
-    await pool.query(
-      `INSERT INTO respuestas (idusuario, idcuestionario, respuestas)
-      VALUES ($1, $2, $3::jsonb)`,
-      [idusuario, idcuestionario, respuestas]
+    await pool.query("BEGIN"); // Iniciar transacción
+
+    // 1. Insertar en la tabla `respuestas` y obtener el `idrespuesta` generado
+    const result = await pool.query(
+      `INSERT INTO respuestas (idusuario, idcuestionario)
+      VALUES ($1, $2) 
+      RETURNING idrespuesta;`,
+      [idusuario, idcuestionario]
     );
+    const idrespuesta = result.rows[0].idrespuesta;
+
+    // 2. Preparar la inserción de las respuestas en `respuestasdetalle`
+    for (const [idpregunta, valor] of Object.entries(respuestas)) {
+      let textoRespuesta = "";
+
+      if (Array.isArray(valor)) {
+        // Si la respuesta es un array (selección múltiple)
+        const alternativas = await pool.query(
+          "SELECT textoalternativa FROM alternativas WHERE idalternativa = ANY($1)",
+          [valor]
+        );
+        textoRespuesta = alternativas.rows
+          .map((a) => a.textoalternativa)
+          .join(", ");
+      } else if (!isNaN(valor)) {
+        // Si la respuesta es un número (opción seleccionada)
+        const alternativa = await pool.query(
+          "SELECT textoalternativa FROM alternativas WHERE idalternativa = $1",
+          [valor]
+        );
+        textoRespuesta =
+          alternativa.rows.length > 0
+            ? alternativa.rows[0].textoalternativa
+            : "";
+      } else {
+        // Si la respuesta es texto abierto
+        textoRespuesta = valor;
+      }
+
+      try {
+        // 3️. Insertar la respuesta en `respuestas_detalle`
+        await pool.query(
+          `INSERT INTO respuestasdetalle (idrespuesta, idpregunta, respuestaelegida) 
+          VALUES ($1, $2, $3);`,
+          [idrespuesta, idpregunta, textoRespuesta]
+        );
+      } catch (insertError) {
+        res.status(500).json({ error: "Hubo un error de insercion" });
+      }
+    }
+
+    await pool.query("COMMIT"); // Confirmar transacción
     res.status(201).json(["Respuestas guardadas correctamente"]);
   } catch (error) {
-    console.error("Error al guardar respuestas:", error);
+    await pool.query("ROLLBACK"); // Revertir cambios si hay error
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
@@ -31,7 +71,7 @@ export const getAllRespuestasTexto = async (req, res) => {
     const result = await pool.query(
       `
       SELECT 
-        CAST(jsonb_each_text(r.respuestas).key AS INT) AS idpregunta, 
+        CAST(jsonb_each(r.respuestas).key AS INT) AS idpregunta, 
         a.textoalternativa 
       FROM respuestas r
       JOIN alternativas a 
