@@ -1,9 +1,9 @@
-import Navbar from "../../shared/components/Navbar";
+
 
 function RevisorPage() {
   return(
     <div>
-      <Navbar />
+      <p>REVISOR</p>
     </div>
   );
 }
