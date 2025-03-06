@@ -7,7 +7,7 @@ import {
 } from "../../api/autenticacion";
 import Cookie from "js-cookie";
 import PropTypes from "prop-types";
-import {Spinner} from "@heroui/spinner";
+import { Spinner } from "@heroui/spinner";
 
 export const AuthContext = createContext();
 
@@ -37,12 +37,23 @@ export const AuthProvider = ({ children }) => {
   const logearse = async (user) => {
     try {
       const res = await loginUsuarioRequest(user);
-      setEstaAutenticado(true);
-      setUser(res.data);
+
+      if (res.data) {
+        setLoading(true); // Activamos el spinner SOLO si la autenticación es exitosa
+
+        setTimeout(() => {
+          setEstaAutenticado(true);
+          setUser(res.data);
+          setLoading(false); // Desactivamos el spinner después del delay
+        }, 1500); // Delay de 1.5 segundos antes de redirigir
+      }
     } catch (error) {
+      setLoading(false); // Si hay error, asegurarnos de que el spinner NO aparezca
+
       if (error.response) {
-        if (Array.isArray(error.response.data))
+        if (Array.isArray(error.response.data)) {
           return setErrors(error.response.data);
+        }
         setErrors([error.response.data.message]);
       } else {
         console.log("Error de conexión o respuesta no disponible:", error);
@@ -98,7 +109,14 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   if (loading) {
-    return <Spinner size="lg" label="Cargando..." color="Warning" />;
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <Spinner size="lg" color="primary" />
+        <p className="mt-4 text-gray-600 font-semibold text-lg">
+          Procesando, por favor espera...
+        </p>
+      </div>
+    );
   }
 
   return (
