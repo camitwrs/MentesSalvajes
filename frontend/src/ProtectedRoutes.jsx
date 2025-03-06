@@ -4,9 +4,7 @@ import { PropTypes } from "prop-types";
 import { FormProvider } from "./cuestionario/context/FormContext";
 
 function ProtectedRoutes({ requiredRole }) {
-  const { loading, estaAutenticado, user } = useAuth();
-
-  if (loading) return <h1>Cargando...</h1>;
+  const { estaAutenticado, user } = useAuth();
 
   if (!estaAutenticado) return <Navigate to="/login" replace />;
 
