@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import HomePage from "./inicio/pages/HomePage";
 import CuestionarioPage from "./cuestionario/pages/CuestionarioPage";
-import { FormProvider } from "./cuestionario/context/FormContext";
 import { AuthProvider } from "./autenticacion/context/AuthContext";
 
 import LoginPage from "./autenticacion/pages/LoginPage";
