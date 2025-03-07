@@ -6,60 +6,126 @@ export const guardarRespuesta = async (req, res) => {
   try {
     await pool.query("BEGIN"); // Iniciar transacción
 
-    // 1. Insertar en la tabla `respuestas` y obtener el `idrespuesta` generado
+    // 1️. Insertar en la tabla `respuestas` y obtener el `idrespuesta`
     const result = await pool.query(
       `INSERT INTO respuestas (idusuario, idcuestionario)
       VALUES ($1, $2) 
       RETURNING idrespuesta;`,
       [idusuario, idcuestionario]
     );
+
+    if (result.rows.length === 0 || !result.rows[0].idrespuesta) {
+      throw new Error("No se pudo generar el idrespuesta.");
+    }
+
     const idrespuesta = result.rows[0].idrespuesta;
 
-    // 2. Preparar la inserción de las respuestas en `respuestasdetalle`
+    // 2️. Insertar respuestas en `respuestasdetalle`
+
     for (const [idpregunta, valor] of Object.entries(respuestas)) {
       let textoRespuesta = "";
 
-      if (Array.isArray(valor)) {
-        // Si la respuesta es un array (selección múltiple)
+      // 🔹 **CASO 1: Respuesta múltiple (Array)**
+      if (Array.isArray(valor) && valor.length > 0) {
         const alternativas = await pool.query(
-          "SELECT textoalternativa FROM alternativas WHERE idalternativa = ANY($1)",
+          "SELECT idalternativa, textoalternativa, caracteristicaalternativa, puntajealternativa FROM alternativas WHERE idalternativa = ANY($1)",
           [valor]
         );
-        textoRespuesta = alternativas.rows
-          .map((a) => a.textoalternativa)
-          .join(", ");
-      } else if (!isNaN(valor)) {
-        // Si la respuesta es un número (opción seleccionada)
-        const alternativa = await pool.query(
-          "SELECT textoalternativa FROM alternativas WHERE idalternativa = $1",
-          [valor]
-        );
-        textoRespuesta =
-          alternativa.rows.length > 0
-            ? alternativa.rows[0].textoalternativa
-            : "";
-      } else {
-        // Si la respuesta es texto abierto
-        textoRespuesta = valor;
+
+        if (alternativas.rows.length === 0) {
+          console.warn(
+            `No se encontraron alternativas para pregunta ${idpregunta}.`
+          );
+          continue;
+        }
+
+        for (const alternativa of alternativas.rows) {
+          // Determinar qué campos se deben insertar según los valores disponibles
+          let queryInsert = `
+            INSERT INTO respuestasdetalle (idrespuesta, idpregunta, respuestaelegida, idalternativa
+          `;
+          let queryParams = [
+            idrespuesta,
+            idpregunta,
+            alternativa.textoalternativa,
+            alternativa.idalternativa,
+          ];
+
+          if (alternativa.caracteristicaalternativa) {
+            queryInsert += `, caracteristicaalternativa`;
+            queryParams.push(alternativa.caracteristicaalternativa);
+          }
+          if (alternativa.puntajealternativa) {
+            queryInsert += `, puntajealternativa`;
+            queryParams.push(alternativa.puntajealternativa);
+          }
+
+          queryInsert += `) VALUES ($1, $2, $3, $4`;
+          for (let i = 5; i <= queryParams.length; i++) {
+            queryInsert += `, $${i}`;
+          }
+          queryInsert += `);`;
+
+          await pool.query(queryInsert, queryParams);
+        }
       }
 
-      try {
-        // 3️. Insertar la respuesta en `respuestas_detalle`
+      // 🔹 **CASO 2: Respuesta de TEXTO ABIERTO (guardar directamente)**
+      else if (typeof valor === "string" && valor.trim() !== "") {
+        textoRespuesta = valor.trim();
+
         await pool.query(
           `INSERT INTO respuestasdetalle (idrespuesta, idpregunta, respuestaelegida) 
           VALUES ($1, $2, $3);`,
           [idrespuesta, idpregunta, textoRespuesta]
         );
-      } catch (insertError) {
-        res.status(500).json({ error: "Hubo un error de insercion" });
+      }
+
+      // 🔹 **CASO 3: Respuesta seleccionada de alternativas (Número ENTERO)**
+      else if (!isNaN(valor)) {
+        const alternativa = await pool.query(
+          "SELECT idalternativa, textoalternativa, caracteristicaalternativa, puntajealternativa FROM alternativas WHERE idalternativa = $1",
+          [valor]
+        );
+
+        if (alternativa.rows.length > 0) {
+          // Determinar qué campos se deben insertar según los valores disponibles
+          let queryInsert = `
+            INSERT INTO respuestasdetalle (idrespuesta, idpregunta, respuestaelegida, idalternativa
+          `;
+          let queryParams = [
+            idrespuesta,
+            idpregunta,
+            alternativa.rows[0].textoalternativa,
+            alternativa.rows[0].idalternativa,
+          ];
+
+          if (alternativa.rows[0].caracteristicaalternativa) {
+            queryInsert += `, caracteristicaalternativa`;
+            queryParams.push(alternativa.rows[0].caracteristicaalternativa);
+          }
+          if (alternativa.rows[0].puntajealternativa) {
+            queryInsert += `, puntajealternativa`;
+            queryParams.push(alternativa.rows[0].puntajealternativa);
+          }
+
+          queryInsert += `) VALUES ($1, $2, $3, $4`;
+          for (let i = 5; i <= queryParams.length; i++) {
+            queryInsert += `, $${i}`;
+          }
+          queryInsert += `);`;
+
+          await pool.query(queryInsert, queryParams);
+        }
       }
     }
 
     await pool.query("COMMIT"); // Confirmar transacción
-    res.status(201).json(["Respuestas guardadas correctamente"]);
+    res.status(201);
   } catch (error) {
     await pool.query("ROLLBACK"); // Revertir cambios si hay error
-    res.status(500).json({ error: "Error interno del servidor" });
+
+    res.status(500);
   }
 };
 

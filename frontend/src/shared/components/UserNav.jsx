@@ -1,33 +1,41 @@
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button } from "@heroui/react"
-import { UserRound, LogOut, ChevronDown } from "lucide-react"
-import { useAuth } from "../../autenticacion/context/AuthContext"
-import { useNavigate } from "react-router-dom"
-import { logoutUsuarioRequest } from "../../api/autenticacion"
-import PropTypes from "prop-types"
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+  Button,
+} from "@heroui/react";
+import { UserRound, LogOut, ChevronDown } from "lucide-react";
+import { useAuth } from "../../autenticacion/context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { logoutUsuarioRequest } from "../../api/autenticacion";
+import PropTypes from "prop-types";
 
 export default function UserNav({ isMobile = false }) {
-  const { user, loading, logout } = useAuth()
-  const navigate = useNavigate()
+  const { user, loading, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
-      await logoutUsuarioRequest()
-      console.log("Sesión cerrada correctamente")
+      await logoutUsuarioRequest();
+      console.log("Sesión cerrada correctamente");
 
-      logout()
-      navigate("/", { replace: true })
+      logout();
+      navigate("/", { replace: true });
     } catch (error) {
-      console.error("Error al cerrar sesión:", error)
+      console.error("Error al cerrar sesión:", error);
     }
-  }
+  };
 
   // Manejo del estado de carga y autenticación
   if (loading) {
-    return <p className="text-sm text-white animate-pulse">Cargando...</p>
+    return <p className="text-sm text-white animate-pulse">Cargando...</p>;
   }
 
   if (!user || !user.nombreusuario || !user.apellidousuario) {
-    return <p className="text-sm text-red-300">Error: Usuario no autenticado</p>
+    return (
+      <p className="text-sm text-red-300">Error: Usuario no autenticado</p>
+    );
   }
 
   // Si es móvil, mostrar una versión mejorada con clara diferenciación visual
@@ -48,7 +56,7 @@ export default function UserNav({ isMobile = false }) {
           <span className="font-medium text-white">Cerrar Sesión</span>
         </button>
       </div>
-    )
+    );
   }
 
   // Versión para escritorio con dropdown
@@ -80,13 +88,9 @@ export default function UserNav({ isMobile = false }) {
         </DropdownItem>
       </DropdownMenu>
     </Dropdown>
-  )
+  );
 }
 
 UserNav.propTypes = {
   isMobile: PropTypes.bool,
-}
-
-UserNav.defaultProps = {
-  isMobile: false,
-}
+};
