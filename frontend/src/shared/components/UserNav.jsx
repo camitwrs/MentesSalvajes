@@ -41,19 +41,23 @@ export default function UserNav({ isMobile = false }) {
   // Si es móvil, mostrar una versión mejorada con clara diferenciación visual
   if (isMobile) {
     return (
-      <div className="flex items-center justify-between py-1">
-        <div className="flex items-center space-x-2 text-white">
-          <UserRound className="w-5 h-5" />
-          <span className="font-medium">{`${user.nombreusuario} ${user.apellidousuario}`}</span>
+      <div className="flex flex-col items-center bg-gray-900 p-4 rounded-md shadow-lg w-full max-w-xs mx-auto">
+        {/* Sección de usuario */}
+        <div className="flex items-center space-x-3 mb-4">
+          <UserRound className="w-6 h-6 text-white" />
+          <span className="text-white font-semibold text-lg">
+            {`${user.nombreusuario} ${user.apellidousuario}`}
+          </span>
         </div>
 
+        {/* Botón de cerrar sesión */}
         <button
           onClick={handleLogout}
-          className="flex items-center justify-center space-x-2 py-2 px-4 rounded-md border border-white hover:bg-white/10 transition-colors"
+          className="flex items-center justify-center space-x-2 py-2 px-4 rounded-md bg-Moonstone text-white w-full transition-transform transform hover:scale-105 active:scale-95"
           aria-label="Cerrar sesión"
         >
-          <LogOut className="w-4 h-4 stroke-white" />
-          <span className="font-medium text-white">Cerrar Sesión</span>
+          <LogOut className="w-5 h-5" />
+          <span className="font-medium">Cerrar Sesión</span>
         </button>
       </div>
     );

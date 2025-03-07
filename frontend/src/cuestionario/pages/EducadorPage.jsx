@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from "react";
-import { useNavigate } from "react-router-dom"; // Importamos Link
+import { useNavigate } from "react-router-dom";
 import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
 import { Accordion, AccordionItem } from "@heroui/accordion";
 import {
@@ -8,40 +8,62 @@ import {
   PanelTopOpen,
   PanelBottomOpen,
   MoveRight,
-} from "lucide-react"; // Importamos Clipboard
+  Mail,
+  BookOpen,
+  Puzzle,
+  Earth,
+  Cake,
+  Building,
+  UsersRound,
+  GraduationCap,
+} from "lucide-react";
 import { getCuestionariosRequest } from "../../api/cuestionarios";
+import { getDatosEducadorRequest } from "../../api/usuarios";
 import { FormContext } from "../context/FormContext";
+import { useAuth } from "../../autenticacion/context/AuthContext";
 
 const EducadorPage = () => {
-  const [cuestionarios, setCuestionarios] = useState([])
-  const [isAccordionVisible, setIsAccordionVisible] = useState(false)
+  const [cuestionarios, setCuestionarios] = useState([]);
+  const [isAccordionVisible, setIsAccordionVisible] = useState(false);
+  const [educador, setEducador] = useState(null); // Estado para los datos del educador
 
   const navigate = useNavigate();
   const { setQuizId } = useContext(FormContext);
+  const { user } = useAuth(); // Obtener usuario autenticado
 
   const handleSelectCuestionario = (id) => {
-    setQuizId(id); // Guardar el ID en el contexto
+    setQuizId(id);
     navigate(`/cuestionario/${id}`);
   };
 
   useEffect(() => {
     const fetchCuestionarios = async () => {
       try {
-        const response = await getCuestionariosRequest()
-        setCuestionarios(response.data)
+        const response = await getCuestionariosRequest();
+        setCuestionarios(response.data);
       } catch (error) {
-        console.error("Error al obtener los cuestionarios:", error)
+        console.error("Error al obtener los cuestionarios:", error);
       }
-    }
+    };
 
-    fetchCuestionarios()
-  }, [])
+    const fetchDatosEducador = async () => {
+      if (!user || !user.idusuario) return;
+
+      try {
+        const response = await getDatosEducadorRequest(user.idusuario);
+        setEducador(response.data);
+      } catch (error) {
+        console.error("Error al obtener los datos del educador:", error);
+      }
+    };
+
+    fetchCuestionarios();
+    fetchDatosEducador();
+  }, [user, user.idusuario]); // Dependencia en user.idusuario
 
   return (
     <div className="container mx-auto">
-      {/* Contenedor principal con flex que cambia de dirección en pantallas pequeñas */}
       <div className="flex flex-col md:flex-row justify-center gap-4 md:gap-6 p-4 md:p-8">
-        {/* Sección de Cuestionarios - ancho completo en móvil, mitad en desktop */}
         <div className="w-full md:w-1/2">
           <Card className="w-full rounded-md">
             <CardHeader>
@@ -54,11 +76,11 @@ const EducadorPage = () => {
             </CardHeader>
             <CardBody>
               <p className="text-gray-500 px-2 text-sm md:text-base">
-                Aquí puedes realizar un cuestionario para evaluar tus conocimientos.
+                Aquí puedes realizar un cuestionario para evaluar tus
+                conocimientos.
               </p>
             </CardBody>
             <CardFooter className="px-4 flex flex-col items-start">
-              {/* Botón con icono de Eye o EyeClosed */}
               <button
                 className="flex items-center gap-2 bg-YankeesBlue text-white py-1.5 md:py-2 px-3 md:px-4 rounded-md text-sm md:text-base"
                 onClick={() => setIsAccordionVisible(!isAccordionVisible)}
@@ -76,7 +98,6 @@ const EducadorPage = () => {
                 )}
               </button>
 
-              {/* Sección del Accordion con transición */}
               <div
                 className={`w-full transition-all duration-300 ${
                   isAccordionVisible
@@ -85,7 +106,6 @@ const EducadorPage = () => {
                 }`}
               >
                 <Accordion variant="shadow">
-                  {/* Mapear todos los cuestionarios y modificar el que tenga título "Cuestionario 8.0" */}
                   {cuestionarios.length > 0 ? (
                     cuestionarios.map((cuestionario, index) => (
                       <AccordionItem
@@ -95,12 +115,10 @@ const EducadorPage = () => {
                         subtitle="Click para expandir."
                       >
                         <div className="p-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                          {/* Mostrar descripción alineada a la izquierda */}
                           <p className="text-gray-700">
                             {cuestionario.descripcioncuestionario}
                           </p>
 
-                          {/* Si el cuestionario es "Cuestionario 8.0", mostrar el botón de Responder con Link */}
                           {cuestionario.titulocuestionario ===
                           "Cuestionario 8.0" ? (
                             <button
@@ -116,14 +134,8 @@ const EducadorPage = () => {
                               <MoveRight className="h-4 w-4" />
                             </button>
                           ) : (
-                            // Para los demás cuestionarios, botón gris con "Próximamente"
                             <button
                               key={cuestionario.idcuestionario}
-                              onClick={() =>
-                                handleSelectCuestionario(
-                                  cuestionario.idcuestionario
-                                )
-                              }
                               className="flex items-center gap-2 bg-gray-400 text-white py-1.5 md:py-2 px-3 md:px-4 rounded-md cursor-not-allowed text-sm md:text-base whitespace-nowrap mt-2 sm:mt-0"
                               disabled
                             >
@@ -140,7 +152,9 @@ const EducadorPage = () => {
                       title="No hay cuestionarios disponibles"
                     >
                       <div className="p-2">
-                        <p className="text-gray-500 text-sm md:text-base">No hay cuestionarios en la base de datos.</p>
+                        <p className="text-gray-500 text-sm md:text-base">
+                          No hay cuestionarios en la base de datos.
+                        </p>
                       </div>
                     </AccordionItem>
                   )}
@@ -150,7 +164,6 @@ const EducadorPage = () => {
           </Card>
         </div>
 
-        {/* Tarjeta de Mi Perfil - ancho completo en móvil, mitad en desktop */}
         <div className="w-full md:w-1/2 mt-4 md:mt-0">
           <Card className="w-full rounded-md">
             <CardHeader>
@@ -160,21 +173,99 @@ const EducadorPage = () => {
               </div>
             </CardHeader>
             <CardBody>
-              <p className="text-gray-500 px-2 text-sm md:text-base">
-                Visualiza y edita la información de tu perfil de educador.
-              </p>
+              {educador ? (
+                <div className="p-5">
+                  {/* Nombre completo */}
+                  <h3 className="text-lg md:text-xl font-bold text-YankeesBlue mb-4 border-b border-blue-100 pb-2">
+                    {user.nombreusuario} {user.apellidousuario}
+                  </h3>
+
+                  {/* Contenedor Responsivo */}
+                  <div className="text-sm md:text-base">
+                    {/* Información Personal */}
+                    <div>
+                      <p className="flex items-center gap-2 mb-2">
+                        <Cake className="text-YankeesBlue w-5 h-5 md:w-6 md:h-6" />
+                        <span className="font-medium text-YankeesBlue">
+                          Edad:
+                        </span>
+                        <span className="text-gray-500">{educador.edadeducador} años</span>
+                      </p>
+                      <p className="flex items-center gap-2 mb-2">
+                        <UsersRound className="text-YankeesBlue w-5 h-5 md:w-6 md:h-6" />
+                        <span className="font-medium text-YankeesBlue">
+                          Sexo:
+                        </span>
+                        <span className="text-gray-500">{educador.sexoeducador}</span>
+                      </p>
+                      <p className="flex items-center gap-2 mb-2">
+                        <Earth className="text-YankeesBlue w-5 h-5 md:w-6 md:h-6" />
+                        <span className="font-medium text-YankeesBlue">
+                          País:
+                        </span>
+                        <span className="text-gray-500">{educador.paiseducador}</span>
+                      </p>
+                      <p className="flex items-center gap-2 mb-2">
+                        <Puzzle className="text-YankeesBlue w-5 h-5 md:w-6 md:h-6" />
+                        <span className="font-medium text-YankeesBlue">
+                          Intereses:
+                        </span>
+                        <span className="text-gray-500">{educador.intereseseducador}</span>
+                      </p>
+                    </div>
+
+                    {/* Información Profesional */}
+                    <div>
+                      <p className="flex items-center gap-2 mb-2">
+                        <Building className="text-YankeesBlue w-7 h-5 md:w-6 md:h-6" />
+                        <span className="font-medium text-YankeesBlue">
+                          Institución:
+                        </span>
+                        <span className="text-gray-500">{educador.institucioneducador}</span>
+                      </p>
+                      <p className="flex items-center gap-2 mb-2">
+                        <BookOpen className="text-YankeesBlue w-5 h-5 md:w-6 md:h-6" />
+                        <span className="font-medium text-YankeesBlue">
+                          Ocupación:
+                        </span>
+                        <span className="text-gray-500">{educador.tituloprofesionaleducador}</span>
+                      </p>
+                      <p className="flex items-center gap-2 mb-2">
+                        <GraduationCap className="text-YankeesBlue w-5 h-5 md:w-6 md:h-6" />
+                        <span className="font-medium text-YankeesBlue">
+                          Años de Experiencia:
+                        </span>
+                        <span className="text-gray-500">{educador.anosexperienciaeducador}</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Información de Contacto */}
+                  <div className="mt-3 pt-2 border-t border-blue-100">
+                    <p className="flex items-center gap-2 mb-2">
+                      <Mail className="text-YankeesBlue w-5 h-5 md:w-6 md:h-6" />
+                      <span className="font-medium text-YankeesBlue">
+                        Correo:
+                      </span>
+                      <span className="text-gray-500">{user.correousuario}</span>
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-6 flex justify-center items-center min-h-[200px]">
+                  <p className="text-gray-500 text-center">
+                    {user?.idusuario
+                      ? "Cargando información del perfil..."
+                      : "No se encontró usuario activo."}
+                  </p>
+                </div>
+              )}
             </CardBody>
-            <CardFooter className="px-4">
-              <button className="flex items-center bg-YankeesBlue text-white py-1.5 md:py-2 px-3 md:px-4 rounded-md text-sm md:text-base">
-                Ver Perfil
-              </button>
-            </CardFooter>
           </Card>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default EducadorPage
-
+export default EducadorPage;

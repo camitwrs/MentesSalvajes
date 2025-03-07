@@ -79,8 +79,18 @@ const Navbar = () => {
       </div>
 
       {/* Menú móvil */}
-      <div className={`fixed inset-0 z-50 bg-black bg-opacity-50 ${isMenuOpen ? "block" : "hidden"} md:hidden`}>
-        <div className="absolute top-0 right-0 w-3/4 sm:w-2/5 h-full bg-YankeesBlue shadow-lg transform transition-transform duration-300 ease-in-out">
+      <div
+        className={`fixed inset-0 z-50 bg-black bg-opacity-50 transition-opacity duration-300 ${
+          isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
+        } md:hidden`}
+      >
+        {/* Contenedor del menú con animación de deslizamiento hacia abajo */}
+        <div
+          className={`absolute top-0 left-0 w-full bg-YankeesBlue shadow-lg transform transition-transform duration-300 ease-in-out ${
+            isMenuOpen ? "translate-y-0" : "-translate-y-full"
+          }`}
+        >
+          {/* Header del menú con botón de cierre */}
           <div className="flex justify-between items-center p-4 border-b border-YankeesBlue-700">
             <p className="text-white text-lg font-bold">Menú</p>
             <button
@@ -91,16 +101,9 @@ const Navbar = () => {
             </button>
           </div>
 
-          <div className="px-4 py-3 space-y-4">
-            <button
-              onClick={navigateToDashboard}
-              className="w-full text-left text-white font-medium py-2 px-4 rounded-md hover:bg-YankeesBlue-700 transition duration-200"
-            >
-              Ir a Dashboard
-            </button>
-            <div className="border-t border-gray-600 pt-3">
-              <UserNav isMobile={true} />
-            </div>
+          {/* Contenido del menú */}
+          <div className="p-4">
+            <UserNav isMobile={true} />
           </div>
         </div>
       </div>
