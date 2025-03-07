@@ -2,8 +2,13 @@ import PropTypes from "prop-types";
 import { useEffect } from "react";
 
 const PreguntaRange = ({ idPregunta, opciones, userData, setUserData }) => {
+  // Ordenar opciones antes de usarlas
+  const opcionesOrdenadas = [...opciones].sort(
+    (a, b) => a.idalternativa - b.idalternativa
+  );
+
   useEffect(() => {
-    if (!userData[idPregunta] && opciones.length > 0) {
+    if (!userData[idPregunta] && opcionesOrdenadas.length > 0) {
       setUserData((prevUserData) => {
         const updatedUserData = { ...prevUserData };
 
@@ -15,17 +20,17 @@ const PreguntaRange = ({ idPregunta, opciones, userData, setUserData }) => {
           delete updatedUserData[64];
           delete updatedUserData[65];
         } else {
-          updatedUserData[idPregunta] = opciones[0].idalternativa;
+          updatedUserData[idPregunta] = opcionesOrdenadas[0].idalternativa;
         }
 
         return updatedUserData;
       });
     }
-  }, [idPregunta, opciones, userData, setUserData]);
+  }, [idPregunta, opcionesOrdenadas, userData, setUserData]);
 
   const handleRangeChange = (e) => {
     const selectedIndex = parseInt(e.target.value, 10);
-    const selectedAlternativa = opciones[selectedIndex];
+    const selectedAlternativa = opcionesOrdenadas[selectedIndex];
 
     setUserData((prevUserData) => ({
       ...prevUserData,
@@ -35,13 +40,12 @@ const PreguntaRange = ({ idPregunta, opciones, userData, setUserData }) => {
     }));
   };
 
+  // Obtener el ID seleccionado
   const selectedId = userData[idPregunta];
-  const selectedIndex = opciones.findIndex(
-    (opcion) => opcion.idalternativa === selectedId
-  );
 
-  const opcionesOrdenadas = [...opciones].sort(
-    (a, b) => a.idalternativa - b.idalternativa
+  // Buscar el índice en opcionesOrdenadas
+  const selectedIndex = opcionesOrdenadas.findIndex(
+    (opcion) => opcion.idalternativa === selectedId
   );
 
   return (
