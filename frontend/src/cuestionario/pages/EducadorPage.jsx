@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Importamos Link
+import { useNavigate } from "react-router-dom"; // Importamos Link
 import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
 import { Accordion, AccordionItem } from "@heroui/accordion";
 import {
@@ -13,8 +13,8 @@ import { getCuestionariosRequest } from "../../api/cuestionarios";
 import { FormContext } from "../context/FormContext";
 
 const EducadorPage = () => {
-  const [cuestionarios, setCuestionarios] = useState([]);
-  const [isAccordionVisible, setIsAccordionVisible] = useState(false);
+  const [cuestionarios, setCuestionarios] = useState([])
+  const [isAccordionVisible, setIsAccordionVisible] = useState(false)
 
   const navigate = useNavigate();
   const { setQuizId } = useContext(FormContext);
@@ -27,24 +27,25 @@ const EducadorPage = () => {
   useEffect(() => {
     const fetchCuestionarios = async () => {
       try {
-        const response = await getCuestionariosRequest();
-        setCuestionarios(response.data);
+        const response = await getCuestionariosRequest()
+        setCuestionarios(response.data)
       } catch (error) {
-        console.error("Error al obtener los cuestionarios:", error);
+        console.error("Error al obtener los cuestionarios:", error)
       }
-    };
+    }
 
-    fetchCuestionarios();
-  }, []);
+    fetchCuestionarios()
+  }, [])
 
   return (
-    <div>
-      <div className="flex justify-center gap-6 p-8">
-        {/* Sección de Cuestionarios */}
-        <div className="flex flex-col items-start w-[45rem]">
+    <div className="container mx-auto">
+      {/* Contenedor principal con flex que cambia de dirección en pantallas pequeñas */}
+      <div className="flex flex-col md:flex-row justify-center gap-4 md:gap-6 p-4 md:p-8">
+        {/* Sección de Cuestionarios - ancho completo en móvil, mitad en desktop */}
+        <div className="w-full md:w-1/2">
           <Card className="w-full rounded-md">
             <CardHeader>
-              <div className="flex items-center px-2 text-2xl">
+              <div className="flex items-center px-2 text-xl md:text-2xl">
                 <ClipboardList className="w-5 h-5 mr-2 stroke-YankeesBlue" />
                 <h2 className="font-bold text-YankeesBlue">
                   Realizar Cuestionario
@@ -52,15 +53,14 @@ const EducadorPage = () => {
               </div>
             </CardHeader>
             <CardBody>
-              <p className="text-gray-500 px-2">
-                Aquí puedes realizar un cuestionario para evaluar tus
-                conocimientos.
+              <p className="text-gray-500 px-2 text-sm md:text-base">
+                Aquí puedes realizar un cuestionario para evaluar tus conocimientos.
               </p>
             </CardBody>
             <CardFooter className="px-4 flex flex-col items-start">
               {/* Botón con icono de Eye o EyeClosed */}
               <button
-                className="flex items-center gap-2 bg-YankeesBlue text-white py-2 px-4 rounded-md"
+                className="flex items-center gap-2 bg-YankeesBlue text-white py-1.5 md:py-2 px-3 md:px-4 rounded-md text-sm md:text-base"
                 onClick={() => setIsAccordionVisible(!isAccordionVisible)}
               >
                 {isAccordionVisible ? (
@@ -94,7 +94,7 @@ const EducadorPage = () => {
                         title={cuestionario.titulocuestionario}
                         subtitle="Click para expandir."
                       >
-                        <div className="p-2 flex justify-between items-center">
+                        <div className="p-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                           {/* Mostrar descripción alineada a la izquierda */}
                           <p className="text-gray-700">
                             {cuestionario.descripcioncuestionario}
@@ -124,7 +124,7 @@ const EducadorPage = () => {
                                   cuestionario.idcuestionario
                                 )
                               }
-                              className="flex items-center gap-2 bg-gray-400 text-white py-2 px-4 rounded-md cursor-not-allowed"
+                              className="flex items-center gap-2 bg-gray-400 text-white py-1.5 md:py-2 px-3 md:px-4 rounded-md cursor-not-allowed text-sm md:text-base whitespace-nowrap mt-2 sm:mt-0"
                               disabled
                             >
                               Próximamente
@@ -140,9 +140,7 @@ const EducadorPage = () => {
                       title="No hay cuestionarios disponibles"
                     >
                       <div className="p-2">
-                        <p className="text-gray-500">
-                          No hay cuestionarios en la base de datos.
-                        </p>
+                        <p className="text-gray-500 text-sm md:text-base">No hay cuestionarios en la base de datos.</p>
                       </div>
                     </AccordionItem>
                   )}
@@ -152,22 +150,22 @@ const EducadorPage = () => {
           </Card>
         </div>
 
-        {/* Tarjeta de Mi Perfil: Ahora independiente y sin estar afectada por el Accordion */}
-        <div className="flex items-start w-[45rem]">
+        {/* Tarjeta de Mi Perfil - ancho completo en móvil, mitad en desktop */}
+        <div className="w-full md:w-1/2 mt-4 md:mt-0">
           <Card className="w-full rounded-md">
             <CardHeader>
-              <div className="flex items-center px-2 text-2xl">
+              <div className="flex items-center px-2 text-xl md:text-2xl">
                 <User className="w-5 h-5 mr-2 stroke-YankeesBlue" />
                 <h2 className="font-bold text-YankeesBlue">Mi Perfil</h2>
               </div>
             </CardHeader>
             <CardBody>
-              <p className="text-gray-500 px-2">
+              <p className="text-gray-500 px-2 text-sm md:text-base">
                 Visualiza y edita la información de tu perfil de educador.
               </p>
             </CardBody>
             <CardFooter className="px-4">
-              <button className="flex items-center bg-YankeesBlue text-white py-2 px-4 rounded-md">
+              <button className="flex items-center bg-YankeesBlue text-white py-1.5 md:py-2 px-3 md:px-4 rounded-md text-sm md:text-base">
                 Ver Perfil
               </button>
             </CardFooter>
@@ -175,7 +173,8 @@ const EducadorPage = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default EducadorPage;
+export default EducadorPage
+
