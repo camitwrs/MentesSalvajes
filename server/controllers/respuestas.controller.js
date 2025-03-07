@@ -129,39 +129,51 @@ export const guardarRespuesta = async (req, res) => {
   }
 };
 
-// Obtiene las respuestas de un usuario en formato textoalternativa
-export const getAllRespuestasTexto = async (req, res) => {
+export const getRespuestasDetalle = async (req, res) => {
+  const { idusuario, idcuestionario } = req.query;
   try {
-    const { idusuario, idcuestionario } = req.query;
+    await pool.query("BEGIN"); // Iniciar transacción
 
+    // 🔹 1. Obtener la última `idrespuesta`
     const result = await pool.query(
-      `
-      SELECT 
-        CAST(jsonb_each(r.respuestas).key AS INT) AS idpregunta, 
-        a.textoalternativa 
-      FROM respuestas r
-      JOIN alternativas a 
-        ON CAST(jsonb_each_text(r.respuestas).value AS INT) = a.idalternativa
-      WHERE r.idusuario = $1 AND r.idcuestionario = $2
-      `,
+      `SELECT idrespuesta FROM respuestas 
+       WHERE idusuario = $1 AND idcuestionario = $2 
+       ORDER BY fecharespuesta DESC LIMIT 1;`,
       [idusuario, idcuestionario]
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: "No se encontraron respuestas" });
+      await pool.query("ROLLBACK"); // Revertir si no hay respuestas
+
+      return res
+        .status(404)
+        .json({ error: "No se encontraron respuestas recientes." });
     }
 
-    const respuestasTexto = {};
+    const idrespuesta = result.rows[0].idrespuesta;
 
-    result.rows.forEach((row) => {
-      respuestasTexto[row.idpregunta] = row.textoalternativa;
-    });
+    // 🔹 2. Obtener los detalles de `respuestasdetalle`
+    const detalles = await pool.query(
+      `SELECT idrespuestadetalle, idrespuesta, idpregunta, respuestaelegida, 
+              idalternativa, caracteristicaalternativa, puntajealternativa 
+       FROM respuestasdetalle 
+       WHERE idrespuesta = $1;`,
+      [idrespuesta]
+    );
 
-    res.json(respuestasTexto);
+    if (detalles.rows.length === 0) {
+      await pool.query("ROLLBACK"); // Revertir si no hay detalles
 
-    res.status(200).json(respuestaResult.rows);
+      return res
+        .status(404)
+        .json({ error: "No se encontraron detalles para esta respuesta." });
+    }
+
+    await pool.query("COMMIT"); // Confirmar transacción
+
+    res.status(200).json(detalles.rows);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error al obtener respuestas" });
+    await pool.query("ROLLBACK"); // Revertir transacción en caso de error
+    res.status(500).json({ error: "Error interno del servidor." });
   }
 };
