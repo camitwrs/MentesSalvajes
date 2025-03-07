@@ -97,7 +97,7 @@ const RegisterPage = () => {
     };
 
     cargarInstituciones();
-  }, [selectedPais]); // Se ejecuta solo cuando `selectedPais` cambia
+  }, [paisesSinUniversidades, selectedPais]); // Se ejecuta solo cuando `selectedPais` cambia
 
   // Enviar los datos del registro al backend
   const onSubmit = async (data) => {
