@@ -16,6 +16,15 @@ export const FormProvider = ({ children }) => {
   });
   const { user } = useAuth();
 
+  const updateQuizId = (id) => {
+    setQuizId(id);
+    if (id) {
+      localStorage.setItem("quizId", id);
+    } else {
+      localStorage.removeItem("quizId");
+    }
+  };
+
   function handleStartQuiz() {
     setIsQuizStarted(true); // Cambiar el estado para iniciar el cuestionario
   }
@@ -95,6 +104,8 @@ export const FormProvider = ({ children }) => {
   useEffect(() => {
     if (quizId) {
       localStorage.setItem("quizId", quizId);
+    } else {
+      localStorage.removeItem("quizId");
     }
   }, [quizId]);
 
@@ -112,7 +123,7 @@ export const FormProvider = ({ children }) => {
         handleStartQuiz,
         submitData,
         quizId,
-        setQuizId,
+        setQuizId: updateQuizId,
       }}
     >
       {children}

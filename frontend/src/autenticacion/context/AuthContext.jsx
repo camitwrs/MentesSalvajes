@@ -64,6 +64,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     Cookie.remove("token");
+    localStorage.removeItem("quizId");
     setUser(null);
     setEstaAutenticado(false);
   };
