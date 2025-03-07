@@ -35,17 +35,17 @@ const PreguntaTexto = ({ idPregunta, userData, setUserData }) => {
   return (
     <div className="w-full">
       <textarea
-        id={`textarea-${idPregunta}`} // ID único para el textarea
-        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm sm:text-base focus:outline-none focus:border-blue-500 transition-transform duration-200 ease-in-out resize-none overflow-hidden"
+        id={`textarea-${idPregunta}`}
+        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm sm:text-base focus:outline-none focus:border-blue-500 transition-transform duration-200 ease-in-out resize-none overflow-hidden 
+                   rows-3 sm:rows-1" // 2 filas en móviles, 1 en pantallas grandes
         value={userData[idPregunta] || ""}
         onChange={handleTextChange}
-        placeholder={placeholder} // Usar el placeholder dinámico
-        maxLength="200" // Limitar a 200 caracteres
-        style={{ height }} // Establecer la altura dinámica
-        rows={1} // Número inicial de filas
+        placeholder={placeholder}
+        maxLength="200"
+        style={{ height }}
       />
     </div>
-  );
+  );  
 };
 
 PreguntaTexto.propTypes = {
