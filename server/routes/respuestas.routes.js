@@ -1,12 +1,12 @@
 import { Router } from "express";
 import {
   guardarRespuesta,
-  getAllRespuestasTexto,
+  getRespuestasDetalle,
 } from "../controllers/respuestas.controller.js";
 
 const router = Router();
 
 router.post("/enviar", guardarRespuesta);
-router.get("/texto", getAllRespuestasTexto);
+router.get("/texto", getRespuestasDetalle);
 
 export default router;

@@ -19,23 +19,30 @@ export const guardarRespuestaRequest = (respuesta) =>
   axios.post(`${API}/respuestas/enviar`, respuesta);
 
 /*
-  Función: getAllRespuestasTextoRequest.
+  Función: getRespuestasDetalle.
   ---------------------------------------------
-  Recupera de la base de datos las respuestas de un usuario para un cuestionario y las transforma en formato texto.
+  Permite obtener las respuestas de un usuario en un cuestionario específico.
 
   - Parámetros esperados en req.query:
       - idusuario: identificador del usuario.
       - idcuestionario: identificador del cuestionario.
   - Respuesta:
-      - Devuelve un objeto JSON donde cada key es el id de la pregunta (como string) y su valor es el texto de la alternativa.
-        Ejemplo:
-          {
-            "1": "Azul",
-            "2": "Perro"
-          }
-      - Si no se encuentran respuestas, devuelve un error 404.
+      - Devuelve los detalles de la respuesta más reciente registrada por ese usuario en ese cuestionario. 
+      - Contiene un array de objetos con información de cada pregunta respondida:
+      [
+        {
+        "idrespuestadetalle": 1,
+        "idrespuesta": 10,
+        "idpregunta": 5,
+        "respuestaelegida": "Humanidades",
+        "idalternativa": 22,
+        "caracteristicaalternativa": "Nutria",
+        "puntajealternativa": null
+        }
+      ]
+      - Si el usuario no tiene respuestas registradas en ese cuestionario, la API devuelve un error 404 con un mensaje indicando que no se encontraron respuestas recientes.
 */
-export const getAllRespuestasTextoRequest = (idusuario, idcuestionario) =>
+export const getRespuestasDetalleRequest = (idusuario, idcuestionario) =>
   axios.get(`${API}/respuestas/texto`, {
     params: { idusuario, idcuestionario },
   });
