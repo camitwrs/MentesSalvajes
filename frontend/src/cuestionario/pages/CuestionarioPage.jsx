@@ -132,7 +132,9 @@ const CuestionarioPage = () => {
               ) : (
                 <>
                   {submitSuccess ? (
-                    <Final />
+                    <Final
+                      submitSuccess={submitSuccess}
+                    />
                   ) : (
                     <>
                       <RenderizarPreguntas
