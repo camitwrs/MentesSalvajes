@@ -8,6 +8,7 @@ export const useManejoEnvio = (submitData) => {
   const handleSendQuiz = async () => {
     setIsSubmitting(true);
     try {
+      setSubmitSuccess(false);
       await submitData();
       setSubmitSuccess(true);
       setSubmitError("");
@@ -21,7 +22,7 @@ export const useManejoEnvio = (submitData) => {
       setIsSubmitting(false);
     }
   };
-
+  
   return {
     isSubmitting,
     submitSuccess,
