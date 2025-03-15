@@ -1,10 +1,12 @@
 import { useEffect, useState, useContext } from "react";
+import ReactDOMServer from "react-dom/server";
 import { useAuth } from "../../autenticacion/context/AuthContext";
 import { getDatosEducadorRequest } from "../../api/usuarios";
 import { getRespuestasDetalleRequest } from "../../api/respuestas";
 import { FormContext } from "../context/FormContext";
 import { Spinner } from "@heroui/spinner";
 import PropTypes from "prop-types";
+import { guardarMensajeRequest } from "./../../api/ilustraciones";
 
 import ballenas from "../assets/cetaceo.svg";
 import focas from "../assets/pinipedo.svg";
@@ -46,7 +48,10 @@ const Final = ({ submitSuccess }) => {
   useEffect(() => {
     setLoading(true);
     const timer = setTimeout(async () => {
-      const response = await getRespuestasDetalleRequest(user.idusuario, quizId);
+      const response = await getRespuestasDetalleRequest(
+        user.idusuario,
+        quizId
+      );
       setRespuestasDetalle(response.data);
       setLoading(false);
     }, 1000);
@@ -67,7 +72,9 @@ const Final = ({ submitSuccess }) => {
     );
     if (!respuesta?.respuestaelegida) return "desconocido";
     const palabras = respuesta.respuestaelegida.trim().split(" ");
-    return palabras.length > 1 ? palabras[palabras.length - 1] : respuesta.respuestaelegida;
+    return palabras.length > 1
+      ? palabras[palabras.length - 1]
+      : respuesta.respuestaelegida;
   };
 
   const calcularCategoria = () => {
@@ -78,7 +85,10 @@ const Final = ({ submitSuccess }) => {
     const sumarPuntaje = (ids) =>
       respuestasDetalle
         .filter((resp) => ids.includes(Number(resp.idpregunta)))
-        .reduce((total, resp) => total + (Number(resp.puntajealternativa) || 0), 0);
+        .reduce(
+          (total, resp) => total + (Number(resp.puntajealternativa) || 0),
+          0
+        );
 
     const setA = sumarPuntaje(setAIds);
     const setB = sumarPuntaje(setBIds);
@@ -94,7 +104,9 @@ const Final = ({ submitSuccess }) => {
     const respuesta = respuestasDetalle.find(
       (resp) => Number(resp.idpregunta) === 8
     );
-    return respuesta ? imagenesPorRespuesta[respuesta.caracteristicaalternativa] : null;
+    return respuesta
+      ? imagenesPorRespuesta[respuesta.caracteristicaalternativa]
+      : null;
   };
 
   const generarDescripcion = () => (
@@ -105,39 +117,76 @@ const Final = ({ submitSuccess }) => {
       </span>
       . Su especie animal es{" "}
       <span className="font-bold text-YankeesBlue">{calcularCategoria()}</span>{" "}
-      <span className="font-bold text-YankeesBlue">{getRespuestaElegida(28)}</span>{" "}
+      <span className="font-bold text-YankeesBlue">
+        {getRespuestaElegida(28)}
+      </span>{" "}
       de{" "}
       <span className="font-bold text-YankeesBlue">
         {educador?.paiseducador || "desconocido"}
       </span>
       . Su capacidad de sumergirse en las profundidades alcanza hasta los{" "}
-      <span className="font-bold text-YankeesBlue">{getCaracteristica("60")}</span>
+      <span className="font-bold text-YankeesBlue">
+        {getCaracteristica("60")}
+      </span>
       . Su velocidad de nado es de{" "}
-      <span className="font-bold text-YankeesBlue">{getCaracteristica("61")}</span>
+      <span className="font-bold text-YankeesBlue">
+        {getCaracteristica("61")}
+      </span>
       . La distancia que puede recorrer al salir del agua es de{" "}
-      <span className="font-bold text-YankeesBlue">{getCaracteristica("62")}</span>
-      .{" "}
-      Su morfología es de un{" "}
-      <span className="font-bold text-YankeesBlue">{getCaracteristica("8")}</span>
+      <span className="font-bold text-YankeesBlue">
+        {getCaracteristica("62")}
+      </span>
+      . Su morfología es de un{" "}
+      <span className="font-bold text-YankeesBlue">
+        {getCaracteristica("8")}
+      </span>
       . Tiene{" "}
-      <span className="font-bold text-YankeesBlue">{getCaracteristica("9")}</span>
+      <span className="font-bold text-YankeesBlue">
+        {getCaracteristica("9")}
+      </span>
       . Su tamaño es de{" "}
-      <span className="font-bold text-YankeesBlue">{getCaracteristica("21")}</span>
+      <span className="font-bold text-YankeesBlue">
+        {getCaracteristica("21")}
+      </span>
       . Sus ojos son{" "}
-      <span className="font-bold text-YankeesBlue">{getCaracteristica("23")}</span>
+      <span className="font-bold text-YankeesBlue">
+        {getCaracteristica("23")}
+      </span>
       . Su hábitat está compuesto por:{" "}
-      {["11", "12", "13", "14", "15", "16", "17", "18", "19"].map((id, index, array) => (
-        <span key={id} className="font-bold text-YankeesBlue">
-          {getCaracteristica(id)}
-          {index < array.length - 1 ? ", " : "."}
-        </span>
-      ))}
+      {["11", "12", "13", "14", "15", "16", "17", "18", "19"].map(
+        (id, index, array) => (
+          <span key={id} className="font-bold text-YankeesBlue">
+            {getCaracteristica(id)}
+            {index < array.length - 1 ? ", " : "."}
+          </span>
+        )
+      )}
     </>
   );
 
-  const titulo = `${user?.nombreusuario} ${user?.apellidousuario}`;
   const descripcion = generarDescripcion();
+  const titulo = `Docente: ${user?.nombreusuario} ${user?.apellidousuario}`;
+  const descripcionHTML = ReactDOMServer.renderToStaticMarkup(
+    generarDescripcion()
+  ); // Convierte JSX a HTML string
+  const descripcionToSend = descripcionHTML.replace(/<[^>]*>/g, ""); // Limpia etiquetas HTML
   const idEducador = user?.idusuario;
+
+  const mensajeToSend = {
+    tituloilustracion: titulo,
+    descripcionllustracion: descripcionToSend,
+    ideducador: idEducador,
+  };
+
+  useEffect(() => {
+    guardarMensajeRequest(mensajeToSend)
+      .then((response) => {
+        console.log("Mensaje enviado correctamente:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error al enviar el mensaje:", error);
+      });
+  }, []); // Se ejecuta solo una vez al montar el componente
 
   return (
     <div className="max-w-4xl mx-auto px-6 sm:px-10 py-8">
@@ -145,7 +194,9 @@ const Final = ({ submitSuccess }) => {
         <h2 className="text-2xl sm:text-3xl font-bold text-Moonstone mb-4">
           ¡Gracias por completar el cuestionario!
         </h2>
-        <p className="text-gray-800 text-sm sm:text-base">Hemos recibido tus respuestas.</p>
+        <p className="text-gray-800 text-sm sm:text-base">
+          Hemos recibido tus respuestas.
+        </p>
       </div>
 
       {loading ? (
@@ -165,9 +216,15 @@ const Final = ({ submitSuccess }) => {
               <div className="w-full md:w-1/2 border border-gray-300 rounded-lg p-3 bg-white shadow-md">
                 <div className="relative h-[250px] md:h-[400px] w-full rounded-lg overflow-hidden flex justify-center">
                   {getImagenSegunRespuesta() ? (
-                    <img src={getImagenSegunRespuesta()} alt="Perfil descubierto" className="object-contain h-full w-full" />
+                    <img
+                      src={getImagenSegunRespuesta()}
+                      alt="Perfil descubierto"
+                      className="object-contain h-full w-full"
+                    />
                   ) : (
-                    <p className="text-center text-gray-500">No hay imagen disponible</p>
+                    <p className="text-center text-gray-500">
+                      No hay imagen disponible
+                    </p>
                   )}
                 </div>
               </div>

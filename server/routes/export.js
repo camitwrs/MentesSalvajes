@@ -6,6 +6,7 @@ import alternativasRoutes from "./alternativas.routes.js";
 import respuestasRoutes from "./respuestas.routes.js";
 import autenticacionRoutes from "./autenticacion.routes.js";
 import usuariosRoutes from "./usuarios.routes.js";
+import ilustracionesRoutes from "./ilustraciones.routes.js";
 
 const router = Router();
 
@@ -15,5 +16,6 @@ router.use("/alternativas", alternativasRoutes);
 router.use("/respuestas", respuestasRoutes);
 router.use("/autenticacion", autenticacionRoutes);
 router.use("/usuarios", usuariosRoutes);
+router.use("/ilustraciones", ilustracionesRoutes);
 
 export default router;

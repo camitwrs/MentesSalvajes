@@ -9,65 +9,61 @@ import {
 } from "@heroui/react";
 import { Upload } from "lucide-react";
 import { useState } from "react";
-
-const datosEnDuro = [
-  {
-    id: 1,
-    titulo: "Fantasy Landscape",
-    estado: "Pendiente",
-    fechaSolicitud: "2024-02-20",
-  },
-  {
-    id: 2,
-    titulo: "Ocean View",
-    estado: "Completado",
-    fechaSolicitud: "2024-01-15",
-  },
-  {
-    id: 3,
-    titulo: "Mountain Escape",
-    estado: "En Proceso",
-    fechaSolicitud: "2024-02-10",
-  },
-  {
-    id: 4,
-    titulo: "Urban Skyline",
-    estado: "Pendiente",
-    fechaSolicitud: "2024-02-18",
-  },
-];
+import { getAllIlustracionesRequest } from "../../api/ilustraciones";
+import { useEffect } from "react";
 
 const CartaIlustracion = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [modalContent, setModalContent] = useState(null);
+  const [ilustraciones, setIlustraciones] = useState([]);
 
   const handleOpenModal = (tarjeta) => {
     setModalContent(tarjeta);
     onOpen();
   };
 
+  useEffect(() => {
+    getAllIlustracionesRequest()
+      .then((response) => {
+        setIlustraciones(response.data);
+      })
+      .catch((error) => {
+        console.error("Error al obtener las ilustraciones:", error);
+      });
+  }, []); // Se ejecuta solo una vez al montar el componente
+
   return (
     <div className="p-4">
       {/* Grid con las tarjetas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {datosEnDuro.length > 0 ? (
-          datosEnDuro.map((tarjeta) => (
+        {ilustraciones.length > 0 ? (
+          ilustraciones.map((tarjeta) => (
             <Card
-              key={tarjeta.id}
+              key={tarjeta.idilustracion}
               className="rounded-md border border-gray-300 shadow-md"
             >
               <CardHeader>
-                <h2 className="text-lg font-bold">{tarjeta.titulo}</h2>
+                <h2 className="text-lg font-bold">
+                  {tarjeta.titulollustracion}
+                </h2>
               </CardHeader>
               <CardBody>
                 <p>
-                  <strong>Estado:</strong> {tarjeta.estado}
+                  <strong>Estado:</strong> {tarjeta.estadollustracion}
                 </p>
                 <p>
-                  <strong>Fecha de solicitud:</strong> {tarjeta.fechaSolicitud}
+                  <strong>Fecha de solicitud:</strong>{" "}
+                  {new Date(
+                    tarjeta.fechaasignacionllustracion
+                  ).toLocaleDateString()}
                 </p>
                 <p>
-                  <strong>Fecha de carga:</strong> 2024-02-22
+                  <strong>Fecha de carga:</strong>{" "}
+                  {tarjeta.fechacargallustracion
+                    ? new Date(
+                        tarjeta.fechacargallustracion
+                      ).toLocaleDateString()
+                    : "No disponible"}
                 </p>
               </CardBody>
               <CardFooter className="flex justify-end">
@@ -81,12 +77,13 @@ const CartaIlustracion = () => {
             </Card>
           ))
         ) : (
-          <p className="text-center col-span-4 text-gray-500">
-            No hay ilustraciones disponibles.
+          <p className="text-center text-xl col-span-4 text-gray-500">
+            No hay ilustraciones disponibles por el momento :(
           </p>
         )}
       </div>
 
+      {/* Modal */}
       <Modal
         isOpen={isOpen}
         onOpenChange={onClose}
@@ -101,20 +98,31 @@ const CartaIlustracion = () => {
                 ${isOpen ? "translate-y-0" : "-translate-y-full"}`}
         >
           <ModalHeader>
-            <h2 className="text-lg font-bold">{modalContent?.titulo}</h2>
+            <h2 className="text-lg font-bold">
+              {modalContent?.titulollustracion}
+            </h2>
           </ModalHeader>
           <ModalBody className="text-gray-500">
             <p>
-              <strong>Estado:</strong> {modalContent?.estado}
+              <strong>Estado:</strong> {modalContent?.estadollustracion}
             </p>
             <p>
               <strong>Fecha de solicitud:</strong>{" "}
-              {modalContent?.fechaSolicitud}
+              {modalContent?.fechaasignacionllustracion
+                ? new Date(
+                    modalContent.fechaasignacionllustracion
+                  ).toLocaleDateString()
+                : "No disponible"}
             </p>
             <p>
-              <strong>Fecha de carga:</strong> 2024-02-22
+              <strong>Fecha de carga:</strong>{" "}
+              {modalContent?.fechacargallustracion
+                ? new Date(
+                    modalContent.fechacargallustracion
+                  ).toLocaleDateString()
+                : "No disponible"}
             </p>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit...</p>
+            <p>{modalContent?.descripcionllustracion}</p>
           </ModalBody>
           <ModalFooter>
             <button className="w-full bg-Moonstone text-white py-2 px-4 rounded-md flex items-center justify-center gap-2">
