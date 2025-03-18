@@ -4,25 +4,31 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalFooter,
   useDisclosure,
 } from "@heroui/react";
-import { Upload } from "lucide-react";
-import { useState } from "react";
-import { getAllIlustracionesRequest } from "../../api/ilustraciones";
-import { useEffect } from "react";
+import { Loader2, CheckCircle2, Info } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import {
+  getAllIlustracionesRequest,
+  guardarArchivoRequest,
+} from "../../api/ilustraciones";
+import { useAuth } from "../../autenticacion/context/AuthContext";
+import { FilePond, registerPlugin } from "react-filepond";
+import FilePondPluginImagePreview from "filepond-plugin-image-preview";
+
+registerPlugin(FilePondPluginImagePreview);
 
 const CartaIlustracion = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [modalContent, setModalContent] = useState(null);
   const [ilustraciones, setIlustraciones] = useState([]);
+  const { user } = useAuth();
+  const [files, setFiles] = useState([]);
+  const pondRef = useRef(null);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
-  const handleOpenModal = (tarjeta) => {
-    setModalContent(tarjeta);
-    onOpen();
-  };
-
-  useEffect(() => {
+  const fetchIlustraciones = () => {
     getAllIlustracionesRequest()
       .then((response) => {
         setIlustraciones(response.data);
@@ -30,7 +36,51 @@ const CartaIlustracion = () => {
       .catch((error) => {
         console.error("Error al obtener las ilustraciones:", error);
       });
-  }, []); // Se ejecuta solo una vez al montar el componente
+  };
+
+  const handleOpenModal = (tarjeta) => {
+    setModalContent(tarjeta);
+    setFiles([]);
+    setSuccess(false);
+    setLoading(false);
+    onOpen();
+  };
+
+  const handleCloseModal = () => {
+    onClose();
+  };
+
+  useEffect(() => {
+    fetchIlustraciones();
+  }, []);
+
+  const handleUpload = async (file, load, clearFile) => {
+    setLoading(true);
+    setSuccess(false);
+    const formData = new FormData();
+    formData.append("archivoilustracion", file.file);
+    formData.append("iddisenador", user.idusuario);
+    formData.append("idilustracion", modalContent.idilustracion);
+
+    try {
+      await guardarArchivoRequest(formData);
+      fetchIlustraciones();
+      setSuccess(true);
+      load("unique-file-id");
+      setTimeout(() => {
+        clearFile();
+      }, 1000);
+      setTimeout(() => {
+        handleCloseModal();
+        setSuccess(false);
+      }, 2500);
+    } catch (error) {
+      console.error("Error al subir el archivo:", error);
+      load(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="p-4">
@@ -86,14 +136,14 @@ const CartaIlustracion = () => {
       {/* Modal */}
       <Modal
         isOpen={isOpen}
-        onOpenChange={onClose}
+        onOpenChange={handleCloseModal}
         isDismissable={false}
         isKeyboardDismissDisabled={true}
         className="fixed inset-0 flex items-start justify-center"
       >
         <ModalContent
           className={`fixed top-0 left-1/2 -translate-x-1/2 w-[90%] max-w-sm bg-white shadow-lg 
-                max-h-[60vh] overflow-y-auto rounded-t-lg 
+                max-h-[80vh] overflow-y-auto rounded-t-lg 
                 transform transition-transform duration-300 ease-out 
                 ${isOpen ? "translate-y-0" : "-translate-y-full"}`}
         >
@@ -102,34 +152,81 @@ const CartaIlustracion = () => {
               {modalContent?.titulollustracion}
             </h2>
           </ModalHeader>
-          <ModalBody className="text-gray-500">
-            <p>
-              <strong>Estado:</strong> {modalContent?.estadollustracion}
-            </p>
-            <p>
-              <strong>Fecha de solicitud:</strong>{" "}
-              {modalContent?.fechaasignacionllustracion
-                ? new Date(
-                    modalContent.fechaasignacionllustracion
-                  ).toLocaleDateString()
-                : "No disponible"}
-            </p>
-            <p>
-              <strong>Fecha de carga:</strong>{" "}
-              {modalContent?.fechacargallustracion
-                ? new Date(
-                    modalContent.fechacargallustracion
-                  ).toLocaleDateString()
-                : "No disponible"}
-            </p>
-            <p>{modalContent?.descripcionllustracion}</p>
+          <ModalBody className="text-gray-500 flex flex-col gap-4">
+            <div>
+              <p>
+                <strong>Estado:</strong> {modalContent?.estadollustracion}
+              </p>
+              <p>
+                <strong>Fecha de solicitud:</strong>{" "}
+                {modalContent?.fechaasignacionllustracion
+                  ? new Date(
+                      modalContent.fechaasignacionllustracion
+                    ).toLocaleDateString()
+                  : "No disponible"}
+              </p>
+              <p>
+                <strong>Fecha de carga:</strong>{" "}
+                {modalContent?.fechacargallustracion
+                  ? new Date(
+                      modalContent.fechacargallustracion
+                    ).toLocaleDateString()
+                  : "No disponible"}
+              </p>
+              <p>{modalContent?.descripcionllustracion}</p>
+            </div>
+
+            {modalContent?.estadollustracion !== "completado" ? (
+              <>
+                <FilePond
+                  ref={pondRef}
+                  files={files}
+                  allowMultiple={false}
+                  acceptedFileTypes={[
+                    "image/png",
+                    "image/jpeg",
+                    "image/webp",
+                    "image/svg+xml",
+                  ]}
+                  onupdatefiles={setFiles}
+                  labelIdle='Arrastra tu imagen o <span class="filepond--label-action text-blue-600">Explora</span>'
+                  credits={false}
+                  className="rounded-lg border-2 border-blue-300 bg-gray-100 text-base p-4"
+                  server={{
+                    process: (
+                      _fieldName,
+                      file,
+                      _metadata,
+                      load,
+                      _error,
+                      _progress,
+                      abort,
+                      clear
+                    ) => {
+                      handleUpload({ file }, load, () => clear());
+                    },
+                  }}
+                />
+
+                {loading && (
+                  <div className="flex justify-center mt-2">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  </div>
+                )}
+
+                {success && (
+                  <div className="flex justify-center mt-2 text-green-600 animate-pulse">
+                    <CheckCircle2 className="w-5 h-5" /> ¡Archivo subido!
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="flex justify-center mt-4 text-blue-600">
+                <Info className="w-5 h-5 mr-2" /> Archivo ya subido y
+                completado.
+              </div>
+            )}
           </ModalBody>
-          <ModalFooter>
-            <button className="w-full bg-Moonstone text-white py-2 px-4 rounded-md flex items-center justify-center gap-2">
-              <Upload className="w-5 h-5" />
-              Subir Ilustración
-            </button>
-          </ModalFooter>
         </ModalContent>
       </Modal>
     </div>

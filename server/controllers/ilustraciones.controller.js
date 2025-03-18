@@ -25,7 +25,8 @@ export const guardarMensaje = async (req, res) => {
 
 // Guardar segunda parte de la ilustracion desde el disenador
 export const guardarArchivo = async (req, res) => {
-  const { archivoilustracion, iddisenador, idilustracion } = req.body;
+  const { iddisenador, idilustracion } = req.body;
+  const archivoilustracion = req.file?.buffer; // Aquí accedes al buffer binario
 
   try {
     const query = `
