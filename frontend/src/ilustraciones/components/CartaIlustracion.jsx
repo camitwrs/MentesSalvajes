@@ -4,21 +4,33 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
+  ModalFooter,
   useDisclosure,
 } from "@heroui/react";
-import { Loader2, CheckCircle2, Info } from "lucide-react";
+import {
+  Loader2,
+  CheckCircle2,
+  Upload,
+  Clock,
+  CheckCircle,
+  Calendar,
+  User,
+} from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { FilePond, registerPlugin } from "react-filepond";
+import FilePondPluginImagePreview from "filepond-plugin-image-preview";
+import { Chip } from "@heroui/chip";
+import PropTypes from "prop-types";
+
 import {
   getAllIlustracionesRequest,
   guardarArchivoRequest,
 } from "../../api/ilustraciones";
 import { useAuth } from "../../autenticacion/context/AuthContext";
-import { FilePond, registerPlugin } from "react-filepond";
-import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 
 registerPlugin(FilePondPluginImagePreview);
 
-const CartaIlustracion = () => {
+const CartaIlustracion = ({ estadoFiltro, orden }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [modalContent, setModalContent] = useState(null);
   const [ilustraciones, setIlustraciones] = useState([]);
@@ -31,12 +43,34 @@ const CartaIlustracion = () => {
   const fetchIlustraciones = () => {
     getAllIlustracionesRequest()
       .then((response) => {
-        setIlustraciones(response.data);
+        let data = response.data;
+
+        if (estadoFiltro !== "todas") {
+          data = data.filter(
+            (item) =>
+              (estadoFiltro === "pendientes" &&
+                item.estadollustracion === "Pendiente") ||
+              (estadoFiltro === "completadas" &&
+                item.estadollustracion === "Completado")
+          );
+        }
+
+        data = data.sort((a, b) => {
+          const dateA = new Date(a.fechaasignacionllustracion);
+          const dateB = new Date(b.fechaasignacionllustracion);
+          return orden === "reciente" ? dateB - dateA : dateA - dateB;
+        });
+
+        setIlustraciones(data);
       })
       .catch((error) => {
         console.error("Error al obtener las ilustraciones:", error);
       });
   };
+
+  useEffect(() => {
+    fetchIlustraciones();
+  }, [estadoFiltro, orden]);
 
   const handleOpenModal = (tarjeta) => {
     setModalContent(tarjeta);
@@ -49,10 +83,6 @@ const CartaIlustracion = () => {
   const handleCloseModal = () => {
     onClose();
   };
-
-  useEffect(() => {
-    fetchIlustraciones();
-  }, []);
 
   const handleUpload = async (file, load, clearFile) => {
     setLoading(true);
@@ -83,45 +113,74 @@ const CartaIlustracion = () => {
   };
 
   return (
-    <div className="p-4">
-      {/* Grid con las tarjetas */}
+    <div className="p-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {ilustraciones.length > 0 ? (
           ilustraciones.map((tarjeta) => (
             <Card
               key={tarjeta.idilustracion}
-              className="rounded-md border border-gray-300 shadow-md"
+              className="rounded-lg border border-gray-200 shadow-md"
             >
-              <CardHeader>
-                <h2 className="text-lg font-bold">
-                  {tarjeta.tituloilustracion}
-                </h2>
+              <CardHeader className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <User className="w-5 h-5 text-gray-500" />
+                  <h2 className="text-base font-semibold">
+                    {tarjeta.tituloilustracion}
+                  </h2>
+                </div>
+
+                {tarjeta.estadollustracion === "Pendiente" ? (
+                  <Chip
+                    variant="bordered"
+                    color="default"
+                    className="bg-gray-100 border-gray-300 text-gray-800 text-sm"
+                    startContent={<Clock className="w-4 h-4 text-gray-700" />}
+                  >
+                    Pendiente
+                  </Chip>
+                ) : (
+                  <Chip
+                    variant="bordered"
+                    color="success"
+                    className="bg-green-100 border-green-400 text-green-700 text-sm"
+                    startContent={
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                    }
+                  >
+                    Completado
+                  </Chip>
+                )}
               </CardHeader>
-              <CardBody>
-                <p>
-                  <strong>Estado:</strong> {tarjeta.estadoilustracion}
-                </p>
-                <p>
-                  <strong>Fecha de solicitud:</strong>{" "}
-                  {new Date(
-                    tarjeta.fechaasignacionllustracion
-                  ).toLocaleDateString()}
-                </p>
-                <p>
-                  <strong>Fecha de carga:</strong>{" "}
-                  {tarjeta.fechacargallustracion
-                    ? new Date(
-                        tarjeta.fechacargallustracion
-                      ).toLocaleDateString()
-                    : "No disponible"}
-                </p>
+
+              <CardBody className="space-y-2 text-sm text-gray-700">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-gray-500" />
+                  <span>
+                    <strong>Solicitud:</strong>{" "}
+                    {new Date(
+                      tarjeta.fechaasignacionilustracion
+                    ).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-gray-500" />
+                  <span>
+                    <strong>Subida:</strong>{" "}
+                    {tarjeta.fechacargaliustracion
+                      ? new Date(
+                          tarjeta.fechacargallustracion
+                        ).toLocaleDateString()
+                      : "No disponible"}
+                  </span>
+                </div>
               </CardBody>
-              <CardFooter className="flex justify-end">
+
+              <CardFooter className="flex justify-center">
                 <button
-                  className="flex items-center bg-Moonstone text-white py-2 px-4 rounded-md"
+                  className="w-full bg-Moonstone text-white py-2 rounded-md font-medium hover:bg-opacity-90 transition"
                   onClick={() => handleOpenModal(tarjeta)}
                 >
-                  Ver más
+                  Ver descripción
                 </button>
               </CardFooter>
             </Card>
@@ -133,19 +192,12 @@ const CartaIlustracion = () => {
         )}
       </div>
 
-      {/* Modal */}
-      <Modal
-        isOpen={isOpen}
-        onOpenChange={handleCloseModal}
-        isDismissable={false}
-        isKeyboardDismissDisabled={true}
-        className="fixed inset-0 flex items-start justify-center"
-      >
-        <ModalContent
-          className={`fixed top-0 left-1/2 -translate-x-1/2 w-[90%] max-w-sm bg-white shadow-lg 
-                max-h-[80vh] overflow-y-auto rounded-t-lg 
-                transform transition-transform duration-300 ease-out 
-                ${isOpen ? "translate-y-0" : "-translate-y-full"}`}
+      {modalContent && (
+        <Modal
+          isOpen={isOpen}
+          onOpenChange={handleCloseModal}
+          isDismissable={false}
+          isKeyboardDismissDisabled={true}
         >
           <ModalHeader>
             <h2 className="text-lg font-bold">
@@ -234,13 +286,128 @@ const CartaIlustracion = () => {
                     completado.
                   </div>
                 )}
+          <ModalContent className="w-[90%] max-w-md bg-white shadow-lg rounded-lg p-4">
+            <ModalHeader className="flex flex-col items-start gap-1">
+              <div className="flex items-center gap-2">
+                <User className="h-6 w-6 text-Moonstone" />
+                <h2 className="text-lg font-bold">
+                  {modalContent.tituloilustracion}
+                </h2>
               </div>
-            )}
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+              <p className="text-sm text-gray-500">
+                Información completa sobre la solicitud de ilustración
+              </p>
+            </ModalHeader>
+
+            <ModalBody className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-base font-semibold">
+                  {modalContent.tituloilustracion}
+                </span>
+
+                {modalContent.estadoilustracion === "Pendiente" ? (
+                  <Chip
+                    variant="bordered"
+                    color="default"
+                    className="bg-gray-100 border-gray-300 text-gray-800 text-sm"
+                    startContent={<Clock className="w-4 h-4 text-gray-700" />}
+                  >
+                    Pendiente
+                  </Chip>
+                ) : (
+                  <Chip
+                    variant="bordered"
+                    color="success"
+                    className="bg-green-100 border-green-400 text-green-700 text-sm"
+                    startContent={<CheckCircle className="w-4 h-4 text-green-600" />}
+                  >
+                    Completado
+                  </Chip>
+                )}
+              </div>
+
+              <div className="flex justify-between text-sm">
+                <div className="flex flex-col gap-1">
+                  <span className="text-gray-500">Fecha de solicitud:</span>
+                  <span>
+                    {modalContent.fechaasignacionllustracion
+                      ? new Date(
+                          modalContent.fechaasignacionilustracion
+                        ).toLocaleDateString()
+                      : "No disponible"}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-gray-500">Fecha de subida:</span>
+                  <span>
+                    {modalContent.fechacargallustracion
+                      ? new Date(
+                          modalContent.fechacargailustracion
+                        ).toLocaleDateString()
+                      : "No disponible"}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <p className="font-semibold mb-1">Descripción:</p>
+                <div className="border rounded-md bg-gray-50 p-2 max-h-32 overflow-y-auto text-sm text-gray-700 whitespace-pre-line">
+                  {modalContent.descripcionilustracion || "No disponible"}
+                </div>
+              </div>
+
+              {modalContent.estadoilustracion !== "completado" && (
+                <>
+                  <FilePond
+                    ref={pondRef}
+                    files={files}
+                    allowMultiple={false}
+                    acceptedFileTypes={["image/png", "image/jpeg", "image/webp", "image/svg+xml"]}
+                    onupdatefiles={setFiles}
+                    labelIdle='Arrastra tu imagen o <span class="filepond--label-action text-blue-600">Explora</span>'
+                    credits={false}
+                    className="rounded-lg border-2 border-blue-300 bg-gray-100 text-base p-4"
+                    server={{
+                      process: (_fieldName, file, _metadata, load, _error, _progress, abort, clear) => {
+                        handleUpload({ file }, load, () => clear());
+                      },
+                    }}
+                  />
+
+                  {loading && (
+                    <div className="flex justify-center mt-2">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    </div>
+                  )}
+
+                  {success && (
+                    <div className="flex justify-center mt-2 text-green-600 animate-pulse">
+                      <CheckCircle2 className="w-5 h-5" /> ¡Archivo subido!
+                    </div>
+                  )}
+                </>
+              )}
+            </ModalBody>
+
+            <ModalFooter>
+              <button
+                className="w-full bg-Moonstone text-white py-2 px-4 rounded-md flex items-center justify-center gap-2"
+                onClick={() => pondRef.current && pondRef.current.browse()}
+              >
+                <Upload className="w-5 h-5" />
+                Subir Imágenes
+              </button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      )}
     </div>
   );
+};
+
+CartaIlustracion.propTypes = {
+  estadoFiltro: PropTypes.string.isRequired,
+  orden: PropTypes.string.isRequired,
 };
 
 export default CartaIlustracion;
