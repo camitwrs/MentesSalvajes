@@ -221,9 +221,19 @@ const CartaIlustracion = () => {
                 )}
               </>
             ) : (
-              <div className="flex justify-center mt-4 text-blue-600">
-                <Info className="w-5 h-5 mr-2" /> Archivo ya subido y
-                completado.
+              <div className="flex flex-col items-center gap-4">
+                {modalContent?.urlarchivoilustracion ? (
+                  <img
+                    src={modalContent.urlarchivoilustracion}
+                    alt="Ilustración"
+                    className="rounded-md shadow-md max-h-64 object-contain"
+                  />
+                ) : (
+                  <div className="flex justify-center mt-4 text-blue-600">
+                    <Info className="w-5 h-5 mr-2" /> Archivo ya subido y
+                    completado.
+                  </div>
+                )}
               </div>
             )}
           </ModalBody>
