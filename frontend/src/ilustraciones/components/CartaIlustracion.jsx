@@ -7,7 +7,15 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@heroui/react";
-import { Loader2, CheckCircle2, Upload, Clock, CheckCircle, Calendar, User } from "lucide-react";
+import {
+  Loader2,
+  CheckCircle2,
+  Upload,
+  Clock,
+  CheckCircle,
+  Calendar,
+  User,
+} from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { FilePond, registerPlugin } from "react-filepond";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
@@ -37,7 +45,6 @@ const CartaIlustracion = ({ estadoFiltro, orden }) => {
       .then((response) => {
         let data = response.data;
 
-        // Filtro por estado
         if (estadoFiltro !== "todas") {
           data = data.filter(
             (item) =>
@@ -48,7 +55,6 @@ const CartaIlustracion = ({ estadoFiltro, orden }) => {
           );
         }
 
-        // Orden
         data = data.sort((a, b) => {
           const dateA = new Date(a.fechaasignacionllustracion);
           const dateB = new Date(b.fechaasignacionllustracion);
@@ -62,6 +68,10 @@ const CartaIlustracion = ({ estadoFiltro, orden }) => {
       });
   };
 
+  useEffect(() => {
+    fetchIlustraciones();
+  }, [estadoFiltro, orden]);
+
   const handleOpenModal = (tarjeta) => {
     setModalContent(tarjeta);
     setFiles([]);
@@ -73,10 +83,6 @@ const CartaIlustracion = ({ estadoFiltro, orden }) => {
   const handleCloseModal = () => {
     onClose();
   };
-
-  useEffect(() => {
-    fetchIlustraciones();
-  }, [estadoFiltro, orden]);
 
   const handleUpload = async (file, load, clearFile) => {
     setLoading(true);
@@ -119,7 +125,7 @@ const CartaIlustracion = ({ estadoFiltro, orden }) => {
                 <div className="flex items-center gap-2">
                   <User className="w-5 h-5 text-gray-500" />
                   <h2 className="text-base font-semibold">
-                    {tarjeta.titulollustracion}
+                    {tarjeta.tituloilustracion}
                   </h2>
                 </div>
 
@@ -152,7 +158,7 @@ const CartaIlustracion = ({ estadoFiltro, orden }) => {
                   <span>
                     <strong>Solicitud:</strong>{" "}
                     {new Date(
-                      tarjeta.fechaasignacionllustracion
+                      tarjeta.fechaasignacionilustracion
                     ).toLocaleDateString()}
                   </span>
                 </div>
@@ -160,7 +166,7 @@ const CartaIlustracion = ({ estadoFiltro, orden }) => {
                   <Clock className="w-4 h-4 text-gray-500" />
                   <span>
                     <strong>Subida:</strong>{" "}
-                    {tarjeta.fechacargallustracion
+                    {tarjeta.fechacargaliustracion
                       ? new Date(
                           tarjeta.fechacargallustracion
                         ).toLocaleDateString()
@@ -186,139 +192,128 @@ const CartaIlustracion = ({ estadoFiltro, orden }) => {
         )}
       </div>
 
-      <Modal
-        isOpen={isOpen}
-        onOpenChange={handleCloseModal}
-        isDismissable={false}
-        isKeyboardDismissDisabled={true}
-        className="fixed inset-0 flex items-start justify-center"
-      >
-        <ModalContent className="w-[90%] max-w-md bg-white shadow-lg rounded-lg p-4">
-          <ModalHeader className="flex flex-col items-start gap-1">
-            <div className="flex items-center gap-2">
-              <User className="h-6 w-6 text-Moonstone" />
-              <h2 className="text-lg font-bold">{modalContent?.titulollustracion}</h2>
-            </div>
-            <p className="text-sm text-gray-500">
-              Información completa sobre la solicitud de ilustración
-            </p>
-          </ModalHeader>
+      {modalContent && (
+        <Modal
+          isOpen={isOpen}
+          onOpenChange={handleCloseModal}
+          isDismissable={false}
+          isKeyboardDismissDisabled={true}
+        >
+          <ModalContent className="w-[90%] max-w-md bg-white shadow-lg rounded-lg p-4">
+            <ModalHeader className="flex flex-col items-start gap-1">
+              <div className="flex items-center gap-2">
+                <User className="h-6 w-6 text-Moonstone" />
+                <h2 className="text-lg font-bold">
+                  {modalContent.tituloilustracion}
+                </h2>
+              </div>
+              <p className="text-sm text-gray-500">
+                Información completa sobre la solicitud de ilustración
+              </p>
+            </ModalHeader>
 
-          <ModalBody className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-base font-semibold">
-                {modalContent?.titulollustracion}
-              </span>
+            <ModalBody className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-base font-semibold">
+                  {modalContent.tituloilustracion}
+                </span>
 
-              {modalContent?.estadollustracion === "Pendiente" ? (
-                <Chip
-                  variant="bordered"
-                  color="default"
-                  className="bg-gray-100 border-gray-300 text-gray-800 text-sm"
-                  startContent={<Clock className="w-4 h-4 text-gray-700" />}
-                >
-                  Pendiente
-                </Chip>
-              ) : (
-                <Chip
-                  variant="bordered"
-                  color="success"
-                  className="bg-green-100 border-green-400 text-green-700 text-sm"
-                  startContent={<CheckCircle className="w-4 h-4 text-green-600" />}
-                >
-                  Completado
-                </Chip>
+                {modalContent.estadoilustracion === "Pendiente" ? (
+                  <Chip
+                    variant="bordered"
+                    color="default"
+                    className="bg-gray-100 border-gray-300 text-gray-800 text-sm"
+                    startContent={<Clock className="w-4 h-4 text-gray-700" />}
+                  >
+                    Pendiente
+                  </Chip>
+                ) : (
+                  <Chip
+                    variant="bordered"
+                    color="success"
+                    className="bg-green-100 border-green-400 text-green-700 text-sm"
+                    startContent={<CheckCircle className="w-4 h-4 text-green-600" />}
+                  >
+                    Completado
+                  </Chip>
+                )}
+              </div>
+
+              <div className="flex justify-between text-sm">
+                <div className="flex flex-col gap-1">
+                  <span className="text-gray-500">Fecha de solicitud:</span>
+                  <span>
+                    {modalContent.fechaasignacionllustracion
+                      ? new Date(
+                          modalContent.fechaasignacionilustracion
+                        ).toLocaleDateString()
+                      : "No disponible"}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-gray-500">Fecha de subida:</span>
+                  <span>
+                    {modalContent.fechacargallustracion
+                      ? new Date(
+                          modalContent.fechacargailustracion
+                        ).toLocaleDateString()
+                      : "No disponible"}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <p className="font-semibold mb-1">Descripción:</p>
+                <div className="border rounded-md bg-gray-50 p-2 max-h-32 overflow-y-auto text-sm text-gray-700 whitespace-pre-line">
+                  {modalContent.descripcionilustracion || "No disponible"}
+                </div>
+              </div>
+
+              {modalContent.estadoilustracion !== "completado" && (
+                <>
+                  <FilePond
+                    ref={pondRef}
+                    files={files}
+                    allowMultiple={false}
+                    acceptedFileTypes={["image/png", "image/jpeg", "image/webp", "image/svg+xml"]}
+                    onupdatefiles={setFiles}
+                    labelIdle='Arrastra tu imagen o <span class="filepond--label-action text-blue-600">Explora</span>'
+                    credits={false}
+                    className="rounded-lg border-2 border-blue-300 bg-gray-100 text-base p-4"
+                    server={{
+                      process: (_fieldName, file, _metadata, load, _error, _progress, abort, clear) => {
+                        handleUpload({ file }, load, () => clear());
+                      },
+                    }}
+                  />
+
+                  {loading && (
+                    <div className="flex justify-center mt-2">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    </div>
+                  )}
+
+                  {success && (
+                    <div className="flex justify-center mt-2 text-green-600 animate-pulse">
+                      <CheckCircle2 className="w-5 h-5" /> ¡Archivo subido!
+                    </div>
+                  )}
+                </>
               )}
-            </div>
+            </ModalBody>
 
-            <div className="flex justify-between text-sm">
-              <div className="flex flex-col gap-1">
-                <span className="text-gray-500">Fecha de solicitud:</span>
-                <span>
-                  {modalContent?.fechaasignacionllustracion
-                    ? new Date(
-                        modalContent.fechaasignacionllustracion
-                      ).toLocaleDateString()
-                    : "No disponible"}
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <span className="text-gray-500">Fecha de subida:</span>
-                <span>
-                  {modalContent?.fechacargallustracion
-                    ? new Date(
-                        modalContent.fechacargallustracion
-                      ).toLocaleDateString()
-                    : "No disponible"}
-                </span>
-              </div>
-            </div>
-
-            <div>
-              <p className="font-semibold mb-1">Descripción:</p>
-              <div className="border rounded-md bg-gray-50 p-2 max-h-32 overflow-y-auto text-sm text-gray-700 whitespace-pre-line">
-                {modalContent?.descripcionllustracion || "No disponible"}
-              </div>
-            </div>
-
-            {modalContent?.estadollustracion !== "completado" && (
-              <>
-                <FilePond
-                  ref={pondRef}
-                  files={files}
-                  allowMultiple={false}
-                  acceptedFileTypes={[
-                    "image/png",
-                    "image/jpeg",
-                    "image/webp",
-                    "image/svg+xml",
-                  ]}
-                  onupdatefiles={setFiles}
-                  labelIdle='Arrastra tu imagen o <span class="filepond--label-action text-blue-600">Explora</span>'
-                  credits={false}
-                  className="rounded-lg border-2 border-blue-300 bg-gray-100 text-base p-4"
-                  server={{
-                    process: (
-                      _fieldName,
-                      file,
-                      _metadata,
-                      load,
-                      _error,
-                      _progress,
-                      abort,
-                      clear
-                    ) => {
-                      handleUpload({ file }, load, () => clear());
-                    },
-                  }}
-                />
-
-                {loading && (
-                  <div className="flex justify-center mt-2">
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  </div>
-                )}
-
-                {success && (
-                  <div className="flex justify-center mt-2 text-green-600 animate-pulse">
-                    <CheckCircle2 className="w-5 h-5" /> ¡Archivo subido!
-                  </div>
-                )}
-              </>
-            )}
-          </ModalBody>
-
-          <ModalFooter>
-            <button
-              className="w-full bg-Moonstone text-white py-2 px-4 rounded-md flex items-center justify-center gap-2"
-              onClick={() => pondRef.current && pondRef.current.browse()}
-            >
-              <Upload className="w-5 h-5" />
-              Subir Imágenes
-            </button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+            <ModalFooter>
+              <button
+                className="w-full bg-Moonstone text-white py-2 px-4 rounded-md flex items-center justify-center gap-2"
+                onClick={() => pondRef.current && pondRef.current.browse()}
+              >
+                <Upload className="w-5 h-5" />
+                Subir Imágenes
+              </button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      )}
     </div>
   );
 };
