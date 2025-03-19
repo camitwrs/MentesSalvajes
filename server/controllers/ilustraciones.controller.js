@@ -25,17 +25,16 @@ export const guardarMensaje = async (req, res) => {
 
 // Guardar segunda parte de la ilustracion desde el disenador
 export const guardarArchivo = async (req, res) => {
-  const { iddisenador, idilustracion } = req.body;
-  const archivoilustracion = req.file?.buffer; // Aquí accedes al buffer binario
+  const { urlarchivoilustracion, iddisenador, idilustracion } = req.body;
 
   try {
     const query = `
       UPDATE ilustraciones 
-      SET archivollustracion = $1, fechacargallustracion = CURRENT_TIMESTAMP, estadollustracion = 'completado', iddisenador = $2
+      SET urlarchivoilustracion = $1, fechacargallustracion = CURRENT_TIMESTAMP, estadollustracion = 'completado', iddisenador = $2
       WHERE idilustracion = $3 RETURNING *;
     `;
 
-    const values = [archivoilustracion, iddisenador, idilustracion];
+    const values = [urlarchivoilustracion, iddisenador, idilustracion];
     const { rows } = await pool.query(query, values);
 
     if (rows.length === 0) {
@@ -44,9 +43,9 @@ export const guardarArchivo = async (req, res) => {
 
     res
       .status(200)
-      .json({ mensaje: "Archivo guardado con éxito", ilustracion: rows[0] });
+      .json({ mensaje: "URL guardada con éxito", ilustracion: rows[0] });
   } catch (error) {
-    console.error("Error al guardar el archivo:", error);
+    console.error("Error al guardar la URL:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
