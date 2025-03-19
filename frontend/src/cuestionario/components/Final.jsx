@@ -165,7 +165,7 @@ const Final = ({ submitSuccess }) => {
   );
 
   const descripcion = generarDescripcion();
-  const titulo = `Docente: ${user?.nombreusuario} ${user?.apellidousuario}`;
+  const titulo = `${user?.nombreusuario} ${user?.apellidousuario}`;
   const descripcionHTML = ReactDOMServer.renderToStaticMarkup(
     generarDescripcion()
   ); // Convierte JSX a HTML string
