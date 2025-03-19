@@ -94,12 +94,12 @@ const CartaIlustracion = () => {
             >
               <CardHeader>
                 <h2 className="text-lg font-bold">
-                  {tarjeta.titulollustracion}
+                  {tarjeta.tituloilustracion}
                 </h2>
               </CardHeader>
               <CardBody>
                 <p>
-                  <strong>Estado:</strong> {tarjeta.estadollustracion}
+                  <strong>Estado:</strong> {tarjeta.estadoilustracion}
                 </p>
                 <p>
                   <strong>Fecha de solicitud:</strong>{" "}
