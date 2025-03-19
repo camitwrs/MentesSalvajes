@@ -49,15 +49,15 @@ const CartaIlustracion = ({ estadoFiltro, orden }) => {
           data = data.filter(
             (item) =>
               (estadoFiltro === "pendientes" &&
-                item.estadollustracion === "Pendiente") ||
+                item.estadoilustracion === "Pendiente") ||
               (estadoFiltro === "completadas" &&
-                item.estadollustracion === "Completado")
+                item.estadoilustracion === "Completado")
           );
         }
 
         data = data.sort((a, b) => {
-          const dateA = new Date(a.fechaasignacionllustracion);
-          const dateB = new Date(b.fechaasignacionllustracion);
+          const dateA = new Date(a.fechaasignacionilustracion);
+          const dateB = new Date(b.fechaasignacionilustracion);
           return orden === "reciente" ? dateB - dateA : dateA - dateB;
         });
 
@@ -180,7 +180,7 @@ const CartaIlustracion = ({ estadoFiltro, orden }) => {
                   className="w-full bg-Moonstone text-white py-2 rounded-md font-medium hover:bg-opacity-90 transition"
                   onClick={() => handleOpenModal(tarjeta)}
                 >
-                  Ver descripci贸n
+                  Ver descripción
                 </button>
               </CardFooter>
             </Card>
@@ -208,7 +208,7 @@ const CartaIlustracion = ({ estadoFiltro, orden }) => {
                 </h2>
               </div>
               <p className="text-sm text-gray-500">
-                Informaci贸n completa sobre la solicitud de ilustraci贸n
+                Información completa sobre la solicitud de ilustración
               </p>
             </ModalHeader>
 
@@ -265,7 +265,7 @@ const CartaIlustracion = ({ estadoFiltro, orden }) => {
               </div>
 
               <div>
-                <p className="font-semibold mb-1">Descripci贸n:</p>
+                <p className="font-semibold mb-1">Descripción:</p>
                 <div className="border rounded-md bg-gray-50 p-2 max-h-32 overflow-y-auto text-sm text-gray-700 whitespace-pre-line">
                   {modalContent.descripcionilustracion || "No disponible"}
                 </div>
