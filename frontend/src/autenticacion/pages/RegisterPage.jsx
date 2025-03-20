@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { registerEducatorSchema } from "../../../../global/schemas/autenticacion.schema";
+import { registerEducatorSchema } from "../../../../server/schemas/autenticacion.schema";
 import { useAuth } from "../context/AuthContext";
 import {
   getAlternativasPorPreguntaRequest,

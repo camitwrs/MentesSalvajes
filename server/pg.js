@@ -12,10 +12,17 @@ const pool = new Pool({
   database: process.env.SUPABASE_DATABASE,
   password: process.env.SUPABASE_PASSWORD,
   port: process.env.SUPABASE_PORT,
+  ssl: { rejectUnauthorized: false }, // Importante para Supabase
 });
 
-// Probar conexión
-pool.query("SELECT 1");
+// Test conexión
+pool.query("SELECT NOW()", (err, res) => {
+  if (err) {
+    console.error("❌ Error conectando a la BD:", err.message);
+  } else {
+    console.log("✅ Conexión exitosa a Supabase:", res.rows[0]);
+  }
+});
 
 pool.on("connect", () => {
   console.log("Conexión exitosa a PostgreSQL");
