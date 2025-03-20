@@ -1,4 +1,13 @@
 import pool from "../pg.js";
+import dotenv from "dotenv";
+
+dotenv.config();
+const { createClient } = require("@supabase/supabase-js");
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 // Guardar primera parte de la ilustracion desde el cuestionario
 export const guardarMensaje = async (req, res) => {
@@ -25,16 +34,43 @@ export const guardarMensaje = async (req, res) => {
 
 // Guardar segunda parte de la ilustracion desde el disenador
 export const guardarArchivo = async (req, res) => {
-  const { urlarchivoilustracion, iddisenador, idilustracion } = req.body;
+  const { iddisenador, idilustracion } = req.body;
+  const archivo = req.file; // Multer sube el archivo aquí
+
+  if (!archivo) {
+    return res.status(400).json({ error: "No se proporcionó ningún archivo" });
+  }
 
   try {
+    // 1) Subir archivo a Supabase Storage
+    const filePath = `imagenes/${Date.now()}_${archivo.originalname}`;
+    const { data, error } = await supabase.storage
+      .from("ilustraciones")
+      .upload(filePath, archivo.buffer, {
+        contentType: archivo.mimetype,
+        upsert: true,
+      });
+
+    if (error) {
+      console.error("Error al subir a Supabase:", error);
+      return res
+        .status(500)
+        .json({ error: "Error subiendo archivo a storage" });
+    }
+
+    // 2) Obtener URL pública
+    const { publicUrl } = supabase.storage
+      .from("ilustraciones")
+      .getPublicUrl(filePath);
+
+    // 3) Guardar URL en Postgres
     const query = `
       UPDATE ilustraciones 
-      SET urlarchivoilustracion = $1, fechacargallustracion = CURRENT_TIMESTAMP, estadollustracion = 'completado', iddisenador = $2
+      SET urlarchivoilustracion = $1, fechacargailustracion = CURRENT_TIMESTAMP, estadoilustracion = 'completado', iddisenador = $2
       WHERE idilustracion = $3 RETURNING *;
     `;
 
-    const values = [urlarchivoilustracion, iddisenador, idilustracion];
+    const values = [publicUrl, iddisenador, idilustracion];
     const { rows } = await pool.query(query, values);
 
     if (rows.length === 0) {
@@ -43,7 +79,11 @@ export const guardarArchivo = async (req, res) => {
 
     res
       .status(200)
-      .json({ mensaje: "URL guardada con éxito", ilustracion: rows[0] });
+      .json({
+        mensaje: "Archivo subido con éxito",
+        ilustracion: rows[0],
+        url: publicUrl,
+      });
   } catch (error) {
     console.error("Error al guardar la URL:", error);
     res.status(500).json({ error: "Error interno del servidor" });

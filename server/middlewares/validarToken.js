@@ -1,5 +1,8 @@
 // middlewares: funciones que deben ejecutarse antes de llegar a una ruta
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const autenticacionRequerida = (req, res, next) => {
   const { token } = req.cookies;

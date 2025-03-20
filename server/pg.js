@@ -7,11 +7,11 @@ dotenv.config();
 
 // Configuración de la conexión
 const pool = new Pool({
-  user: process.env.PG_USER,
-  host: process.env.PG_HOST,
+  user: process.env.SUPABASE_USER,
+  host: process.env.SUPABASE_HOST,
   database: process.env.PG_DATABASE,
-  password: process.env.PG_PASSWORD,
-  port: process.env.PG_PORT,
+  password: process.env.SUPABASE_PASSWORD,
+  port: process.env.SUPABASE_PORT,
 });
 
 // Probar conexión
