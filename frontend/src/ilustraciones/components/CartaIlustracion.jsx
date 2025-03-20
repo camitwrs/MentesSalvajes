@@ -15,62 +15,28 @@ import {
   CheckCircle,
   Calendar,
   User,
+  FileText,
+  Eye,
 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { FilePond, registerPlugin } from "react-filepond";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import { Chip } from "@heroui/chip";
 import PropTypes from "prop-types";
 
-import {
-  getAllIlustracionesRequest,
-  guardarArchivoRequest,
-} from "../../api/ilustraciones";
+import { guardarArchivoRequest } from "../../api/ilustraciones";
 import { useAuth } from "../../autenticacion/context/AuthContext";
 
 registerPlugin(FilePondPluginImagePreview);
 
-const CartaIlustracion = ({ estadoFiltro, orden }) => {
+const CartaIlustracion = ({ estadoFiltro, orden, ilustraciones, fetchIlustraciones }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [modalContent, setModalContent] = useState(null);
-  const [ilustraciones, setIlustraciones] = useState([]);
   const { user } = useAuth();
   const [files, setFiles] = useState([]);
   const pondRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-
-  const fetchIlustraciones = () => {
-    getAllIlustracionesRequest()
-      .then((response) => {
-        let data = response.data;
-
-        if (estadoFiltro !== "todas") {
-          data = data.filter(
-            (item) =>
-              (estadoFiltro === "pendientes" &&
-                item.estadoilustracion === "Pendiente") ||
-              (estadoFiltro === "completadas" &&
-                item.estadoilustracion === "Completado")
-          );
-        }
-
-        data = data.sort((a, b) => {
-          const dateA = new Date(a.fechaasignacionilustracion);
-          const dateB = new Date(b.fechaasignacionilustracion);
-          return orden === "reciente" ? dateB - dateA : dateA - dateB;
-        });
-
-        setIlustraciones(data);
-      })
-      .catch((error) => {
-        console.error("Error al obtener las ilustraciones:", error);
-      });
-  };
-
-  useEffect(() => {
-    fetchIlustraciones();
-  }, [estadoFiltro, orden]);
 
   const handleOpenModal = (tarjeta) => {
     setModalContent(tarjeta);
@@ -112,85 +78,102 @@ const CartaIlustracion = ({ estadoFiltro, orden }) => {
     }
   };
 
+  const getEstadoStyles = (estado) => {
+    return estado === "Completado"
+      ? "bg-green-100 text-green-800 border-green-300"
+      : "bg-gray-100 text-gray-800 border-gray-300";
+  };
+
+  const getEstadoIcon = (estado) => {
+    return estado === "Completado" ? (
+      <CheckCircle className="w-4 h-4 text-green-600" />
+    ) : (
+      <Clock className="w-4 h-4 text-gray-600" />
+    );
+  };
+
+  let ilustracionesFiltradas = [...ilustraciones];
+  if (estadoFiltro !== "todas") {
+    ilustracionesFiltradas = ilustracionesFiltradas.filter(
+      (item) =>
+        (estadoFiltro === "pendientes" && item.estadoilustracion === "Pendiente") ||
+        (estadoFiltro === "completadas" && item.estadoilustracion === "Completado")
+    );
+  }
+
+  ilustracionesFiltradas = ilustracionesFiltradas.sort((a, b) => {
+    const dateA = new Date(a.fechaasignacionilustracion);
+    const dateB = new Date(b.fechaasignacionilustracion);
+    return orden === "reciente" ? dateB - dateA : dateA - dateB;
+  });
+
   return (
-    <div className="p-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {ilustraciones.length > 0 ? (
-          ilustraciones.map((tarjeta) => (
-            <Card
-              key={tarjeta.idilustracion}
-              className="rounded-lg border border-gray-200 shadow-md"
-            >
-              <CardHeader className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <User className="w-5 h-5 text-gray-500" />
-                  <h2 className="text-base font-semibold">
-                    {tarjeta.tituloilustracion}
-                  </h2>
-                </div>
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(360px,1fr))] gap-8">
+      {ilustracionesFiltradas.length > 0 ? (
+        ilustracionesFiltradas.map((tarjeta) => (
+          <Card
+            key={tarjeta.idilustracion}
+            className="rounded-xl border border-gray-200 shadow-lg p-6 max-w-[420px] mx-auto"
+          >
+            <CardHeader className="flex items-center justify-between mb-4 p-0">
+              <div className="flex items-center gap-2">
+                <User className="w-5 h-5 text-gray-500" />
+                <h2 className="text-xl font-semibold">Docente: {tarjeta.tituloilustracion}</h2>
+              </div>
 
-                {tarjeta.estadoilustracion === "Pendiente" ? (
-                  <Chip
-                    variant="bordered"
-                    color="default"
-                    className="bg-gray-100 border-gray-300 text-gray-800 text-sm"
-                    startContent={<Clock className="w-4 h-4 text-gray-700" />}
-                  >
-                    Pendiente
-                  </Chip>
-                ) : (
-                  <Chip
-                    variant="bordered"
-                    color="success"
-                    className="bg-green-100 border-green-400 text-green-700 text-sm"
-                    startContent={
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                    }
-                  >
-                    Completado
-                  </Chip>
-                )}
-              </CardHeader>
+              <Chip
+                variant="bordered"
+                className={`text-sm py-1 px-3 capitalize font-medium flex items-center gap-1.5 ${getEstadoStyles(
+                  tarjeta.estadoilustracion
+                )}`}
+                startContent={getEstadoIcon(tarjeta.estadoilustracion)}
+              >
+                {tarjeta.estadoilustracion}
+              </Chip>
+            </CardHeader>
 
-              <CardBody className="space-y-2 text-sm text-gray-700">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-gray-500" />
-                  <span>
-                    <strong>Solicitud:</strong>{" "}
-                    {new Date(
-                      tarjeta.fechaasignacionilustracion
-                    ).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-gray-500" />
-                  <span>
-                    <strong>Subida:</strong>{" "}
-                    {tarjeta.fechacargailustracion
-                      ? new Date(
-                          tarjeta.fechacargailustracion
-                        ).toLocaleDateString()
-                      : "No disponible"}
-                  </span>
-                </div>
-              </CardBody>
+            <CardBody className="space-y-3 text-sm text-gray-700 p-0 py-2">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-gray-500" />
+                <span>
+                  <span className="text-gray-600 font-medium">Solicitud:</span>{" "}
+                  {new Date(tarjeta.fechaasignacionilustracion).toLocaleDateString()}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-gray-500" />
+                <span>
+                  <span className="text-gray-600 font-medium">Carga:</span>{" "}
+                  {tarjeta.fechacargailustracion
+                    ? new Date(tarjeta.fechacargailustracion).toLocaleDateString()
+                    : "No disponible"}
+                </span>
+              </div>
+            </CardBody>
 
-              <CardFooter className="flex justify-center">
-                <button
-                  className="w-full bg-Moonstone text-white py-2 rounded-md font-medium hover:bg-opacity-90 transition"
-                  onClick={() => handleOpenModal(tarjeta)}
-                >
-                  Ver descripción
-                </button>
-              </CardFooter>
-            </Card>
-          ))
-        ) : (
-          <p className="text-center text-xl col-span-4 text-gray-500">
-            No hay ilustraciones disponibles por el momento :(
-          </p>
-        )}
-      </div>
+            <CardFooter className="flex justify-center mt-6 p-0 pt-2">
+              <button
+                className="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-2 rounded-lg font-medium transition flex justify-center gap-2"
+                onClick={() => handleOpenModal(tarjeta)}
+              >
+                <Eye className="w-4 h-4" /> Ver más
+              </button>
+            </CardFooter>
+          </Card>
+        ))
+      ) : (
+        <div className="col-span-full text-center py-12 bg-gray-50 rounded-lg border border-dashed">
+          <FileText className="h-12 w-12 mx-auto text-gray-400" />
+          <h3 className="mt-4 text-lg font-medium">No se encontraron ilustraciones</h3>
+          <p className="mt-2 text-sm text-gray-500">Prueba con otros filtros o términos de búsqueda</p>
+          <button
+            className="mt-4 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium"
+            onClick={() => window.location.reload()}
+          >
+            Restablecer filtros
+          </button>
+        </div>
+      )}
 
       {modalContent && (
         <Modal
@@ -202,102 +185,66 @@ const CartaIlustracion = ({ estadoFiltro, orden }) => {
           <ModalContent className="w-[90%] max-w-md bg-white shadow-lg rounded-lg p-4">
             <ModalHeader className="flex flex-col items-start gap-1">
               <div className="flex items-center gap-2">
-                <User className="h-6 w-6 text-Moonstone" />
-                <h2 className="text-lg font-bold">
-                  {modalContent.tituloilustracion}
-                </h2>
+                <FileText className="h-5 w-5 text-cyan-600" />
+                <h2 className="text-lg font-bold">Detalles de la Ilustración</h2>
               </div>
-              <p className="text-sm text-gray-500">
-                Información completa sobre la solicitud de ilustración
-              </p>
+              <p className="text-sm text-gray-500">Información completa sobre la solicitud de ilustración</p>
             </ModalHeader>
 
             <ModalBody className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-base font-semibold">
-                  {modalContent.tituloilustracion}
-                </span>
+                <span className="text-base font-semibold">{modalContent.tituloilustracion}</span>
 
-                {modalContent.estadoilustracion === "Pendiente" ? (
-                  <Chip
-                    variant="bordered"
-                    color="default"
-                    className="bg-gray-100 border-gray-300 text-gray-800 text-sm"
-                    startContent={<Clock className="w-4 h-4 text-gray-700" />}
-                  >
-                    Pendiente
-                  </Chip>
-                ) : (
-                  <Chip
-                    variant="bordered"
-                    color="success"
-                    className="bg-green-100 border-green-400 text-green-700 text-sm"
-                    startContent={
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                    }
-                  >
-                    Completado
-                  </Chip>
-                )}
+                <Chip
+                  variant="bordered"
+                  className={`text-sm py-1 px-3 capitalize font-medium flex items-center gap-1.5 ${getEstadoStyles(
+                    modalContent.estadoilustracion
+                  )}`}
+                  startContent={getEstadoIcon(modalContent.estadoilustracion)}
+                >
+                  {modalContent.estadoilustracion}
+                </Chip>
               </div>
 
-              <div className="flex justify-between text-sm">
-                <div className="flex flex-col gap-1">
-                  <span className="text-gray-500">Fecha de solicitud:</span>
-                  <span>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="space-y-1">
+                  <p className="text-gray-500">Fecha de solicitud:</p>
+                  <p className="font-medium">
                     {modalContent.fechaasignacionilustracion
-                      ? new Date(
-                          modalContent.fechaasignacionilustracion
-                        ).toLocaleDateString()
+                      ? new Date(modalContent.fechaasignacionilustracion).toLocaleDateString()
                       : "No disponible"}
-                  </span>
+                  </p>
                 </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-gray-500">Fecha de subida:</span>
-                  <span>
+                <div className="space-y-1">
+                  <p className="text-gray-500">Fecha de carga:</p>
+                  <p className="font-medium">
                     {modalContent.fechacargailustracion
-                      ? new Date(
-                          modalContent.fechacargailustracion
-                        ).toLocaleDateString()
+                      ? new Date(modalContent.fechacargailustracion).toLocaleDateString()
                       : "No disponible"}
-                  </span>
+                  </p>
                 </div>
               </div>
 
-              <div>
-                <p className="font-semibold mb-1">Descripción:</p>
-                <div className="border rounded-md bg-gray-50 p-2 max-h-32 overflow-y-auto text-sm text-gray-700 whitespace-pre-line">
+              <div className="space-y-2">
+                <h4 className="font-medium">Descripción:</h4>
+                <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded-md border max-h-40 overflow-y-auto whitespace-pre-line">
                   {modalContent.descripcionilustracion || "No disponible"}
                 </div>
               </div>
 
-              {modalContent.estadoilustracion !== "completado" && (
+              {modalContent.estadoilustracion !== "Completado" && (
                 <>
                   <FilePond
                     ref={pondRef}
                     files={files}
                     allowMultiple={false}
-                    acceptedFileTypes={[
-                      "image/png",
-                      "image/jpeg",
-                      "image/webp",
-                      "image/svg+xml",
-                    ]}
+                    acceptedFileTypes={["image/png", "image/jpeg", "image/webp", "image/svg+xml"]}
                     onupdatefiles={setFiles}
                     labelIdle='Arrastra tu imagen o <span class="filepond--label-action text-blue-600">Explora</span>'
                     credits={false}
                     className="rounded-lg border-2 border-blue-300 bg-gray-100 text-base p-4"
                     server={{
-                      process: (
-                        _fieldName,
-                        file,
-                        _metadata,
-                        load,
-                        _error,
-                        _progress,
-                        abort,
-                        clear
-                      ) => {
+                      process: (_fieldName, file, _metadata, load, _error, _progress, abort, clear) => {
                         handleUpload({ file }, load, () => clear());
                       },
                     }}
@@ -311,7 +258,7 @@ const CartaIlustracion = ({ estadoFiltro, orden }) => {
 
                   {success && (
                     <div className="flex justify-center mt-2 text-green-600 animate-pulse">
-                      <CheckCircle2 className="w-5 h-5" /> 隆Archivo subido!
+                      <CheckCircle2 className="w-5 h-5" /> ¡Archivo subido!
                     </div>
                   )}
                 </>
@@ -320,11 +267,11 @@ const CartaIlustracion = ({ estadoFiltro, orden }) => {
 
             <ModalFooter>
               <button
-                className="w-full bg-Moonstone text-white py-2 px-4 rounded-md flex items-center justify-center gap-2"
+                className="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-2 px-4 rounded-md flex items-center justify-center gap-2"
                 onClick={() => pondRef.current && pondRef.current.browse()}
               >
                 <Upload className="w-5 h-5" />
-                Subir Im谩genes
+                Subir Imágenes
               </button>
             </ModalFooter>
           </ModalContent>
@@ -337,6 +284,8 @@ const CartaIlustracion = ({ estadoFiltro, orden }) => {
 CartaIlustracion.propTypes = {
   estadoFiltro: PropTypes.string.isRequired,
   orden: PropTypes.string.isRequired,
+  ilustraciones: PropTypes.array.isRequired,
+  fetchIlustraciones: PropTypes.func.isRequired,
 };
 
 export default CartaIlustracion;
