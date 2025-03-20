@@ -1,8 +1,8 @@
 import pool from "../pg.js";
 import dotenv from "dotenv";
+import { createClient } from "@supabase/supabase-js";
 
 dotenv.config();
-const { createClient } = require("@supabase/supabase-js");
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -77,13 +77,11 @@ export const guardarArchivo = async (req, res) => {
       return res.status(404).json({ error: "Ilustración no encontrada" });
     }
 
-    res
-      .status(200)
-      .json({
-        mensaje: "Archivo subido con éxito",
-        ilustracion: rows[0],
-        url: publicUrl,
-      });
+    res.status(200).json({
+      mensaje: "Archivo subido con éxito",
+      ilustracion: rows[0],
+      url: publicUrl,
+    });
   } catch (error) {
     console.error("Error al guardar la URL:", error);
     res.status(500).json({ error: "Error interno del servidor" });
