@@ -9,7 +9,7 @@ dotenv.config();
 const pool = new Pool({
   user: process.env.SUPABASE_USER,
   host: process.env.SUPABASE_HOST,
-  database: process.env.PG_DATABASE,
+  database: process.env.SUPABASE_DATABASE,
   password: process.env.SUPABASE_PASSWORD,
   port: process.env.SUPABASE_PORT,
 });
