@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema } from "../../../../server/schemas/autenticacion.schema";
+import { loginSchema } from "../../../../backend/schemas/autenticacion.schema";
 import { useAuth } from "../context/AuthContext";
 import logo from "../../shared/assets/logo.svg";
 import { Mail, Lock } from "lucide-react";
