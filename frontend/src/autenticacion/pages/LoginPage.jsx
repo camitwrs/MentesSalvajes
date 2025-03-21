@@ -16,7 +16,18 @@ const LoginPage = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  const { logearse, estaAutenticado, user, errors: loginErrors } = useAuth();
+  const {
+    logearse,
+    checkLogin,
+    estaAutenticado,
+    user,
+    errors: loginErrors,
+  } = useAuth();
+
+  useEffect(() => {
+    // Al cargar LoginPage, verificar si ya hay sesión activa
+    checkLogin();
+  }, []);
 
   const navigate = useNavigate();
   useEffect(() => {

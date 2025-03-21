@@ -1,6 +1,6 @@
 import prototipo from "../../shared/assets/prototipo4.png";
 import logo from "../../shared/assets/logo.svg";
-import { MoveRight, Clipboard } from "lucide-react";
+import { MoveRight } from "lucide-react";
 
 import { Link } from "react-router-dom";
 

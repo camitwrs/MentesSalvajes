@@ -78,27 +78,24 @@ export const AuthProvider = ({ children }) => {
     }
   }, [errors]);
 
-  useEffect(() => {
-    async function checkLogin() {
-      try {
-        const res = await verificarTokenRequest(); // SIN leer cookie manualmente
-        if (res.data) {
-          setUser(res.data);
-          setEstaAutenticado(true);
-        } else {
-          setUser(null);
-          setEstaAutenticado(false);
-        }
-      } catch (error) {
-        console.error("Error al verificar el token:", error);
+  // En AuthContext
+
+  const checkLogin = async () => {
+    try {
+      const res = await verificarTokenRequest();
+      if (res.data) {
+        setUser(res.data);
+        setEstaAutenticado(true);
+      } else {
         setUser(null);
         setEstaAutenticado(false);
-      } finally {
-        setLoading(false);
       }
+    } catch (error) {
+      console.error("Error al verificar el token:", error);
+      setUser(null);
+      setEstaAutenticado(false);
     }
-    checkLogin();
-  }, []);
+  };
 
   if (loading) {
     return (
@@ -121,6 +118,7 @@ export const AuthProvider = ({ children }) => {
         estaAutenticado,
         errors,
         loading,
+        checkLogin,
       }}
     >
       {children}
