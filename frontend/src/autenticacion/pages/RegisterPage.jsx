@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { registerEducatorSchema } from "../../../../backend/schemas/autenticacion.schema";
+import { registerEducatorSchema } from "../../../schemas/autenticacion.schema";
 import { useAuth } from "../context/AuthContext";
 import {
   getAlternativasPorPreguntaRequest,
@@ -13,7 +13,7 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   User,
   Mail,
-  Lock, 
+  Lock,
   BookOpen,
   Puzzle,
   Earth,

@@ -6,7 +6,7 @@ import dotenv from "dotenv"; // Importa dotenv para cargar variables de entorno
 import routes from "./routes/export.js"; // Asegúrate de incluir la extensión .js
 import path from "path";
 
-import { fileURLToPath } from 'url'; // Necesario para __dirname en ES Modules
+import { fileURLToPath } from "url"; // Necesario para __dirname en ES Modules
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,13 +16,15 @@ dotenv.config();
 
 const app = express();
 
-// Middlewares
+const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: allowedOrigins,
     credentials: true,
   })
-); // Permite solicitudes desde diferentes dominios
+);
+
 app.use(morgan("dev")); // Registro de solicitudes en la consola
 app.use(express.json()); // Analiza las solicitudes JSON
 app.use(express.urlencoded({ extended: false })); // Analiza solicitudes de formulario
