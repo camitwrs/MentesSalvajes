@@ -13,8 +13,16 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
 
 app.use(
   cors({
-    origin: allowedOrigins,
-    credentials: true,
+    origin: function (origin, callback) {
+      console.log("Origen recibido:", origin); // Te mostrará el origen en Render logs
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true); // Permitido
+      } else {
+        console.log("Bloqueado por CORS:", origin);
+        callback(new Error("No permitido por CORS"));
+      }
+    },
+    credentials: true, // Necesario para cookies
   })
 );
 
