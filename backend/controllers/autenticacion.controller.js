@@ -214,6 +214,9 @@ export const loginUsuario = async (req, res) => {
 // Logout un usuario
 export const logoutUsuario = async (req, res) => {
   res.cookie("token", "", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
     expires: new Date(0),
   });
   return res.sendStatus(200);
