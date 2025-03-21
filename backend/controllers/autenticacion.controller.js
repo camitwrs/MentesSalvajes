@@ -144,7 +144,6 @@ export const registrarUsuario = async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true, // No accesible por JS
       secure: true, // Solo por HTTPS (Render usa HTTPS)
-      domain: ".onrender.com",
       sameSite: "None", // Necesario para cross-origin
       maxAge: 1000 * 60 * 60 * 24, // Tiempo que persiste
     });
@@ -194,7 +193,6 @@ export const loginUsuario = async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true, // No accesible por JS
       secure: true, // Solo por HTTPS (Render usa HTTPS)
-      domain: ".onrender.com",
       sameSite: "None", // Necesario para cross-origin
       maxAge: 1000 * 60 * 60 * 24, // Tiempo que persiste
     });
@@ -217,7 +215,6 @@ export const loginUsuario = async (req, res) => {
 export const logoutUsuario = async (req, res) => {
   res.cookie("token", "", {
     expires: new Date(0),
-    domain: ".onrender.com",
   });
   return res.sendStatus(200);
 };
