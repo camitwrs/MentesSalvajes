@@ -141,7 +141,12 @@ export const registrarUsuario = async (req, res) => {
     console.log(userSaved);
     const token = await crearTokenAcceso({ idusuario: userSaved.idusuario });
 
-    res.cookie("token", token);
+    res.cookie("token", token, {
+      httpOnly: true, // No accesible por JS
+      secure: true, // Solo por HTTPS (Render usa HTTPS)
+      sameSite: "None", // Necesario para cross-origin
+      maxAge: 1000 * 60 * 60 * 24, // Tiempo que persiste
+    });
 
     return res.json({
       idusuario: userSaved.idusuario,
@@ -185,7 +190,12 @@ export const loginUsuario = async (req, res) => {
       idusuario: usuarioEncontrado.idusuario,
     });
 
-    res.cookie("token", token);
+    res.cookie("token", token, {
+      httpOnly: true, // No accesible por JS
+      secure: true, // Solo por HTTPS (Render usa HTTPS)
+      sameSite: "None", // Necesario para cross-origin
+      maxAge: 1000 * 60 * 60 * 24, // Tiempo que persiste
+    });
     //res.status(200).json({ mensaje: "Inicio de sesión exitoso.", token });
 
     return res.json({
