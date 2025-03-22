@@ -1,342 +1,332 @@
-import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure,
-} from "@heroui/react";
+import { Card } from "@heroui/card"
+import { Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from "@heroui/react"
 import {
   Loader2,
   CheckCircle2,
-  Upload,
-  Clock,
+  CloudUpload,
   CheckCircle,
   Calendar,
   User,
-} from "lucide-react";
-import { useState, useEffect, useRef } from "react";
-import { FilePond, registerPlugin } from "react-filepond";
-import FilePondPluginImagePreview from "filepond-plugin-image-preview";
-import { Chip } from "@heroui/chip";
-import PropTypes from "prop-types";
+  FileText,
+  Clock,
+  ExternalLink,
+} from "lucide-react"
+import { useState, useRef, useEffect } from "react"
+import { FilePond, registerPlugin } from "react-filepond"
+import FilePondPluginImagePreview from "filepond-plugin-image-preview"
+import PropTypes from "prop-types"
 
-import {
-  getAllIlustracionesRequest,
-  guardarArchivoRequest,
-} from "../../api/ilustraciones";
-import { useAuth } from "../../autenticacion/context/AuthContext";
+import { guardarArchivoRequest } from "../../api/ilustraciones"
+import { useAuth } from "../../autenticacion/context/AuthContext"
 
-registerPlugin(FilePondPluginImagePreview);
+registerPlugin(FilePondPluginImagePreview)
 
-const CartaIlustracion = ({ estadoFiltro, orden }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [modalContent, setModalContent] = useState(null);
-  const [ilustraciones, setIlustraciones] = useState([]);
-  const { user } = useAuth();
-  const [files, setFiles] = useState([]);
-  const pondRef = useRef(null);
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-
-  const fetchIlustraciones = () => {
-    getAllIlustracionesRequest()
-      .then((response) => {
-        let data = response.data;
-
-        if (estadoFiltro !== "todas") {
-          data = data.filter(
-            (item) =>
-              (estadoFiltro === "pendientes" &&
-                item.estadoilustracion === "Pendiente") ||
-              (estadoFiltro === "completadas" &&
-                item.estadoilustracion === "Completado")
-          );
-        }
-
-        data = data.sort((a, b) => {
-          const dateA = new Date(a.fechaasignacionilustracion);
-          const dateB = new Date(b.fechaasignacionilustracion);
-          return orden === "reciente" ? dateB - dateA : dateA - dateB;
-        });
-
-        setIlustraciones(data);
-      })
-      .catch((error) => {
-        console.error("Error al obtener las ilustraciones:", error);
-      });
-  };
+const CartaIlustracion = ({ estadoFiltro, orden, ilustraciones, fetchIlustraciones, searchQuery }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const [modalContent, setModalContent] = useState(null)
+  const { user } = useAuth()
+  const [files, setFiles] = useState([])
+  const pondRef = useRef(null)
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const [filteredIlustraciones, setFilteredIlustraciones] = useState([])
+  const [uploadedImage, setUploadedImage] = useState(null)
 
   useEffect(() => {
-    fetchIlustraciones();
-  }, [estadoFiltro, orden]);
+    let filtered = [...ilustraciones]
+
+    // Corregimos aquí: usamos lowercase para evitar problemas de mayúsculas
+    if (estadoFiltro !== "todas") {
+      filtered = filtered.filter(
+        (item) =>
+          (estadoFiltro === "pendientes" && item.estadoilustracion.toLowerCase() === "pendiente") ||
+          (estadoFiltro === "completadas" && item.estadoilustracion.toLowerCase() === "completado"),
+      )
+    }
+
+    // Filtrar por búsqueda
+    if (searchQuery) {
+      filtered = filtered.filter((item) => item.tituloilustracion.toLowerCase().includes(searchQuery.toLowerCase()))
+    }
+
+    // Ordenar
+    filtered = filtered.sort((a, b) => {
+      const dateA = new Date(a.fechaasignacionilustracion)
+      const dateB = new Date(b.fechaasignacionilustracion)
+      return orden === "reciente" ? dateB - dateA : dateA - dateB
+    })
+
+    setFilteredIlustraciones(filtered)
+  }, [ilustraciones, estadoFiltro, orden, searchQuery])
 
   const handleOpenModal = (tarjeta) => {
-    setModalContent(tarjeta);
-    setFiles([]);
-    setSuccess(false);
-    setLoading(false);
-    onOpen();
-  };
+    setModalContent(tarjeta)
+    setFiles([])
+    setSuccess(false)
+    setLoading(false)
+    setUploadedImage(null)
+    onOpen()
+  }
 
   const handleCloseModal = () => {
-    onClose();
-  };
+    onClose()
+  }
 
   const handleUpload = async (file, load, clearFile) => {
-    setLoading(true);
-    setSuccess(false);
-    const formData = new FormData();
-    formData.append("archivoilustracion", file.file);
-    formData.append("iddisenador", user.idusuario);
-    formData.append("idilustracion", modalContent.idilustracion);
+    setLoading(true)
+    setSuccess(false)
+    const formData = new FormData()
+    formData.append("archivoilustracion", file.file)
+    formData.append("iddisenador", user.idusuario)
+    formData.append("idilustracion", modalContent.idilustracion)
 
     try {
-      await guardarArchivoRequest(formData);
-      fetchIlustraciones();
-      setSuccess(true);
-      load("unique-file-id");
+      await guardarArchivoRequest(formData)
+      setSuccess(true)
+      load("unique-file-id")
       setTimeout(() => {
-        clearFile();
-      }, 1000);
+        clearFile()
+      }, 1000)
       setTimeout(() => {
-        handleCloseModal();
-        setSuccess(false);
-      }, 2500);
+        handleCloseModal()
+        setSuccess(false)
+        fetchIlustraciones() // 👈 Ahora recargamos después de cerrar
+      }, 2500)
     } catch (error) {
-      console.error("Error al subir el archivo:", error);
-      load(null);
+      console.error("Error al subir el archivo:", error)
+      load(null)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
+
+  const resetUpload = () => {
+    setFiles([])
+    setSuccess(false)
+    setUploadedImage(null)
+  }
 
   return (
-    <div className="p-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {ilustraciones.length > 0 ? (
-          ilustraciones.map((tarjeta) => (
-            <Card
-              key={tarjeta.idilustracion}
-              className="rounded-lg border border-gray-200 shadow-md"
-            >
-              <CardHeader className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <User className="w-5 h-5 text-gray-500" />
-                  <h2 className="text-base font-semibold">
-                    {tarjeta.tituloilustracion}
-                  </h2>
-                </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      {filteredIlustraciones.length > 0 ? (
+        filteredIlustraciones.map((tarjeta) => (
+          <Card key={tarjeta.idilustracion} className="rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
+              <div className="flex items-center gap-2">
+                <User className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                <h2 className="text-base sm:text-lg font-medium truncate">Docente: {tarjeta.tituloilustracion}</h2>
+              </div>
 
-                {tarjeta.estadoilustracion === "Pendiente" ? (
-                  <Chip
-                    variant="bordered"
-                    color="default"
-                    className="bg-gray-100 border-gray-300 text-gray-800 text-sm"
-                    startContent={<Clock className="w-4 h-4 text-gray-700" />}
-                  >
-                    Pendiente
-                  </Chip>
+              <div
+                className={`px-3 py-1 rounded-full text-sm flex items-center gap-1.5 self-start sm:self-auto ${
+                  tarjeta.estadoilustracion.toLowerCase() === "completado"
+                    ? "bg-green-50 text-green-700 border border-green-200"
+                    : "bg-gray-50 text-gray-700 border border-gray-200"
+                }`}
+              >
+                {tarjeta.estadoilustracion.toLowerCase() === "completado" ? (
+                  <CheckCircle className="w-4 h-4 flex-shrink-0" />
                 ) : (
-                  <Chip
-                    variant="bordered"
-                    color="success"
-                    className="bg-green-100 border-green-400 text-green-700 text-sm"
-                    startContent={
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                    }
-                  >
-                    Completado
-                  </Chip>
+                  <Clock className="w-4 h-4 flex-shrink-0" />
                 )}
-              </CardHeader>
+                <span>{tarjeta.estadoilustracion}</span>
+              </div>
+            </div>
 
-              <CardBody className="space-y-2 text-sm text-gray-700">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-gray-500" />
-                  <span>
-                    <strong>Solicitud:</strong>{" "}
-                    {new Date(
-                      tarjeta.fechaasignacionilustracion
-                    ).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-gray-500" />
-                  <span>
-                    <strong>Subida:</strong>{" "}
-                    {tarjeta.fechacargailustracion
-                      ? new Date(
-                          tarjeta.fechacargailustracion
-                        ).toLocaleDateString()
-                      : "No disponible"}
-                  </span>
-                </div>
-              </CardBody>
+            <div className="space-y-2 sm:space-y-3 text-sm text-gray-600 mb-4 sm:mb-6">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <span className="truncate">
+                  Solicitud: {new Date(tarjeta.fechaasignacionilustracion).toLocaleDateString()}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CloudUpload className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <span className="truncate">
+                  Subida:{" "}
+                  {tarjeta.fechacargailustracion
+                    ? new Date(tarjeta.fechacargailustracion).toLocaleDateString()
+                    : "No disponible"}
+                </span>
+              </div>
+            </div>
 
-              <CardFooter className="flex justify-center">
-                <button
-                  className="w-full bg-Moonstone text-white py-2 rounded-md font-medium hover:bg-opacity-90 transition"
-                  onClick={() => handleOpenModal(tarjeta)}
-                >
-                  Ver descripción
-                </button>
-              </CardFooter>
-            </Card>
-          ))
-        ) : (
-          <p className="text-center text-xl col-span-4 text-gray-500">
-            No hay ilustraciones disponibles por el momento :(
-          </p>
-        )}
-      </div>
+            <button
+              className="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-2 rounded-md font-medium transition"
+              onClick={() => handleOpenModal(tarjeta)}
+            >
+              <div className="flex text-center justify-center gap-2">
+                Ver descripción
+                <ExternalLink className="w-5 h-5 flex-shrink-0" />
+              </div>
+            </button>
+          </Card>
+        ))
+      ) : (
+        <div className="col-span-1 sm:col-span-2 lg:col-span-3 text-center py-8 sm:py-12 bg-gray-50 rounded-lg border border-dashed">
+          <FileText className="h-10 sm:h-12 w-10 sm:w-12 mx-auto text-gray-400" />
+          <h3 className="mt-4 text-base sm:text-lg font-medium">No se encontraron ilustraciones</h3>
+          <p className="mt-2 text-xs sm:text-sm text-gray-500">Prueba con otros filtros o términos de búsqueda</p>
+          <button
+            className="mt-4 px-3 sm:px-4 py-1.5 sm:py-2 border border-gray-300 rounded-md text-xs sm:text-sm font-medium"
+            onClick={() => window.location.reload()}
+          >
+            Restablecer filtros
+          </button>
+        </div>
+      )}
 
       {modalContent && (
-        <Modal
-          isOpen={isOpen}
-          onOpenChange={handleCloseModal}
-          isDismissable={false}
-          isKeyboardDismissDisabled={true}
-        >
-          <ModalContent className="w-[90%] max-w-md bg-white shadow-lg rounded-lg p-4">
+        <Modal isOpen={isOpen} onOpenChange={handleCloseModal} isDismissable={false} isKeyboardDismissDisabled={true}>
+          <ModalContent
+            className={`w-[95%] ${
+              modalContent?.urlarchivoilustracion || files.length > 0 ? "max-w-4xl" : "max-w-md"
+            } bg-white shadow-lg rounded-lg p-4 sm:p-6 overflow-y-auto max-h-[90vh]`}
+          >
             <ModalHeader className="flex flex-col items-start gap-1">
               <div className="flex items-center gap-2">
-                <User className="h-6 w-6 text-Moonstone" />
-                <h2 className="text-lg font-bold">
-                  {modalContent.tituloilustracion}
-                </h2>
+                <FileText className="h-5 w-5 text-cyan-600 flex-shrink-0" />
+                <h2 className="text-base sm:text-lg font-bold">Detalles de la Ilustración</h2>
               </div>
-              <p className="text-sm text-gray-500">
-                Información completa sobre la solicitud de ilustración
-              </p>
+              <p className="text-xs sm:text-sm text-gray-500">Información completa sobre la solicitud de ilustración</p>
             </ModalHeader>
 
             <ModalBody className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-base font-semibold">
-                  {modalContent.tituloilustracion}
-                </span>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
+                <span className="text-sm sm:text-base font-semibold">{modalContent.tituloilustracion}</span>
 
-                {modalContent.estadoilustracion === "Pendiente" ? (
-                  <Chip
-                    variant="bordered"
-                    color="default"
-                    className="bg-gray-100 border-gray-300 text-gray-800 text-sm"
-                    startContent={<Clock className="w-4 h-4 text-gray-700" />}
-                  >
-                    Pendiente
-                  </Chip>
-                ) : (
-                  <Chip
-                    variant="bordered"
-                    color="success"
-                    className="bg-green-100 border-green-400 text-green-700 text-sm"
-                    startContent={
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                    }
-                  >
-                    Completado
-                  </Chip>
-                )}
+                <div
+                  className={`px-3 py-1 rounded-full text-sm flex items-center gap-1.5 self-start sm:self-auto ${
+                    modalContent.estadoilustracion === "Completado"
+                      ? "bg-green-50 text-green-700 border border-green-200"
+                      : "bg-gray-50 text-gray-700 border border-gray-200"
+                  }`}
+                >
+                  {modalContent.estadoilustracion === "Completado" ? (
+                    <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                  ) : (
+                    <Clock className="w-4 h-4 flex-shrink-0" />
+                  )}
+                  <span>{modalContent.estadoilustracion}</span>
+                </div>
               </div>
 
-              <div className="flex justify-between text-sm">
-                <div className="flex flex-col gap-1">
-                  <span className="text-gray-500">Fecha de solicitud:</span>
-                  <span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                <div className="space-y-1">
+                  <p className="text-gray-500">Fecha de solicitud:</p>
+                  <p className="font-medium">
                     {modalContent.fechaasignacionilustracion
-                      ? new Date(
-                          modalContent.fechaasignacionilustracion
-                        ).toLocaleDateString()
+                      ? new Date(modalContent.fechaasignacionilustracion).toLocaleDateString()
                       : "No disponible"}
-                  </span>
+                  </p>
                 </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-gray-500">Fecha de subida:</span>
-                  <span>
+                <div className="space-y-1">
+                  <p className="text-gray-500">Fecha de subida:</p>
+                  <p className="font-medium">
                     {modalContent.fechacargailustracion
-                      ? new Date(
-                          modalContent.fechacargailustracion
-                        ).toLocaleDateString()
+                      ? new Date(modalContent.fechacargailustracion).toLocaleDateString()
                       : "No disponible"}
-                  </span>
+                  </p>
                 </div>
               </div>
 
-              <div>
-                <p className="font-semibold mb-1">Descripción:</p>
-                <div className="border rounded-md bg-gray-50 p-2 max-h-32 overflow-y-auto text-sm text-gray-700 whitespace-pre-line">
+              <div className="space-y-2">
+                <h4 className="font-medium">Descripción:</h4>
+                <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded-md border max-h-32 sm:max-h-40 overflow-y-auto whitespace-pre-line">
                   {modalContent.descripcionilustracion || "No disponible"}
                 </div>
               </div>
 
-              {modalContent.estadoilustracion !== "completado" && (
-                <>
-                  <FilePond
-                    ref={pondRef}
-                    files={files}
-                    allowMultiple={false}
-                    acceptedFileTypes={[
-                      "image/png",
-                      "image/jpeg",
-                      "image/webp",
-                      "image/svg+xml",
-                    ]}
-                    onupdatefiles={setFiles}
-                    labelIdle='Arrastra tu imagen o <span class="filepond--label-action text-blue-600">Explora</span>'
-                    credits={false}
-                    className="rounded-lg border-2 border-blue-300 bg-gray-100 text-base p-4"
-                    server={{
-                      process: (
-                        _fieldName,
-                        file,
-                        _metadata,
-                        load,
-                        _error,
-                        _progress,
-                        abort,
-                        clear
-                      ) => {
-                        handleUpload({ file }, load, () => clear());
-                      },
-                    }}
-                  />
+              {modalContent.estadoilustracion !== "Completado" && (
+                <div className="space-y-4">
+                  {success && uploadedImage ? (
+                    <div className="text-center space-y-4">
+                      <div className="flex justify-center items-center">
+                        <div className="relative w-full max-w-md">
+                          <img
+                            src={uploadedImage || "/placeholder.svg"}
+                            alt="Imagen subida"
+                            className="rounded-lg border border-gray-200 max-h-48 sm:max-h-64 mx-auto object-contain"
+                          />
+                        </div>
+                      </div>
 
-                  {loading && (
-                    <div className="flex justify-center mt-2">
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    </div>
-                  )}
+                      <div className="flex justify-center items-center gap-2 text-green-600">
+                        <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
+                        <span className="font-medium text-sm sm:text-base">¡Imagen subida correctamente!</span>
+                      </div>
 
-                  {success && (
-                    <div className="flex justify-center mt-2 text-green-600 animate-pulse">
-                      <CheckCircle2 className="w-5 h-5" /> 隆Archivo subido!
+                      <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3 mt-4">
+                        <button
+                          className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md font-medium transition flex items-center justify-center gap-2 text-sm"
+                          onClick={resetUpload}
+                        >
+                          Subir otra imagen
+                        </button>
+
+                        <button
+                          className="px-3 sm:px-4 py-1.5 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-md font-medium transition text-sm mt-2 sm:mt-0"
+                          onClick={handleCloseModal}
+                        >
+                          Cerrar
+                        </button>
+                      </div>
                     </div>
+                  ) : (
+                    <>
+                      {/* Área de carga simplificada - Más intuitiva */}
+                      <div className="border border-gray-200 rounded-lg overflow-hidden">
+                        <div className="p-3 sm:p-6">
+                          <FilePond
+                            ref={pondRef}
+                            files={files}
+                            allowMultiple={false}
+                            acceptedFileTypes={["image/png", "image/jpeg", "image/webp", "image/svg+xml"]}
+                            onupdatefiles={setFiles}
+                            labelIdle='Arrastra tu imagen o <span class="filepond--label-action text-blue-600">Explora</span>'
+                            credits={false}
+                            className="filepond-container"
+                            server={{
+                              process: (_fieldName, file, _metadata, load, _error, _progress, _abort, clear) => {
+                                handleUpload({ file }, load, () => clear())
+                              },
+                            }}
+                          />
+                          <div className="text-center text-xs sm:text-sm text-gray-500 mt-2">
+                            Formatos aceptados: PNG, JPG, WEBP, SVG
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Indicadores de estado */}
+                      {loading && (
+                        <div className="flex justify-center items-center gap-2 mt-2">
+                          <Loader2 className="w-4 sm:w-5 h-4 sm:h-5 animate-spin text-cyan-600" />
+                          <span className="text-xs sm:text-sm text-gray-600">Subiendo imagen...</span>
+                        </div>
+                      )}
+                    </>
                   )}
-                </>
+                </div>
               )}
             </ModalBody>
-
-            <ModalFooter>
-              <button
-                className="w-full bg-Moonstone text-white py-2 px-4 rounded-md flex items-center justify-center gap-2"
-                onClick={() => pondRef.current && pondRef.current.browse()}
-              >
-                <Upload className="w-5 h-5" />
-                Subir Im谩genes
-              </button>
-            </ModalFooter>
           </ModalContent>
         </Modal>
       )}
     </div>
-  );
-};
+  )
+}
 
 CartaIlustracion.propTypes = {
   estadoFiltro: PropTypes.string.isRequired,
   orden: PropTypes.string.isRequired,
-};
+  ilustraciones: PropTypes.array.isRequired,
+  fetchIlustraciones: PropTypes.func.isRequired,
+  searchQuery: PropTypes.string,
+}
 
-export default CartaIlustracion;
+CartaIlustracion.defaultProps = {
+  searchQuery: "",
+}
+
+export default CartaIlustracion

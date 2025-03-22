@@ -1,115 +1,63 @@
-import { Button } from "@heroui/button";
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
-import { Clock, CheckCircle, Filter, SortAsc, SortDesc, Check } from "lucide-react";
-import PropTypes from "prop-types";
+"use client"
 
-const FiltrosIlustraciones = ({
-  estadoFiltro,
-  setEstadoFiltro,
-  orden,
-  setOrden,
-  total,
-  pendientes,
-  completadas,
-}) => {
+import { Button } from "@heroui/button"
+import { Clock, CheckCircle, Filter } from "lucide-react"
+import PropTypes from "prop-types"
+
+const FiltrosIlustraciones = ({ estadoFiltro, setEstadoFiltro, total, pendientes, completadas }) => {
+  const filtros = [
+    {
+      key: "todas",
+      label: "Todas",
+      icon: <Filter className="w-4 h-4" />,
+      count: total,
+    },
+    {
+      key: "pendientes",
+      label: "Pendientes",
+      icon: <Clock className="w-4 h-4" />,
+      count: pendientes,
+    },
+    {
+      key: "completadas",
+      label: "Completadas",
+      icon: <CheckCircle className="w-4 h-4" />,
+      count: completadas,
+    },
+  ]
+
   return (
-    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-
-      {/* Filtros de estado */}
-      <div className="flex items-center gap-2 flex-wrap bg-gray-50 p-2 rounded-lg">
-        <Button
-          variant={estadoFiltro === "todas" ? "solid" : "light"}
-          color={estadoFiltro === "todas" ? "default" : "ghost"}
-          className={`rounded-md ${estadoFiltro === "todas" ? "bg-white shadow-sm" : ""}`}
-          onClick={() => setEstadoFiltro("todas")}
-          startContent={<Filter className="w-4 h-4" />}
-        >
-          Todas 
-          <span className="ml-2 bg-gray-200 text-gray-800 rounded-full px-2 text-xs font-medium">
-            {total}
-          </span>
-        </Button>
-
-        <Button
-          variant={estadoFiltro === "pendientes" ? "solid" : "light"}
-          color={estadoFiltro === "pendientes" ? "default" : "ghost"}
-          className={`rounded-md ${estadoFiltro === "pendientes" ? "bg-white shadow-sm" : ""}`}
-          onClick={() => setEstadoFiltro("pendientes")}
-          startContent={<Clock className="w-4 h-4" />}
-        >
-          Pendientes
-          <span className="ml-2 bg-gray-200 text-gray-800 rounded-full px-2 text-xs font-medium">
-            {pendientes}
-          </span>
-        </Button>
-
-        <Button
-          variant={estadoFiltro === "completadas" ? "solid" : "light"}
-          color={estadoFiltro === "completadas" ? "default" : "ghost"}
-          className={`rounded-md ${estadoFiltro === "completadas" ? "bg-white shadow-sm" : ""}`}
-          onClick={() => setEstadoFiltro("completadas")}
-          startContent={<CheckCircle className="w-4 h-4" />}
-        >
-          Completadas
-          <span className="ml-2 bg-gray-200 text-gray-800 rounded-full px-2 text-xs font-medium">
-            {completadas}
-          </span>
-        </Button>
-      </div>
-
-      {/* Dropdown Orden */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <Dropdown>
-          <DropdownTrigger>
-            <Button
-              variant="light"
-              startContent={
-                orden === "reciente" ? (
-                  <SortAsc className="w-4 h-4" />
-                ) : (
-                  <SortDesc className="w-4 h-4" />
-                )
-              }
-              className="border border-gray-300 rounded-md"
-            >
-              {orden === "reciente" ? "Fecha: Más reciente" : "Fecha: Más antiguo"}
-            </Button>
-          </DropdownTrigger>
-          <DropdownMenu
-            aria-label="Ordenar por fecha"
-            onAction={(key) => setOrden(key)}
+    <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg p-1 w-full sm:w-auto sm:inline-flex">
+      {filtros.map((filtro) => {
+        const activo = estadoFiltro === filtro.key
+        return (
+          <Button
+            key={filtro.key}
+            variant="light"
+            className={`rounded-md px-2 sm:px-3 py-2 flex items-center gap-1 sm:gap-2 flex-1 sm:flex-initial justify-center sm:justify-start ${
+              activo ? "bg-white border border-gray-300 shadow-sm text-black" : "text-gray-600 hover:bg-gray-100"
+            }`}
+            onClick={() => setEstadoFiltro(filtro.key)}
+            startContent={filtro.icon}
+            size="sm"
           >
-            <DropdownItem
-              key="reciente"
-              startContent={
-                orden === "reciente" && <Check className="w-4 h-4 text-green-500" />
-              }
-            >
-              Fecha: Más reciente
-            </DropdownItem>
-            <DropdownItem
-              key="antiguo"
-              startContent={
-                orden === "antiguo" && <Check className="w-4 h-4 text-green-500" />
-              }
-            >
-              Fecha: Más antiguo
-            </DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
-      </div>
+            <span className="text-xs sm:text-sm">{filtro.label}</span>
+            <span className="ml-1 bg-gray-200 text-gray-800 rounded-full px-1.5 sm:px-2 py-0.5 text-xs font-semibold">
+              {filtro.count}
+            </span>
+          </Button>
+        )
+      })}
     </div>
-  );
-};
+  )
+}
 
 FiltrosIlustraciones.propTypes = {
   estadoFiltro: PropTypes.string.isRequired,
   setEstadoFiltro: PropTypes.func.isRequired,
-  orden: PropTypes.string.isRequired,
-  setOrden: PropTypes.func.isRequired,
   total: PropTypes.number.isRequired,
   pendientes: PropTypes.number.isRequired,
   completadas: PropTypes.number.isRequired,
-};
+}
 
-export default FiltrosIlustraciones;
+export default FiltrosIlustraciones

@@ -6,10 +6,10 @@ export const guardarMensaje = async (req, res) => {
 
   try {
     const query = `
-      INSERT INTO ilustraciones (titulollustracion, descripcionllustracion, ideducador)
+      INSERT INTO ilustraciones (tituloilustracion, descripcionilustracion, ideducador)
       VALUES ($1, $2, $3) RETURNING *;
     `;
-
+    
     const values = [tituloilustracion, descripcionllustracion, ideducador];
     const { rows } = await pool.query(query, values);
 
@@ -30,7 +30,7 @@ export const guardarArchivo = async (req, res) => {
   try {
     const query = `
       UPDATE ilustraciones 
-      SET urlarchivoilustracion = $1, fechacargallustracion = CURRENT_TIMESTAMP, estadollustracion = 'completado', iddisenador = $2
+      SET urlarchivoilustracion = $1, fechacargailustracion = CURRENT_TIMESTAMP, estadoilustracion = 'completado', iddisenador = $2
       WHERE idilustracion = $3 RETURNING *;
     `;
 
