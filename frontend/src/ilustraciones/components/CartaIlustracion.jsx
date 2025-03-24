@@ -110,56 +110,59 @@ const CartaIlustracion = ({ estadoFiltro, orden, ilustraciones, fetchIlustracion
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       {filteredIlustraciones.length > 0 ? (
         filteredIlustraciones.map((tarjeta) => (
-          <Card key={tarjeta.idilustracion} className="rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
-              <div className="flex items-center gap-2">
-                <User className="w-5 h-5 text-gray-500 flex-shrink-0" />
-                <h2 className="text-base sm:text-lg font-medium truncate">Docente: {tarjeta.tituloilustracion}</h2>
+          <Card key={tarjeta.idilustracion} className="rounded-lg border border-gray-200 shadow-sm p-5 bg-white">
+            <div className="space-y-4">
+              {/* Encabezado con docente y estado */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <User className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                  <h2 className="text-base font-medium text-gray-900">Docente: {tarjeta.tituloilustracion}</h2>
+                </div>
+
+                <div
+                  className={`px-3 py-1 rounded-full text-sm flex items-center gap-1.5 ${
+                    tarjeta.estadoilustracion.toLowerCase() === "completado"
+                      ? "bg-green-50 text-green-700"
+                      : "bg-gray-100 text-gray-700"
+                  }`}
+                >
+                  {tarjeta.estadoilustracion.toLowerCase() === "completado" ? (
+                    <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                  ) : (
+                    <Clock className="w-4 h-4 flex-shrink-0" />
+                  )}
+                  <span>{tarjeta.estadoilustracion.toLowerCase()}</span>
+                </div>
               </div>
 
-              <div
-                className={`px-3 py-1 rounded-full text-sm flex items-center gap-1.5 self-start sm:self-auto ${
-                  tarjeta.estadoilustracion.toLowerCase() === "completado"
-                    ? "bg-green-50 text-green-700 border border-green-200"
-                    : "bg-gray-50 text-gray-700 border border-gray-200"
-                }`}
+              {/* Fechas */}
+              <div className="space-y-2 text-sm text-gray-600">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <span>Solicitud: {new Date(tarjeta.fechaasignacionilustracion).toLocaleDateString()}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CloudUpload className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <span>
+                    Subida:{" "}
+                    {tarjeta.fechacargailustracion
+                      ? new Date(tarjeta.fechacargailustracion).toLocaleDateString()
+                      : "No disponible"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Botón Ver descripción */}
+              <button
+                className="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-2.5 rounded-md font-medium transition"
+                onClick={() => handleOpenModal(tarjeta)}
               >
-                {tarjeta.estadoilustracion.toLowerCase() === "completado" ? (
-                  <CheckCircle className="w-4 h-4 flex-shrink-0" />
-                ) : (
-                  <Clock className="w-4 h-4 flex-shrink-0" />
-                )}
-                <span>{tarjeta.estadoilustracion}</span>
-              </div>
+                <div className="flex text-center justify-center items-center gap-2">
+                  Ver descripción
+                  <ExternalLink className="w-4 h-4 flex-shrink-0" />
+                </div>
+              </button>
             </div>
-
-            <div className="space-y-2 sm:space-y-3 text-sm text-gray-600 mb-4 sm:mb-6">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                <span className="truncate">
-                  Solicitud: {new Date(tarjeta.fechaasignacionilustracion).toLocaleDateString()}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CloudUpload className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                <span className="truncate">
-                  Subida:{" "}
-                  {tarjeta.fechacargailustracion
-                    ? new Date(tarjeta.fechacargailustracion).toLocaleDateString()
-                    : "No disponible"}
-                </span>
-              </div>
-            </div>
-
-            <button
-              className="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-2 rounded-md font-medium transition"
-              onClick={() => handleOpenModal(tarjeta)}
-            >
-              <div className="flex text-center justify-center gap-2">
-                Ver descripción
-                <ExternalLink className="w-5 h-5 flex-shrink-0" />
-              </div>
-            </button>
           </Card>
         ))
       ) : (
@@ -198,8 +201,8 @@ const CartaIlustracion = ({ estadoFiltro, orden, ilustraciones, fetchIlustracion
                 <div
                   className={`px-3 py-1 rounded-full text-sm flex items-center gap-1.5 self-start sm:self-auto ${
                     modalContent.estadoilustracion === "Completado"
-                      ? "bg-green-50 text-green-700 border border-green-200"
-                      : "bg-gray-50 text-gray-700 border border-gray-200"
+                      ? "bg-green-50 text-green-700"
+                      : "bg-gray-100 text-gray-700"
                   }`}
                 >
                   {modalContent.estadoilustracion === "Completado" ? (
@@ -207,7 +210,7 @@ const CartaIlustracion = ({ estadoFiltro, orden, ilustraciones, fetchIlustracion
                   ) : (
                     <Clock className="w-4 h-4 flex-shrink-0" />
                   )}
-                  <span>{modalContent.estadoilustracion}</span>
+                  <span>{modalContent.estadoilustracion.toLowerCase()}</span>
                 </div>
               </div>
 
@@ -283,7 +286,7 @@ const CartaIlustracion = ({ estadoFiltro, orden, ilustraciones, fetchIlustracion
                             allowMultiple={false}
                             acceptedFileTypes={["image/png", "image/jpeg", "image/webp", "image/svg+xml"]}
                             onupdatefiles={setFiles}
-                            labelIdle='Arrastra tu imagen o <span class="filepond--label-action text-blue-600">Explora</span>'
+                            labelIdle="Arrastra tu imagen aquí"
                             credits={false}
                             className="filepond-container"
                             server={{
@@ -330,3 +333,4 @@ CartaIlustracion.defaultProps = {
 }
 
 export default CartaIlustracion
+
