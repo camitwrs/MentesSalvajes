@@ -11,7 +11,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Poppins", "sans-serif"],
+        sans: ["Montserrat", "sans-serif"],
         logolike: ["Jua", "serif"], // Esta es la fuente específica
       },
       colors: {

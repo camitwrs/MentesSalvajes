@@ -36,16 +36,17 @@ export const AuthProvider = ({ children }) => {
 
   const logearse = async (user) => {
     try {
+      setLoading(true); // Activamos el spinner antes de hacer la solicitud
+
       const res = await loginUsuarioRequest(user);
 
       if (res.data) {
-        setLoading(true); // Activamos el spinner SOLO si la autenticación es exitosa
+        setEstaAutenticado(true);
+        setUser(res.data);
 
         setTimeout(() => {
-          setEstaAutenticado(true);
-          setUser(res.data);
           setLoading(false); // Desactivamos el spinner después del delay
-        }, 1500); // Delay de 1.5 segundos antes de redirigir
+        }, 500); // Delay de 0.5 segundo antes de redirigir
       }
     } catch (error) {
       setLoading(false); // Si hay error, asegurarnos de que el spinner NO aparezca
@@ -78,8 +79,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, [errors]);
 
-  // En AuthContext
-
   const checkLogin = async () => {
     try {
       const res = await verificarTokenRequest();
@@ -91,7 +90,10 @@ export const AuthProvider = ({ children }) => {
         setEstaAutenticado(false);
       }
     } catch (error) {
-      console.error("Error al verificar el token:", error);
+      if (error.response?.status !== 401) {
+        // no autorizado
+        console.error("Error al verificar el token:", error);
+      }
       setUser(null);
       setEstaAutenticado(false);
     }
@@ -100,7 +102,7 @@ export const AuthProvider = ({ children }) => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen">
-        <Spinner size="lg" color="primary" />
+        <Spinner size="lg" color="warning" />
         <p className="mt-4 text-gray-600 font-semibold text-lg">
           Procesando, por favor espera...
         </p>
