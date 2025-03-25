@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [estaAutenticado, setEstaAutenticado] = useState(false);
   const [errors, setErrors] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const registrarse = async (user) => {
     try {
@@ -36,16 +36,17 @@ export const AuthProvider = ({ children }) => {
 
   const logearse = async (user) => {
     try {
+      setLoading(true); // Activamos el spinner antes de hacer la solicitud
+
       const res = await loginUsuarioRequest(user);
 
       if (res.data) {
-        setLoading(true); // Activamos el spinner SOLO si la autenticación es exitosa
+        setEstaAutenticado(true);
+        setUser(res.data);
 
         setTimeout(() => {
-          setEstaAutenticado(true);
-          setUser(res.data);
           setLoading(false); // Desactivamos el spinner después del delay
-        }, 1500); // Delay de 1.5 segundos antes de redirigir
+        }, 500); // Delay de 0.5 segundo antes de redirigir
       }
     } catch (error) {
       setLoading(false); // Si hay error, asegurarnos de que el spinner NO aparezca
@@ -78,41 +79,30 @@ export const AuthProvider = ({ children }) => {
     }
   }, [errors]);
 
-  useEffect(() => {
-    async function checkLogin() {
-      const cookies = Cookie.get();
-
-      if (!cookies.token) {
+  const checkLogin = async () => {
+    try {
+      const res = await verificarTokenRequest();
+      if (res.data) {
+        setUser(res.data);
+        setEstaAutenticado(true);
+      } else {
         setUser(null);
         setEstaAutenticado(false);
-        setLoading(false);
-        return;
       }
-
-      try {
-        const res = await verificarTokenRequest(cookies.token);
-        if (res.data) {
-          setUser(res.data);
-          setEstaAutenticado(true);
-        } else {
-          setUser(null);
-          setEstaAutenticado(false);
-        }
-      } catch (error) {
+    } catch (error) {
+      if (error.response?.status !== 401) {
+        // no autorizado
         console.error("Error al verificar el token:", error);
-        setUser(null);
-        setEstaAutenticado(false);
-      } finally {
-        setLoading(false);
       }
+      setUser(null);
+      setEstaAutenticado(false);
     }
-    checkLogin();
-  }, []);
+  };
 
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen">
-        <Spinner size="lg" color="primary" />
+        <Spinner size="lg" color="warning" />
         <p className="mt-4 text-gray-600 font-semibold text-lg">
           Procesando, por favor espera...
         </p>
@@ -130,6 +120,7 @@ export const AuthProvider = ({ children }) => {
         estaAutenticado,
         errors,
         loading,
+        checkLogin,
       }}
     >
       {children}

@@ -1,4 +1,6 @@
-import { MoreHorizontal } from "lucide-react"
+import {Button} from "@heroui/button";
+import {Chip} from "@heroui/chip";
+import ResumenPage from "../pages/ResumenPage";
 
 const TablaCuestionarios = () => {
   // Datos de ejemplo (hardcoded como se muestra en la imagen)
@@ -33,15 +35,14 @@ const TablaCuestionarios = () => {
               <td className="py-4 px-4 text-gray-700">{cuestionario.preguntas}</td>
               <td className="py-4 px-4 text-gray-700">{cuestionario.respuestas}</td>
               <td className="py-4 px-4">
-                <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-black text-white">
+                <Chip className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-black text-white">
                   {cuestionario.estado}
-                </span>
+                </Chip>
               </td>
               <td className="py-4 px-4 text-gray-700">{cuestionario.fechaCreacion}</td>
               <td className="py-4 px-4 text-right">
-                <button className="text-gray-500 hover:text-gray-700">
-                  <MoreHorizontal className="w-5 h-5" />
-                </button>
+                <Button color="success" onClick={ResumenPage}>
+                    Ver estadistica</Button>
               </td>
             </tr>
           ))}
@@ -52,4 +53,3 @@ const TablaCuestionarios = () => {
 }
 
 export default TablaCuestionarios
-

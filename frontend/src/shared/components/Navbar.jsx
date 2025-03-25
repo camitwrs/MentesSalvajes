@@ -49,7 +49,7 @@ const Navbar = () => {
         <div className="flex items-center h-16 md:h-20">
           {/* Texto Bienvenido alineado a la izquierda */}
           <p
-            className="font-bold text-lg md:text-2xl text-white cursor-pointer transition-transform duration-200 hover:scale-105"
+            className="font-bold text-lg md:text-2xl text-white cursor-pointer transition-transform duration-200 ml-4 lg:ml-8"
             onClick={navigateToDashboard}
           >
             Bienvenido, {rolUsuario}

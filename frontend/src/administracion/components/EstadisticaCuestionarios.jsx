@@ -62,4 +62,3 @@ const EstadisticaCuestionarios = () => {
 }
 
 export default EstadisticaCuestionarios
-
