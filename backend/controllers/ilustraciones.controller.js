@@ -1,13 +1,5 @@
-import pool from "../pg.js";
-import dotenv from "dotenv";
-import { createClient } from "@supabase/supabase-js";
-
-dotenv.config();
-
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+import pool from "../config/pg.js";
+import supabase from "../config/supabaseClient.js";
 
 // Guardar primera parte de la ilustracion desde el cuestionario
 export const guardarMensaje = async (req, res) => {

@@ -1,4 +1,4 @@
-import pool from "../pg.js";
+import pool from "../config/pg.js";
 
 export const getDatosEducador = async (req, res) => {
   const { idusuario } = req.query;

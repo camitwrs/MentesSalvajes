@@ -1,4 +1,4 @@
-import pool from "../pg.js";
+import pool from "../config/pg.js";
 
 export const guardarRespuesta = async (req, res) => {
   const { idusuario, respuestas, idcuestionario } = req.body;

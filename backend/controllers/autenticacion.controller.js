@@ -1,4 +1,4 @@
-import pool from "../pg.js"; // Asegúrate de que `pg` exporte su contenido usando `export default`
+import pool from "../config/pg.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 

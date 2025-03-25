@@ -1,4 +1,4 @@
-import pool from "../pg.js";
+import pool from "../config/pg.js";
 
 // Obtener todos los cuestionarios
 export const getCuestionarios = async (_, res) => {
