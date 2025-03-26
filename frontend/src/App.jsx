@@ -1,18 +1,15 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-
 import HomePage from "./inicio/pages/HomePage";
 import CuestionarioPage from "./cuestionario/pages/CuestionarioPage";
+import ResumenPage from "../src/administracion/pages/ResumenPage"; // Asegúrate de importar el componente
 import { AuthProvider } from "./autenticacion/context/AuthContext";
-
 import LoginPage from "./autenticacion/pages/LoginPage";
 import RegisterPage from "./autenticacion/pages/RegisterPage";
 import IlustradorPage from "./ilustraciones/pages/IlustradorPage";
 import EducadorPage from "./cuestionario/pages/EducadorPage";
 import AdminPage from "./administracion/pages/AdminPage";
-
 import ProtectedRoutes from "./ProtectedRoutes";
 import Navbar from "./shared/components/Navbar";
-
 import { HeroUIProvider } from "@heroui/react";
 
 function App() {
@@ -49,6 +46,7 @@ function App() {
               }
             >
               <Route path="/dashboard-admin" element={<AdminPage />} />
+              <Route path="/resumen/:idcuestionario" element={<ResumenPage />} />
             </Route>
 
             {/* PROTECTED ROUTES PARA ILUSTRADORES (ROL 4) */}
