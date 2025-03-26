@@ -25,3 +25,31 @@ export const getDatosEducador = async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
+
+export const getTotalEducadores = async (_, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT COUNT(ideducador) AS total_educadores FROM educadores"
+    );
+    res.json({ total_educadores: result.rows[0].total_educadores });
+  } catch (error) {
+    console.error("Error al obtener la cantidad de educadores:", error);
+    res
+      .status(500)
+      .json({ error: "Error al obtener la cantidad de educadores" });
+  }
+};
+
+export const getDiferenciaEducadores = async (_, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT COUNT(*) AS diferencia_educadores FROM usuarios WHERE idrol = 1 AND fecharegistrousuario >= DATE_TRUNC('month', NOW()) - INTERVAL '1 month'"
+    );
+    res.json({ diferencia_educadores: result.rows[0].diferencia_educadores });
+  } catch (error) {
+    console.error("Error al obtener la diferencia de educadores:", error);
+    res
+      .status(500)
+      .json({ error: "Error al obtener la diferencia de educadores" });
+  }
+};

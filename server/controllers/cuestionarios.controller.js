@@ -42,3 +42,33 @@ export const getCuestionariosPorTitulo = async (req, res) => {
     res.status(500).json({ error: "Error al buscar cuestionarios" });
   }
 };
+
+export const getTotalCuestionarios = async (_, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT COUNT(idcuestionario) AS total_cuestionarios FROM cuestionarios"
+    );
+    res.json({ total_cuestionarios: result.rows[0].total_cuestionarios });
+  } catch (error) {
+    console.error("Error al obtener la cantidad de cuestionarios:", error);
+    res
+      .status(500)
+      .json({ error: "Error al obtener la cantidad de cuestionarios" });
+  }
+};
+
+export const getDiferenciaCuestionarios = async (_, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT COUNT(*) AS diferencia_cuestionarios FROM cuestionarios WHERE fechacreacioncuestionario >= DATE_TRUNC('month', NOW()) - INTERVAL '1 month'"
+    );
+    res.json({
+      diferencia_cuestionarios: result.rows[0].diferencia_cuestionarios,
+    });
+  } catch (error) {
+    console.error("Error al obtener la diferencia de cuestionarios:", error);
+    res
+      .status(500)
+      .json({ error: "Error al obtener la diferencia de cuestionarios" });
+  }
+};

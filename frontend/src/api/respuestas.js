@@ -1,7 +1,6 @@
 import axios from "axios";
 
 const API = "http://localhost:3000/api";
-
 /*
   Función: guardarRespuestaRequest.
   --------------------------------------------
@@ -46,3 +45,18 @@ export const getRespuestasDetalleRequest = (idusuario, idcuestionario) =>
   axios.get(`${API}/respuestas/texto`, {
     params: { idusuario, idcuestionario },
   });
+
+/*
+  devuelve un
+  {
+  "total_respuestas": 42
+  }
+*/
+export const getTotalAllRespuestasRequest = () =>
+  axios.get(`${API}/respuestas`);
+
+export const getDiferenciaRespuestasRequest = () =>
+  axios.get(`${API}/respuestas/diferencia`);
+
+export const getTotalRespuestasPorCuestionarioRequest = (idcuestionario) =>
+  axios.get(`${API}/respuestas/cuestionario/${idcuestionario}`);

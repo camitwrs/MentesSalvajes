@@ -17,9 +17,17 @@ import {
 
 const router = Router();
 
-router.post("/registroeducador", validarSchema(registerEducatorSchema), registrarEducador);
+router.post(
+  "/registroeducador",
+  validarSchema(registerEducatorSchema),
+  registrarEducador
+);
 
-router.post("/registrousuario", validarSchema(registerUserSchema), registrarUsuario);
+router.post(
+  "/registrousuario",
+  validarSchema(registerUserSchema),
+  registrarUsuario
+);
 
 router.post("/entrar", validarSchema(loginSchema), loginUsuario);
 

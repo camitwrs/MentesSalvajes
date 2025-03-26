@@ -177,3 +177,52 @@ export const getRespuestasDetalle = async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor." });
   }
 };
+
+export const getAllTotalRespuestas = async (_, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT COUNT(idrespuesta) AS total_respuestas FROM respuestas"
+    );
+    res.json({ total_respuestas: result.rows[0].total_respuestas });
+  } catch (error) {
+    console.error("Error al obtener el total de respuestqas:", error);
+    res.status(500).json({ error: "Error al obtener el total de respuestas" });
+  }
+};
+
+export const getDiferenciaRespuestas = async (_, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT COUNT(*) AS diferencia_respuestas FROM respuestas WHERE fecharespuesta >= DATE_TRUNC('month', NOW()) - INTERVAL '1 month'"
+    );
+    res.json({ diferencia_respuestas: result.rows[0].diferencia_respuestas });
+  } catch (error) {
+    console.error("Error al obtener la diferencia de respuestas:", error);
+    res
+      .status(500)
+      .json({ error: "Error al obtener la diferencia de respuestas" });
+  }
+};
+
+export const getTotalRespuestasPorCuestionario = async (req, res) => {
+  const { idcuestionario } = req.params;
+
+  try {
+    const query = `
+      SELECT COUNT(idrespuesta) AS total_respuestas
+      FROM respuestas
+      WHERE idcuestionario = $1;
+    `;
+    const result = await pool.query(query, [idcuestionario]);
+
+    res.json({ total_respuestas: result.rows[0].total_respuestas });
+  } catch (error) {
+    console.error(
+      "Error al obtener el total de respuestas por cuestionario",
+      error
+    );
+    res.status(500).json({
+      error: "Error al obtener el total de respuestas por cuestionario",
+    });
+  }
+};

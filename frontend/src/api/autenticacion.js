@@ -72,7 +72,7 @@ export const registrarUsuarioRequest = (user) =>
     - En caso de error (usuario no encontrado o contraseña incorrecta), devuelve un status 400 o 401.
 */
 export const loginUsuarioRequest = (credenciales) =>
-  axios.post(`/autenticacion/entrar`, credenciales);
+  axios.post(`/autenticacion/entrar`, credenciales, { withCredentials: true });
 
 /*
   logoutUsuario

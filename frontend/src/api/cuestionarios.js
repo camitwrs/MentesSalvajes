@@ -9,3 +9,9 @@ export const crearCuestionariosRequest = (cuestionario) =>
 
 export const getCuestionariosPorTituloRequest = (titulocuestionario) =>
   axios.get(`${API}/cuestionarios/titulo/${titulocuestionario}`);
+
+export const getAllCuestionariosRequest = () =>
+  axios.get(`${API}/cuestionarios/all`);
+
+export const getDiferenciaCuestionariosRequest = () =>
+  axios.get(`${API}/cuestionarios/diferencia`);
