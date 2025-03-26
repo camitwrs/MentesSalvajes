@@ -51,3 +51,42 @@ export const crearAlternativa = async (req, res) => {
     res.status(500).json({ error: "Error al crear la alternativa" });
   }
 };
+
+export const getTotalAlternativasRespondidas = async (_, res) => {
+  try {
+    const query = `
+      SELECT idpregunta, idalternativa, COUNT(*) AS total_respuestas
+      FROM respuestasdetalle
+      GROUP BY idpregunta, idalternativa
+      ORDER BY idpregunta, idalternativa;
+    `;
+    const result = await pool.query(query);
+
+    // Reorganizar el resultado en un array estructurado por idpregunta
+    const preguntas = {};
+    result.rows.forEach(({ idpregunta, idalternativa, total_respuestas }) => {
+      if (!preguntas[idpregunta]) {
+        preguntas[idpregunta] = [];
+      }
+      preguntas[idpregunta].push({
+        idalternativa,
+        total_respuestas,
+      });
+    });
+
+    // Transformar a un array para la respuesta
+    const respuestaFinal = Object.entries(preguntas).map(
+      ([idpregunta, alternativas]) => ({
+        idpregunta: Number(idpregunta),
+        alternativas,
+      })
+    );
+
+    res.json(respuestaFinal);
+  } catch (error) {
+    console.error("Error al obtener las respuestas por pregunta:", error);
+    res
+      .status(500)
+      .json({ error: "Error al obtener las respuestas por pregunta" });
+  }
+};

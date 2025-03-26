@@ -56,6 +56,39 @@ export const getAlternativasPorCuestionarioRequest = (idcuestionario) =>
 export const crearAlternativaRequest = (alternativa) =>
   axios.post(`${API}/alternativas`, alternativa);
 
+/*
+getTotalAlternativasRespondidasRequest
+
+Formato respuesta:
+[
+  {
+    "idpregunta": 1,
+    "alternativas": [
+      {
+        "idalternativa": 1,
+        "total_respuestas": 10
+      },
+      {
+        "idalternativa": 2,
+        "total_respuestas": 5
+      }
+    ]
+  },
+  {
+    "idpregunta": 2,
+    "alternativas": [
+      {
+        "idalternativa": 3,
+        "total_respuestas": 7
+      }
+    ]
+  }
+]
+*/
+
+export const getTotalAlternativasRespondidasRequest = () =>
+  axios.get(`${API}/alternativas/all`);
+
 // Petición a API PUIBLICA EXTERNA
 export const getUniversidadesPorPaisRequest = (nombrepais) =>
   axios.get(`http://universities.hipolabs.com/search?country=${nombrepais}`);
