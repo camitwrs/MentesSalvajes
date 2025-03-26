@@ -293,7 +293,7 @@ const CartaIlustracion = ({
                 </div>
               </div>
 
-              {modalContent.estadoilustracion !== "Completado" && (
+              {modalContent.estadoilustracion.toLowerCase() !== "completado" ? (
                 <div className="space-y-4">
                   {success && uploadedImage ? (
                     <div className="text-center space-y-4">
@@ -332,7 +332,6 @@ const CartaIlustracion = ({
                     </div>
                   ) : (
                     <>
-                      {/* Área de carga simplificada - Más intuitiva */}
                       <div className="border border-gray-200 rounded-lg overflow-hidden">
                         <div className="p-3 sm:p-6">
                           <FilePond
@@ -376,7 +375,6 @@ const CartaIlustracion = ({
                         </p>
                       )}
 
-                      {/* Indicadores de estado */}
                       {loading && (
                         <div className="flex justify-center items-center gap-2 mt-2">
                           <Loader2 className="w-4 sm:w-5 h-4 sm:h-5 animate-spin text-cyan-600" />
@@ -386,6 +384,31 @@ const CartaIlustracion = ({
                         </div>
                       )}
                     </>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <h4 className="font-medium">Ilustración subida:</h4>
+                  {modalContent.urlarchivoilustracion ? (
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="relative w-full max-w-md">
+                        <img
+                          src={modalContent.urlarchivoilustracion}
+                          alt="Ilustración entregada"
+                          className="rounded-lg border border-gray-200 max-h-64 w-full object-contain"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2 text-green-600">
+                        <CheckCircle2 className="h-5 w-5" />
+                        <span className="font-medium">
+                          Ilustración completada
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-sm">
+                      No hay imagen disponible
+                    </p>
                   )}
                 </div>
               )}
