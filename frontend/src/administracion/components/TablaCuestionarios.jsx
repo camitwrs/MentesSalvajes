@@ -10,6 +10,7 @@ import {
   ModalBody,
   ModalFooter,
 } from "@heroui/modal";
+import { Switch } from "@heroui/react";
 import {
   BarChartIcon as ChartBarIcon,
   EditIcon,
@@ -40,7 +41,17 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
 
   const handleEditarCuestionario = (cuestionario) => {
     setEditingId(cuestionario.idcuestionario || cuestionario.id);
-    setEditedCuestionario({ ...cuestionario });
+
+    // Normaliza el estado a minúsculas ANTES de guardarlo en editedCuestionario
+    const estadoNormalizado =
+      cuestionario.estadocuestionario?.toLowerCase() === "activo"
+        ? "activo"
+        : "inactivo";
+
+    setEditedCuestionario({
+      ...cuestionario, // Copia el resto de las propiedades
+      estadocuestionario: estadoNormalizado, // Guarda el estado normalizado
+    });
   };
 
   const handleGuardarEdicion = async () => {
@@ -186,7 +197,7 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
                         }))
                       }
                       placeholder="Título del cuestionario"
-                      className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm  rounded-md border-1 border-red-500 bg-blue-50"
+                      className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm  rounded-md border-1 border-blue-500 bg-blue-50"
                     />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -200,17 +211,26 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <Input
-                      value={editedCuestionario.estadocuestionario || ""}
-                      onChange={(e) =>
+                    <Switch
+                      isSelected={
+                        editedCuestionario.estadocuestionario?.toLowerCase() ===
+                        "activo"
+                      }
+                      onValueChange={(newIsSelected) => {
+                        console.log("Switch onValueChange:", newIsSelected); // Para depurar
                         setEditedCuestionario((prev) => ({
                           ...prev,
-                          estadocuestionario: e.target.value,
-                        }))
-                      }
-                      placeholder="Estado"
-                      className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm  rounded-md border-1 border-red-500 bg-blue-50"
-                    />
+                          estadocuestionario: newIsSelected
+                            ? "activo"
+                            : "inactivo",
+                        }));
+                      }}
+                    >
+                      {editedCuestionario.estadocuestionario?.toLowerCase() ===
+                      "activo"
+                        ? "activo"
+                        : "inactivo"}
+                    </Switch>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-600">
                     {cuestionario.fechacreacioncuestionario
