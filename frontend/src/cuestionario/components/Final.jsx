@@ -47,16 +47,23 @@ const Final = ({ submitSuccess }) => {
 
   useEffect(() => {
     setLoading(true);
-    const timer = setTimeout(async () => {
-      const response = await getRespuestasDetalleRequest(
-        user.idusuario,
-        quizId
-      );
-      setRespuestasDetalle(response.data);
-      setLoading(false);
-    }, 1000);
+    const fetchRespuestas = async () => {
+      try {
+        const response = await getRespuestasDetalleRequest(
+          user.idusuario,
+          quizId
+        );
+        setRespuestasDetalle(response.data);
+      } catch (error) {
+        console.error("Error al obtener respuestas:", error);
+      } finally {
+        setLoading(false); // <- Esta es clave
+      }
+    };
 
-    return () => clearTimeout(timer);
+    if (user?.idusuario && quizId) {
+      fetchRespuestas();
+    }
   }, [user, quizId, submitSuccess]);
 
   const getCaracteristica = (idpregunta) => {
@@ -164,7 +171,16 @@ const Final = ({ submitSuccess }) => {
     </>
   );
 
-  const descripcion = generarDescripcion();
+  const descripcion =
+    user && educador && respuestasDetalle.length > 0 ? (
+      generarDescripcion()
+    ) : (
+      <p className="italic text-gray-500">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pronto podrás
+        ver tu perfil aquí.
+      </p>
+    );
+
   const titulo = `${user?.nombreusuario} ${user?.apellidousuario}`;
   const descripcionHTML = ReactDOMServer.renderToStaticMarkup(
     generarDescripcion()
@@ -205,31 +221,29 @@ const Final = ({ submitSuccess }) => {
         </div>
       ) : (
         <>
-          {respuestasDetalle.length > 0 && (
-            <div className="flex flex-col md:flex-row gap-6 md:gap-12 items-center">
-              <div className="w-full md:w-1/2">
-                <p className="text-gray-600 text-sm sm:text-base leading-relaxed mb-4">
-                  {descripcion}
-                </p>
-              </div>
+          <div className="flex flex-col md:flex-row gap-6 md:gap-12 items-center">
+            <div className="w-full md:w-1/2">
+              <p className="text-gray-600 text-sm sm:text-base leading-relaxed mb-4">
+                {descripcion}
+              </p>
+            </div>
 
-              <div className="w-full md:w-1/2 border border-gray-300 rounded-lg p-3 bg-white shadow-md">
-                <div className="relative h-[250px] md:h-[400px] w-full rounded-lg overflow-hidden flex justify-center">
-                  {getImagenSegunRespuesta() ? (
-                    <img
-                      src={getImagenSegunRespuesta()}
-                      alt="Perfil descubierto"
-                      className="object-contain h-full w-full"
-                    />
-                  ) : (
-                    <p className="text-center text-gray-500">
-                      No hay imagen disponible
-                    </p>
-                  )}
-                </div>
+            <div className="w-full md:w-1/2 border border-gray-300 rounded-lg p-3 bg-white shadow-md">
+              <div className="relative h-[250px] md:h-[400px] w-full rounded-lg overflow-hidden flex justify-center">
+                {getImagenSegunRespuesta() ? (
+                  <img
+                    src={getImagenSegunRespuesta()}
+                    alt="Perfil descubierto"
+                    className="object-contain h-full w-full"
+                  />
+                ) : (
+                  <p className="text-center text-gray-500 italic">
+                    Imagen ilustrativa pendiente
+                  </p>
+                )}
               </div>
             </div>
-          )}
+          </div>
         </>
       )}
     </div>

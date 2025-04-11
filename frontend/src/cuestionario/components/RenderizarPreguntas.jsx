@@ -7,7 +7,7 @@ import PreguntaSelect from "./PreguntaSelect";
 import PreguntaRange from "./PreguntaRange";
 import PreguntaNumber from "./PreguntaNumber";
 
-import { Users, Link, Lightbulb, GraduationCap } from "lucide-react";
+import { Users, Link, Lightbulb } from "lucide-react";
 
 const RenderizarPreguntas = ({
   preguntas,
@@ -23,25 +23,38 @@ const RenderizarPreguntas = ({
 }) => {
   // Obtener las preguntas agrupadas por secciones
   const secciones = SeccionesCuestionario();
+
   const preguntasFiltradas = preguntas.filter((pregunta) => {
-    // Filtrar preguntas por sección
     const perteneceASeccion = secciones[seccionActual]?.includes(
       pregunta.idpregunta
     );
 
-    // Verificar si la pregunta es condicional
-    if (pregunta.idpregunta === 21) {
-      return userData[20] === 66 && perteneceASeccion; // Mostrar si la respuesta a la 20 es "Sí"
+    // Condiciones condicionales
+    if (pregunta.idpregunta >= 2 && pregunta.idpregunta <= 7) {
+      return userData[1] === 1 && perteneceASeccion;
     }
 
-    if (pregunta.idpregunta >= 57) {
-      return userData[56] === 153 && perteneceASeccion; // Mostrar si la respuesta a la 56 es "Sí"
+    if (
+      pregunta.idpregunta === 8 ||
+      pregunta.idpregunta === 9 ||
+      pregunta.idpregunta === 10
+    ) {
+      return userData[7] === 40 && perteneceASeccion;
+    }
+
+    if (pregunta.idpregunta === 25) {
+      return userData[24] === 96 && perteneceASeccion;
     }
 
     return perteneceASeccion;
   });
 
-  // Renderizar la entrada según el tipo de pregunta
+  // 🔧 Ordenar preguntas por ID
+  const preguntasOrdenadas = [...preguntasFiltradas].sort(
+    (a, b) => a.idpregunta - b.idpregunta
+  );
+
+  // Renderizar según tipo de pregunta
   const renderInputByType = (pregunta, opciones) => {
     switch (pregunta.tipopregunta) {
       case "text":
@@ -52,7 +65,6 @@ const RenderizarPreguntas = ({
             setUserData={setUserData}
           />
         );
-
       case "radio":
         return (
           <PreguntaRadio
@@ -62,7 +74,6 @@ const RenderizarPreguntas = ({
             setUserData={setUserData}
           />
         );
-
       case "checkbox":
         return (
           <PreguntaCheckbox
@@ -74,7 +85,6 @@ const RenderizarPreguntas = ({
             setCheckboxError={setCheckboxError}
           />
         );
-
       case "select":
         return (
           <PreguntaSelect
@@ -84,7 +94,6 @@ const RenderizarPreguntas = ({
             setUserData={setUserData}
           />
         );
-
       case "range":
         return (
           <PreguntaRange
@@ -94,63 +103,45 @@ const RenderizarPreguntas = ({
             setUserData={setUserData}
           />
         );
-
       case "number":
         return (
           <PreguntaNumber
             idPregunta={pregunta.idpregunta}
             userData={userData}
             setUserData={setUserData}
-            min={1} // Ajusta según las necesidades
-            max={80} // Ajusta según las necesidades
+            min={1}
+            max={80}
             numberError={numberError}
             setNumberError={setNumberError}
           />
         );
-
       default:
         return null;
     }
   };
 
-  // Títulos por sección
   const titulosSecciones = {
-    a: "Caracterización General",
-    b: "Caracterización General",
+    a: "Caracterización del rol de formador",
+    b: "Caracterización profesional y sus relaciones",
     c: "Vínculo con el Emprendimiento",
-    d: "Vínculo con el Emprendimiento",
-    e: "Competencias Emprendedoras",
-    f: "Competencias Emprendedoras",
-    g: "Competencias Emprendedoras",
-    h: "Competencias Emprendedoras",
-    i: "Competencias Emprendedoras",
-    j: "Caracterización de Formadores de Emprendimiento",
   };
 
-  // Iconos por sección
   const iconosSecciones = {
     a: <Users className="h-5 w-5 inline-block mr-2" />,
-    b: <Users className="h-5 w-5 inline-block mr-2" />,
-    c: <Link className="h-5 w-5 inline-block mr-2" />,
-    d: <Link className="h-5 w-5 inline-block mr-2" />,
-    e: <Lightbulb className="h-5 w-5 inline-block mr-2" />,
-    f: <Lightbulb className="h-5 w-5 inline-block mr-2" />,
-    g: <Lightbulb className="h-5 w-5 inline-block mr-2" />,
-    h: <Lightbulb className="h-5 w-5 inline-block mr-2" />,
-    i: <Lightbulb className="h-5 w-5 inline-block mr-2" />,
-    j: <GraduationCap className="h-5 w-5 inline-block mr-2" />,
+    b: <Link className="h-5 w-5 inline-block mr-2" />,
+    c: <Lightbulb className="h-5 w-5 inline-block mr-2" />,
   };
 
-  // Renderizar todas las preguntas de la sección actual
   return (
     <div className="space-y-6">
-      {/* Mostrar el título de la sección actual con el icono */}
+      {/* Título de sección */}
       <h2 className="font-bold text-xl text-right text-Moonstone mb-6">
-        {iconosSecciones[seccionActual]} {/* Icono */}
-        {titulosSecciones[seccionActual]} {/* Título */}
+        {iconosSecciones[seccionActual]}
+        {titulosSecciones[seccionActual]}
       </h2>
 
-      {preguntasFiltradas.map((pregunta) => {
+      {/* Preguntas */}
+      {preguntasOrdenadas.map((pregunta) => {
         const opciones = (alternativas[pregunta.idpregunta] || []).sort(
           (a, b) => {
             const textoA = a.textoalternativa || "";
@@ -158,15 +149,12 @@ const RenderizarPreguntas = ({
             const isNumeric =
               !isNaN(parseFloat(textoA)) && !isNaN(parseFloat(textoB));
 
-            if (isNumeric) {
-              return parseFloat(textoA) - parseFloat(textoB);
-            } else {
-              return textoA.localeCompare(textoB);
-            }
+            return isNumeric
+              ? parseFloat(textoA) - parseFloat(textoB)
+              : textoA.localeCompare(textoB);
           }
         );
 
-        // Clase condicional para preguntas no tipo "enunciado"
         const preguntaClass =
           pregunta.tipopregunta === "enunciado"
             ? ""

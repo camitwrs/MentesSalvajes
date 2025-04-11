@@ -27,7 +27,7 @@ const CuestionarioPage = () => {
   const [aceptaTerminos, setAceptaTerminos] = useState(false);
   const [isQuizStarted, setIsQuizStarted] = useState(false);
   const [seccionActual, setSeccionActual] = useState("a");
-  const nombresSecciones = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"];
+  const nombresSecciones = ["a", "b", "c"];
 
   // Estados de error
   const [startQuizError, setStartQuizError] = useState("");
@@ -87,11 +87,15 @@ const CuestionarioPage = () => {
       );
 
       // Aplicar condiciones de preguntas dependientes
-      if (pregunta.idpregunta === 21)
-        return userData[20] === 66 && perteneceASeccion;
-      if (pregunta.idpregunta >= 57)
-        return userData[56] === 153 && perteneceASeccion;
-
+      if (pregunta.idpregunta >= 2 && pregunta.idpregunta <= 7) {
+        return userData[1] === 1 && perteneceASeccion;
+      }
+      if (pregunta.idpregunta === 9 || pregunta.idpregunta === 10) {
+        return userData[7] === 40 && perteneceASeccion;
+      }
+      if (pregunta.idpregunta === 25) {
+        return userData[24] === 96 && perteneceASeccion;
+      }
       return perteneceASeccion;
     });
 
@@ -105,7 +109,7 @@ const CuestionarioPage = () => {
       if (pregunta.tipopregunta === "number") {
         const value = userData[pregunta.idpregunta];
         return (
-          value !== undefined && !isNaN(value) && value >= 1 && value <= 65
+          value !== undefined && !isNaN(value) && value >= 1 && value <= 39
         );
       }
       return userData[pregunta.idpregunta] !== undefined;
@@ -132,9 +136,7 @@ const CuestionarioPage = () => {
               ) : (
                 <>
                   {submitSuccess ? (
-                    <Final
-                      submitSuccess={submitSuccess}
-                    />
+                    <Final submitSuccess={submitSuccess} />
                   ) : (
                     <>
                       <RenderizarPreguntas

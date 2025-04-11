@@ -3,15 +3,15 @@ import supabase from "../config/supabaseClient.js";
 
 // Guardar primera parte de la ilustracion desde el cuestionario
 export const guardarMensaje = async (req, res) => {
-  const { tituloilustracion, descripcionllustracion, ideducador } = req.body;
+  const { tituloilustracion, descripcionilustracion, ideducador } = req.body;
 
   try {
     const query = `
-      INSERT INTO ilustraciones (titulollustracion, descripcionllustracion, ideducador)
+      INSERT INTO ilustraciones (tituloilustracion, descripcionilustracion, ideducador)
       VALUES ($1, $2, $3) RETURNING *;
     `;
 
-    const values = [tituloilustracion, descripcionllustracion, ideducador];
+    const values = [tituloilustracion, descripcionilustracion, ideducador];
     const { rows } = await pool.query(query, values);
 
     res.status(201).json({
