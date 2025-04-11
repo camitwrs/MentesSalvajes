@@ -1,98 +1,128 @@
-import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import { useState } from "react";
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
+import { Input } from "@heroui/input";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "@heroui/modal";
+import {
+  BarChartIcon as ChartBarIcon,
+  EditIcon,
+  SaveIcon,
+  XIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { BarChartIcon as ChartBarIcon } from "lucide-react";
-import { getCuestionariosRequest } from "../../api/cuestionarios";
-import { getTotalRespuestasPorCuestionarioRequest } from "../../api/respuestas";
+import {
+  actualizarCuestionarioRequest,
+  eliminarCuestionarioRequest,
+} from "../../api/cuestionarios";
+import { useAlert } from "../../shared/context/AlertContext";
 
-const TablaCuestionarios = () => {
-  const [cuestionarios, setCuestionarios] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
+  const [editingId, setEditingId] = useState(null);
+  const [editedCuestionario, setEditedCuestionario] = useState({});
   const navigate = useNavigate();
+  const { showAlert } = useAlert();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        
-        // 1. Obtener cuestionarios
-        const response = await getCuestionariosRequest();
-        
-        // 2. Normalizar datos
-        let data = [];
-        if (Array.isArray(response?.data)) {
-          data = response.data;
-        } else if (Array.isArray(response)) {
-          data = response;
-        } else {
-          data = [];
-        }
+  // Estados para el modal de eliminación
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [cuestionarioAEliminar, setCuestionarioAEliminar] = useState(null);
 
-        // 3. Obtener respuestas para cada cuestionario
-        const cuestionariosConRespuestas = await Promise.all(
-          data.map(async (cuestionario) => {
-            const id = cuestionario.idcuestionario || cuestionario.id || cuestionario._id;
-            if (!id) return cuestionario;
-
-            try {
-              const { data } = await getTotalRespuestasPorCuestionarioRequest(id);
-              return {
-                ...cuestionario,
-                totalRespuestas: data?.total_respuestas || 0
-              };
-            } catch (error) {
-              console.error(`Error obteniendo respuestas para cuestionario ${id}:`, error);
-              return {
-                ...cuestionario,
-                totalRespuestas: 0
-              };
-            }
-          })
-        );
-
-        setCuestionarios(cuestionariosConRespuestas);
-      } catch (err) {
-        setError(err.message || "Error al cargar los cuestionarios");
-        console.error("Error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  const handleVerEstadisticas = (idCuestionario) => {
-    navigate(`/resumen/${idCuestionario}`);
+  const handleVerEstadisticas = (idcuestionario) => {
+    navigate(`/resumen/${idcuestionario}`);
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        <span className="ml-4 text-gray-600">Cargando cuestionarios...</span>
-      </div>
-    );
-  }
+  const handleEditarCuestionario = (cuestionario) => {
+    setEditingId(cuestionario.idcuestionario || cuestionario.id);
+    setEditedCuestionario({ ...cuestionario });
+  };
 
-  if (error) {
-    return (
-      <div className="p-4 bg-red-50 border-l-4 border-red-500 text-red-700">
-        <h3 className="font-bold">Error</h3>
-        <p>{error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="mt-2 px-4 py-2 bg-red-100 rounded hover:bg-red-200"
-        >
-          Reintentar
-        </button>
-      </div>
-    );
-  }
+  const handleGuardarEdicion = async () => {
+    // ... (código sin cambios) ...
+    try {
+      const idcuestionario = editingId;
+      const datosParaActualizar = {
+        titulocuestionario: editedCuestionario.titulocuestionario,
+        estadocuestionario: editedCuestionario.estadocuestionario,
+      };
 
-  if (cuestionarios.length === 0) {
+      const response = await actualizarCuestionarioRequest(
+        idcuestionario,
+        datosParaActualizar
+      );
+
+      if (response.status === 200 || response.status === 204) {
+        const cuestionarioActualizadoBackend = response.data.cuestionario;
+        setCuestionarios((prev) =>
+          prev.map((cuestionario) =>
+            (cuestionario.idcuestionario || cuestionario.id) === idcuestionario
+              ? {
+                  ...cuestionario,
+                  ...cuestionarioActualizadoBackend,
+                }
+              : cuestionario
+          )
+        );
+        setEditingId(null);
+        setEditedCuestionario({});
+        showAlert("Cuestionario actualizado exitosamente.", "success");
+      } else {
+        console.error("Error al actualizar el cuestionario:", response);
+        showAlert("No se pudo actualizar. Intenta nuevamente.", "danger");
+      }
+    } catch (error) {
+      console.error("Error al guardar los cambios:", error);
+      showAlert("Ocurrió un error al guardar. Intenta nuevamente.", "danger");
+    }
+  };
+
+  const handleCancelarEdicion = () => {
+    setEditingId(null);
+    setEditedCuestionario({});
+  };
+
+  const handleEliminarCuestionario = (cuestionario) => {
+    setCuestionarioAEliminar(cuestionario);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setCuestionarioAEliminar(null);
+  };
+
+  const handleConfirmarEliminar = async () => {
+    if (!cuestionarioAEliminar) return;
+
+    const idcuestionario =
+      cuestionarioAEliminar.idcuestionario || cuestionarioAEliminar.id;
+
+    try {
+      const response = await eliminarCuestionarioRequest(idcuestionario);
+
+      if (response.status === 200 || response.status === 204) {
+        setCuestionarios((prev) =>
+          prev.filter((c) => (c.idcuestionario || c.id) !== idcuestionario)
+        );
+        showAlert("Cuestionario eliminado exitosamente.", "success");
+        handleCloseDeleteModal();
+      } else {
+        console.error("Error al eliminar el cuestionario:", response);
+        showAlert("No se pudo eliminar. Intenta nuevamente.", "danger");
+      }
+    } catch (error) {
+      console.error("Error al eliminar el cuestionario:", error);
+      showAlert("Ocurrió un error al eliminar. Intenta nuevamente.", "danger");
+    }
+  };
+
+  if (!cuestionarios || cuestionarios.length === 0) {
     return (
       <div className="flex justify-center items-center h-64 text-gray-500">
         No se encontraron cuestionarios
@@ -101,7 +131,7 @@ const TablaCuestionarios = () => {
   }
 
   return (
-    <div className="w-full overflow-x-auto shadow-sm rounded-lg border border-gray-200">
+    <div className="overflow-x-auto shadow-sm rounded-lg border border-gray-200">
       <table className="w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
@@ -127,11 +157,97 @@ const TablaCuestionarios = () => {
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {cuestionarios.map((cuestionario) => {
-            const isActive = cuestionario.estado?.toLowerCase() === "activo";
-            const idCuestionario = cuestionario.idcuestionario || cuestionario.id;
-            
+            if (!cuestionario) return null;
+
+            const isActive =
+              cuestionario.estadocuestionario?.toLowerCase() === "activo";
+            const idcuestionario =
+              cuestionario.idcuestionario || cuestionario.id;
+
+            if (!idcuestionario) {
+              console.warn(
+                "Cuestionario sin ID válido encontrado:",
+                cuestionario
+              );
+              return null;
+            }
+
+            if (editingId === idcuestionario) {
+              // Modo edición
+              return (
+                <tr key={`edit-${idcuestionario}`} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <Input
+                      value={editedCuestionario.titulocuestionario || ""}
+                      onChange={(e) =>
+                        setEditedCuestionario((prev) => ({
+                          ...prev,
+                          titulocuestionario: e.target.value,
+                        }))
+                      }
+                      placeholder="Título del cuestionario"
+                      className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm  rounded-md border-1 border-red-500 bg-blue-50"
+                    />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-gray-600">
+                      {cuestionario.preguntas?.length || 0}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-gray-600 font-semibold">
+                      {cuestionario.totalRespuestas}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <Input
+                      value={editedCuestionario.estadocuestionario || ""}
+                      onChange={(e) =>
+                        setEditedCuestionario((prev) => ({
+                          ...prev,
+                          estadocuestionario: e.target.value,
+                        }))
+                      }
+                      placeholder="Estado"
+                      className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm  rounded-md border-1 border-red-500 bg-blue-50"
+                    />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-600">
+                    {cuestionario.fechacreacioncuestionario
+                      ? new Date(
+                          cuestionario.fechacreacioncuestionario
+                        ).toLocaleDateString()
+                      : "N/A"}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        color="success"
+                        size="sm"
+                        onPress={handleGuardarEdicion}
+                        className="flex items-center gap-1 transition-all text-white hover:bg-green-600 hover:shadow-md"
+                      >
+                        <SaveIcon className="w-4 h-4" />
+                        <span>Guardar</span>
+                      </Button>
+                      <Button
+                        color="danger"
+                        size="sm"
+                        onPress={handleCancelarEdicion}
+                        className="flex items-center gap-1 transition-all hover:bg-red-600 hover:shadow-md"
+                      >
+                        <XIcon className="w-4 h-4" />
+                        <span>Cancelar</span>
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            }
+
+            // Vista normal
             return (
-              <tr key={idCuestionario} className="hover:bg-gray-50">
+              <tr key={`view-${idcuestionario}`} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="font-medium text-gray-900">
                     {cuestionario.titulocuestionario || "Sin título"}
@@ -155,18 +271,24 @@ const TablaCuestionarios = () => {
                         : "bg-gray-100 text-gray-800"
                     }`}
                   >
-                    {cuestionario.estado || "Desconocido"}
+                    {cuestionario.estadocuestionario || "Desconocido"}
                   </Chip>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-gray-600">
-                  {new Date(cuestionario.fechacreacioncuestionario).toLocaleDateString()}
+                  {cuestionario.fechacreacioncuestionario
+                    ? new Date(
+                        cuestionario.fechacreacioncuestionario
+                      ).toLocaleDateString()
+                    : "N/A"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
-                  <div className="flex justify-end">
+                  <div className="flex justify-end gap-2">
                     <Button
                       color={isActive ? "primary" : "neutral"}
                       size="sm"
-                      onPress={() => isActive && handleVerEstadisticas(idCuestionario)}
+                      onPress={() =>
+                        isActive && handleVerEstadisticas(idcuestionario)
+                      }
                       disabled={!isActive}
                       className={`flex items-center gap-1 transition-all ${
                         isActive
@@ -177,6 +299,22 @@ const TablaCuestionarios = () => {
                       <ChartBarIcon className="w-4 h-4" />
                       <span>Ver estadísticas</span>
                     </Button>
+                    <Button
+                      color="secondary"
+                      size="sm"
+                      onPress={() => handleEditarCuestionario(cuestionario)}
+                      className="flex items-center gap-1 transition-all hover:bg-purple-800 hover:shadow-md"
+                    >
+                      <EditIcon className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      color="danger"
+                      size="sm"
+                      onPress={() => handleEliminarCuestionario(cuestionario)}
+                      className="flex items-center gap-1 transition-all hover:bg-red-700 hover:shadow-md"
+                    >
+                      <Trash2Icon className="w-4 h-4" />
+                    </Button>
                   </div>
                 </td>
               </tr>
@@ -184,8 +322,43 @@ const TablaCuestionarios = () => {
           })}
         </tbody>
       </table>
+      {/* Modal de Confirmación de Eliminación */}
+      <Modal isOpen={isDeleteModalOpen} onClose={handleCloseDeleteModal}>
+        <ModalContent>
+          <ModalHeader>Confirmar Eliminación</ModalHeader>
+          <ModalBody>
+            <p>
+              ¿Estás seguro de que deseas eliminar el cuestionario{" "}
+              <strong>
+                &ldquo;{cuestionarioAEliminar?.titulocuestionario || ""}&rdquo;
+              </strong>
+              ?
+            </p>
+            <p className="mt-2 text-sm text-gray-500">
+              Esta acción no se puede deshacer.
+            </p>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              color="secondary"
+              onPress={handleCloseDeleteModal}
+              className="mr-2"
+            >
+              Cancelar
+            </Button>
+            <Button color="danger" onPress={handleConfirmarEliminar}>
+              Eliminar
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
+};
+
+TablaCuestionarios.propTypes = {
+  cuestionarios: PropTypes.arrayOf(PropTypes.object).isRequired,
+  setCuestionarios: PropTypes.func.isRequired,
 };
 
 export default TablaCuestionarios;
