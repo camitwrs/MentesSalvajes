@@ -90,7 +90,7 @@ const CuestionarioPage = () => {
       if (pregunta.idpregunta >= 2 && pregunta.idpregunta <= 7) {
         return userData[1] === 1 && perteneceASeccion;
       }
-      if (pregunta.idpregunta === 9 || pregunta.idpregunta === 10) {
+      if (pregunta.idpregunta === 9 || pregunta.idpregunta === 10 || pregunta.idpregunta === 11) {
         return userData[7] === 40 && perteneceASeccion;
       }
       if (pregunta.idpregunta === 25) {
