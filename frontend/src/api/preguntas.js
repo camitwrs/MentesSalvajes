@@ -72,3 +72,6 @@ export const crearPreguntaRequest = (pregunta) =>
 */
 export const getPreguntasPorTipo = (tipopregunta) =>
   axios.get(`${API}/preguntas/tipo/${tipopregunta}`);
+
+export const getTotalPreguntasPorCuestionarioRequest = (idcuestionario) =>
+  axios.get(`${API}/preguntas/cuestionario/total/${idcuestionario}`);

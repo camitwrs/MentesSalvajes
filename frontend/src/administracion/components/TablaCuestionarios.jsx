@@ -226,7 +226,7 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
                   <div
                     className={`${cellContentStyle} inline-block md:block text-gray-600`}
                   >
-                    {cuestionario.preguntas?.length || 0}
+                    {cuestionario.total_preguntas || 0}
                   </div>
                 </td>
 
@@ -236,7 +236,7 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
                   <div
                     className={`${cellContentStyle} inline-block md:block text-gray-600 font-semibold`}
                   >
-                    {cuestionario.totalRespuestas}
+                    {cuestionario.total_respuestas}
                   </div>
                 </td>
 

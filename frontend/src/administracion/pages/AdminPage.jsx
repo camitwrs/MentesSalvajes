@@ -12,9 +12,11 @@ import EstadisticaCuestionarios from "../components/EstadisticaCuestionarios";
 import TablaCuestionarios from "../components/TablaCuestionarios";
 import {
   crearCuestionarioRequest,
-  getCuestionariosRequest, // Importar getCuestionariosRequest
+  getCuestionariosRequest, 
 } from "../../api/cuestionarios";
-import { getTotalRespuestasPorCuestionarioRequest } from "../../api/respuestas"; // Importar
+import { getTotalRespuestasPorCuestionarioRequest } from "../../api/respuestas"; 
+import { getTotalPreguntasPorCuestionarioRequest } from "../../api/preguntas"; 
+
 import { PlusIcon } from "lucide-react";
 import { useAlert } from "../../shared/context/AlertContext";
 
@@ -32,8 +34,8 @@ const AdminPage = () => {
   });
   const { showAlert } = useAlert();
 
-  // Lógica de carga de datos movida aquí
   useEffect(() => {
+    console.log(cuestionarios)
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -50,36 +52,37 @@ const AdminPage = () => {
           data = [];
         }
 
-        const cuestionariosConRespuestas = await Promise.all(
+        const cuestionariosConDatos = await Promise.all(
           data.map(async (cuestionario) => {
             const id =
-              cuestionario.idcuestionario ||
-              cuestionario.id ||
-              cuestionario._id;
+              cuestionario.idcuestionario 
             if (!id) return cuestionario;
 
             try {
-              const respuestasResponse =
-                await getTotalRespuestasPorCuestionarioRequest(id);
+              const respuestasResponse = await getTotalRespuestasPorCuestionarioRequest(id);
+              const preguntasResponse = await getTotalPreguntasPorCuestionarioRequest(id);
               return {
                 ...cuestionario,
-                totalRespuestas:
+                total_respuestas:
                   respuestasResponse?.data?.total_respuestas || 0,
+                total_preguntas:
+                preguntasResponse?.data?.total_preguntas || 0,
               };
+
             } catch (error) {
               console.error(
-                `Error obteniendo respuestas para cuestionario ${id}:`,
                 error
               );
               return {
                 ...cuestionario,
-                totalRespuestas: 0,
+                total_respuestas: 0,
+                total_preguntas:0,
               };
             }
           })
         );
 
-        setCuestionarios(cuestionariosConRespuestas);
+        setCuestionarios(cuestionariosConDatos);
       } catch (err) {
         setError(err.message || "Error al cargar los cuestionarios");
         console.error("Error:", err);
@@ -111,11 +114,10 @@ const AdminPage = () => {
       const response = await crearCuestionarioRequest(nuevoCuestionario);
 
       if (response.status === 201 && response.data.cuestionario) {
-        // Actualiza el estado 'cuestionarios' directamente
         setCuestionarios((prevCuestionarios) => [
           ...prevCuestionarios,
-          // Asegúrate de que el nuevo cuestionario tenga el campo totalRespuestas inicializado
-          { ...response.data.cuestionario, totalRespuestas: 0 },
+          // Asegúrate de que el nuevo cuestionario tenga el campo total_respuestas inicializado
+          { ...response.data.cuestionario, total_respuestas: 0, total_preguntas: 0 },
         ]);
         showAlert("Cuestionario creado exitosamente.", "success");
         handleCloseModal();

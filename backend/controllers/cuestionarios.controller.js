@@ -58,7 +58,7 @@ export const getCuestionariosPorTitulo = async (req, res) => {
 export const getTotalCuestionarios = async (_, res) => {
   try {
     const result = await pool.query(
-      "SELECT COUNT(idcuestionariocuestionario) AS total_cuestionarios FROM cuestionarios"
+      "SELECT COUNT(idcuestionario) AS total_cuestionarios FROM cuestionarios"
     );
     res.json({ total_cuestionarios: result.rows[0].total_cuestionarios });
   } catch (error) {

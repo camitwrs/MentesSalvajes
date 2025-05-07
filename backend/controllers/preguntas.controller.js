@@ -47,3 +47,26 @@ export const getPreguntasPorTipo = async (req, res) => {
     res.status(500).json({ error: "Error al obtener preguntas por tipo" });
   }
 };
+
+export const getTotalPreguntasPorCuestionario = async (req, res) => {
+  const { idcuestionario } = req.params;
+
+  try {
+    const query = `
+      SELECT COUNT(idpregunta) AS total_preguntas
+      FROM preguntas
+      WHERE idcuestionario = $1;
+    `;
+    const result = await pool.query(query, [idcuestionario]);
+
+    res.json({ total_preguntas: result.rows[0].total_preguntas });
+  } catch (error) {
+    console.error(
+      "Error al obtener el total de preguntas por cuestionario",
+      error
+    );
+    res.status(500).json({
+      error: "Error al obtener el total de preguntas por cuestionario",
+    });
+  }
+};
