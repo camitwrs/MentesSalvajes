@@ -139,10 +139,10 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
     // El div exterior ya tiene overflow-x-auto, lo cual es un buen fallback
     <div className="shadow-sm rounded-lg border border-gray-200 overflow-x-auto">
       <table className="w-full min-w-[640px] md:min-w-full divide-y divide-gray-200 border-collapse">
-        {" "}
+        
         {/* Añadido min-w para scroll en pantallas muy pequeñas */}
         <thead className="bg-gray-50 hidden md:table-header-group">
-          {" "}
+          
           {/* Ocultar thead en pantallas pequeñas */}
           <tr>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -166,7 +166,7 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200 block md:table-row-group">
-          {" "}
+          
           {/* tbody se comporta como block en móvil */}
           {cuestionarios.map((cuestionario) => {
             if (!cuestionario) return null;
@@ -198,7 +198,7 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
                 <td className={`${cellBaseStyle} border-b md:border-none`}>
                   <span className={cellLabelStyle}>Título:</span>
                   <div className={`${cellContentStyle} inline-block md:block`}>
-                    {" "}
+                    
                     {/* Ajuste para inline en móvil */}
                     {editingId === idcuestionario ? (
                       <Input
@@ -292,7 +292,7 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
 
                 {/* --- Celda Acciones --- */}
                 <td className={`${cellBaseStyle} text-right`}>
-                  {" "}
+                  
                   {/* No necesita etiqueta, alineado a la derecha */}
                   <div
                     className={`flex gap-2 ${
@@ -301,7 +301,7 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
                         : "justify-end md:justify-end"
                     }`}
                   >
-                    {" "}
+                    
                     {/* Ajusta justificación */}
                     {editingId === idcuestionario ? (
                       <>
@@ -312,7 +312,7 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
                           className="flex items-center gap-1 transition-all text-white hover:bg-green-600 hover:shadow-md"
                         >
                           <SaveIcon className="w-4 h-4" />
-                          <span className="hidden sm:inline">Guardar</span>{" "}
+                          <span className="hidden sm:inline">Guardar</span>
                           {/* Oculta texto en pantallas muy pequeñas */}
                         </Button>
                         <Button
@@ -324,7 +324,7 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
                           <XIcon className="w-4 h-4" />
                           <span className="hidden sm:inline">
                             Cancelar
-                          </span>{" "}
+                          </span>
                           {/* Oculta texto en pantallas muy pequeñas */}
                         </Button>
                       </>
@@ -346,7 +346,7 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
                           <ChartBarIcon className="w-4 h-4" />
                           <span className="hidden lg:inline">
                             Ver estadísticas
-                          </span>{" "}
+                          </span>
                           {/* Oculta texto en pantallas pequeñas/medianas */}
                         </Button>
                         <Button
@@ -356,7 +356,7 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
                           className="flex items-center gap-1 transition-all hover:bg-purple-800 hover:shadow-md"
                         >
                           <EditIcon className="w-4 h-4" />
-                          <span className="hidden lg:inline">Editar</span>{" "}
+                          <span className="hidden lg:inline">Editar</span>
                           {/* Oculta texto en pantallas pequeñas/medianas */}
                         </Button>
                         <Button
@@ -370,7 +370,7 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
                           <Trash2Icon className="w-4 h-4" />
                           <span className="hidden lg:inline">
                             Eliminar
-                          </span>{" "}
+                          </span>
                           {/* Oculta texto en pantallas pequeñas/medianas */}
                         </Button>
                       </>
@@ -390,7 +390,7 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
           <ModalHeader>Confirmar Eliminación</ModalHeader>
           <ModalBody>
             <p>
-              ¿Estás seguro de que deseas eliminar el cuestionario{" "}
+              ¿Estás seguro de que deseas eliminar el cuestionario
               <strong>
                 &ldquo;{cuestionarioAEliminar?.titulocuestionario || ""}&rdquo;
               </strong>

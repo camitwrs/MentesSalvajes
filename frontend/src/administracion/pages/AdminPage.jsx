@@ -35,7 +35,6 @@ const AdminPage = () => {
   const { showAlert } = useAlert();
 
   useEffect(() => {
-    console.log(cuestionarios)
     const fetchData = async () => {
       try {
         setLoading(true);
