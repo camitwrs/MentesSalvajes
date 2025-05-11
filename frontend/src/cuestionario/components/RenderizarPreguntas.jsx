@@ -43,8 +43,8 @@ const RenderizarPreguntas = ({
       return userData[7] === 40 && perteneceASeccion;
     }
 
-    if (pregunta.idpregunta === 25) {
-      return userData[24] === 96 && perteneceASeccion;
+    if (pregunta.idpregunta === 26) {
+      return userData[25] === 102 && perteneceASeccion;
     }
 
     return perteneceASeccion;
