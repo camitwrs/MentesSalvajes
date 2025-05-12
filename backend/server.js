@@ -14,7 +14,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
 app.use(
   cors({
     origin: function (origin, callback) {
-      console.log("Origen recibido:", origin); // Te mostrará el origen en Render logs
+
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true); // Permitido
       } else {

@@ -29,10 +29,11 @@ export const FormProvider = ({ children }) => {
     setIsQuizStarted(true); // Cambiar el estado para iniciar el cuestionario
   }
 
-  function submitData() {
+  const submitData = async () => {
     const questionsConfig = {
-      20: [21],
-      56: [57, 58, 60, 61, 62, 64, 65],
+      1: [2, 3, 4, 5, 6, 7, 9, 10, 11],
+      7: [9, 10, 11],
+      25: [25],
     };
 
     const completedUserData = Object.keys(questionsConfig).reduce(
@@ -43,12 +44,12 @@ export const FormProvider = ({ children }) => {
           acc[questionId] = userData[questionId];
 
           dependentIds.forEach((dependentId) => {
-            acc[dependentId] = userData[dependentId] ?? "null";
+            acc[dependentId] = userData[dependentId] ?? "No aplica";
           });
         } else {
-          acc[questionId] = "null";
+          acc[questionId] = "No aplica";
           dependentIds.forEach((dependentId) => {
-            acc[dependentId] = "null";
+            acc[dependentId] = "No aplica";
           });
         }
         return acc;
@@ -56,6 +57,7 @@ export const FormProvider = ({ children }) => {
       {}
     );
 
+    // Agrega cualquier otra respuesta que no estÃ© en questionsConfig
     Object.keys(userData).forEach((key) => {
       if (!(key in completedUserData)) {
         completedUserData[key] = userData[key];
@@ -69,28 +71,29 @@ export const FormProvider = ({ children }) => {
         ...completedUserData,
       };
 
-      // Enviar los datos al backend después de actualizar el estado
-      const finalDataToSend = {
-        idusuario: user.idusuario,
-        idcuestionario: quizId,
-        respuestas: updatedFinalData,
-      };
-
-      guardarRespuestaRequest(finalDataToSend)
-        .then((response) => {
-          console.log("Respuestas enviadas correctamente:", response.data);
-        })
-        .catch((error) => {
-          console.error("Error al enviar respuestas:", error);
-        });
-
-      return updatedFinalData; // Asegurar que el estado se actualiza con los datos correctos
+      return updatedFinalData;
     });
+
+    const finalDataToSend = {
+      idusuario: user.idusuario,
+      idcuestionario: quizId,
+      respuestas: {
+        ...finalData,
+        ...completedUserData,
+      },
+    };
+
+    try {
+      console.log("finaldatatosend", finalDataToSend);
+      const response = await guardarRespuestaRequest(finalDataToSend);
+    } catch (error) {
+      console.error("Error al enviar respuestas:", error);
+    }
 
     setUserData({});
     setCurrentQuestionIndex(0);
     setIsQuizStarted(false);
-  }
+  };
 
   useEffect(() => {
     console.log("userData actualizado:", userData);

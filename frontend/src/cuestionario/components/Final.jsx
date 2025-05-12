@@ -152,13 +152,15 @@ const Final = ({ submitSuccess }) => {
       ideducador: user.idusuario,
     };
 
+    /*
     guardarMensajeRequest(mensajeToSend)
       .then((response) => {
         console.log("Mensaje enviado correctamente:", response.data);
       })
       .catch((error) => {
         console.error("Error al enviar el mensaje:", error);
-      });
+    });
+    */
   }, [user, educador, respuestasDetalle, generarDescripcion]);
 
   const imagenPerfil = getImagenSegunRespuesta();

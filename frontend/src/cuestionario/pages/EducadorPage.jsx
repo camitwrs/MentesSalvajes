@@ -119,8 +119,8 @@ const EducadorPage = () => {
                             {cuestionario.descripcioncuestionario}
                           </p>
 
-                          {cuestionario.titulocuestionario ===
-                          "Cuestionario 8.0" ? (
+                          {cuestionario.estadocuestionario?.toLowerCase() ===
+                          "activo" ? (
                             <button
                               key={cuestionario.idcuestionario}
                               onClick={() =>
@@ -189,28 +189,36 @@ const EducadorPage = () => {
                         <span className="font-medium text-YankeesBlue">
                           Edad:
                         </span>
-                        <span className="text-gray-500">{educador.edadeducador} años</span>
+                        <span className="text-gray-500">
+                          {educador.edadeducador} años
+                        </span>
                       </p>
                       <p className="flex items-center gap-2 mb-2">
                         <UsersRound className="text-YankeesBlue w-5 h-5 md:w-6 md:h-6" />
                         <span className="font-medium text-YankeesBlue">
                           Sexo:
                         </span>
-                        <span className="text-gray-500">{educador.sexoeducador}</span>
+                        <span className="text-gray-500">
+                          {educador.sexoeducador}
+                        </span>
                       </p>
                       <p className="flex items-center gap-2 mb-2">
                         <Earth className="text-YankeesBlue w-5 h-5 md:w-6 md:h-6" />
                         <span className="font-medium text-YankeesBlue">
                           País:
                         </span>
-                        <span className="text-gray-500">{educador.paiseducador}</span>
+                        <span className="text-gray-500">
+                          {educador.paiseducador}
+                        </span>
                       </p>
                       <p className="flex items-center gap-2 mb-2">
                         <Puzzle className="text-YankeesBlue w-5 h-5 md:w-6 md:h-6" />
                         <span className="font-medium text-YankeesBlue">
                           Intereses:
                         </span>
-                        <span className="text-gray-500">{educador.intereseseducador}</span>
+                        <span className="text-gray-500">
+                          {educador.intereseseducador}
+                        </span>
                       </p>
                     </div>
 
@@ -221,21 +229,27 @@ const EducadorPage = () => {
                         <span className="font-medium text-YankeesBlue">
                           Institución:
                         </span>
-                        <span className="text-gray-500">{educador.institucioneducador}</span>
+                        <span className="text-gray-500">
+                          {educador.institucioneducador}
+                        </span>
                       </p>
                       <p className="flex items-center gap-2 mb-2">
                         <BookOpen className="text-YankeesBlue w-5 h-5 md:w-6 md:h-6" />
                         <span className="font-medium text-YankeesBlue">
                           Ocupación:
                         </span>
-                        <span className="text-gray-500">{educador.tituloprofesionaleducador}</span>
+                        <span className="text-gray-500">
+                          {educador.tituloprofesionaleducador}
+                        </span>
                       </p>
                       <p className="flex items-center gap-2 mb-2">
                         <GraduationCap className="text-YankeesBlue w-5 h-5 md:w-6 md:h-6" />
                         <span className="font-medium text-YankeesBlue">
                           Años de Experiencia:
                         </span>
-                        <span className="text-gray-500">{educador.anosexperienciaeducador}</span>
+                        <span className="text-gray-500">
+                          {educador.anosexperienciaeducador}
+                        </span>
                       </p>
                     </div>
                   </div>
@@ -247,7 +261,9 @@ const EducadorPage = () => {
                       <span className="font-medium text-YankeesBlue">
                         Correo:
                       </span>
-                      <span className="text-gray-500">{user.correousuario}</span>
+                      <span className="text-gray-500">
+                        {user.correousuario}
+                      </span>
                     </p>
                   </div>
                 </div>

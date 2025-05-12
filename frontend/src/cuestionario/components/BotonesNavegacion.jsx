@@ -27,31 +27,40 @@ const BotonesNavegacion = ({
         Anterior
       </button>
 
-      <button
-        onClick={isLastQuestion ? handleSendQuiz : handleNext}
-        disabled={hasError || isSubmitting}
-        className={`flex items-center py-2 px-4 rounded-md ${
-          hasError || isSubmitting
-            ? "bg-gray-400 cursor-not-allowed text-white"
-            : isLastQuestion
-            ? "bg-green-600 hover:bg-green-500 text-white font-bold"
-            : "bg-Moonstone text-white hover:scale-105"
-        }`}
-      >
-        {isLastQuestion ? (
-          isSubmitting ? (
-            "Enviando..."
+      <div className="flex flex-col items-center">
+        <button
+          onClick={isLastQuestion ? handleSendQuiz : handleNext}
+          disabled={hasError || isSubmitting}
+          className={`flex items-center py-2 px-4 rounded-md ${
+            hasError || isSubmitting
+              ? "bg-gray-400 cursor-not-allowed text-white"
+              : isLastQuestion
+              ? "bg-green-600 hover:bg-green-500 text-white font-bold"
+              : "bg-Moonstone text-white hover:scale-105"
+          }`}
+        >
+          {isLastQuestion ? (
+            isSubmitting ? (
+              "Enviando..."
+            ) : (
+              <>
+                Enviar
+                <SendHorizontal className="h-5 w-5 ml-2" />
+              </>
+            )
           ) : (
-            <>
-              Enviar
-              <SendHorizontal className="h-5 w-5 ml-2" />
-            </>
-          )
-        ) : (
-          "Siguiente"
+            "Siguiente"
+          )}
+          {!isLastQuestion && <MoveRight className="h-5 w-5 ml-2" />}
+        </button>
+
+        {/* Mostrar mensaje debajo del botón si está enviando */}
+        {isLastQuestion && isSubmitting && (
+          <p className="text-sm text-gray-600 mt-2">
+            El envío puede demorar unos segundos, por favor espere...
+          </p>
         )}
-        {!isLastQuestion && <MoveRight className="h-5 w-5 ml-2" />}
-      </button>
+      </div>
     </div>
   );
 };
