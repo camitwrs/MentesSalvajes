@@ -18,7 +18,6 @@ export default function UserNav({ isMobile = false }) {
   const handleLogout = async () => {
     try {
       await logoutUsuarioRequest();
-      console.log("Sesión cerrada correctamente");
 
       logout();
       navigate("/", { replace: true });

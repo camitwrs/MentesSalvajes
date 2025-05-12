@@ -20,6 +20,55 @@ export const getAlternativasPorCuestionario = async (req, res) => {
   }
 };
 
+
+export const actualizarAlternativa = async (req, res) => {
+  const { idalternativa } = req.params; // Obtiene el ID de la alternativa desde los parámetros de la URL
+  const { textoalternativa, caracteristicaalternativa } = req.body; // Obtiene los datos enviados en el cuerpo de la solicitud
+
+  try {
+    const query = `
+      UPDATE alternativas
+      SET textoalternativa = $1, caracteristicaalternativa = $2
+      WHERE idalternativa = $3
+      RETURNING *;
+    `;
+
+    const values = [textoalternativa, caracteristicaalternativa, idalternativa];
+    const result = await pool.query(query, values);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Alternativa no encontrada" });
+    }
+
+    res.status(200).json(result.rows[0]); // Devuelve la alternativa actualizada
+  } catch (error) {
+    console.error("Error al actualizar la alternativa:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+export const eliminarAlternativa = async (req, res) => {
+  const { idalternativa } = req.params; // Obtiene el ID de la alternativa desde los parámetros de la URL
+
+  try {
+    const query = `
+      DELETE FROM alternativas
+      WHERE idalternativa = $1
+    `;
+
+    const result = await pool.query(query, [idalternativa]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Alternativa no encontrada" });
+    }
+
+    res.status(204).send(); // Devuelve un código de estado 204 (No Content) si se eliminó correctamente
+  } catch (error) {
+    console.error("Error al eliminar la alternativa:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
 // Obtener alternativas por pregunta
 export const getAlternativasPorPregunta = async (req, res) => {
   const { idpregunta } = req.params;
@@ -38,19 +87,24 @@ export const getAlternativasPorPregunta = async (req, res) => {
 
 // Crear una nueva alternativa
 export const crearAlternativa = async (req, res) => {
-  const { idpregunta, textoalternativa, caracteristicaalternativa } = req.body;
+  const { textoalternativa, caracteristicaalternativa, idpregunta } = req.body;
 
   try {
-    await pool.query(
-      `INSERT INTO public.alternativas (idpregunta, textoalternativa, caracteristicaalternativa) VALUES ($1, $2, $3)`,
-      [idpregunta, textoalternativa, caracteristicaalternativa]
-    );
-    res.status(201).json({ message: "Alternativa creada exitosamente" });
+    const query = `
+      INSERT INTO alternativas (textoalternativa, caracteristicaalternativa, idpregunta)
+      VALUES ($1, $2, $3)
+      RETURNING *;
+    `;
+    const values = [textoalternativa, caracteristicaalternativa, idpregunta];
+    const result = await pool.query(query, values);
+
+    res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error("Error al crear la alternativa:", error);
-    res.status(500).json({ error: "Error al crear la alternativa" });
+    res.status(500).json({ error: "Error interno del servidor" });
   }
 };
+
 
 export const getTotalAlternativasRespondidas = async (_, res) => {
   try {

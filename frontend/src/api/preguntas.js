@@ -73,5 +73,14 @@ export const crearPreguntaRequest = (pregunta) =>
 export const getPreguntasPorTipo = (tipopregunta) =>
   axios.get(`${API}/preguntas/tipo/${tipopregunta}`);
 
+export const getTipoPreguntaRequest = () =>
+  axios.get(`${API}/preguntas/tipos-pregunta`);
+
+export const actualizarPreguntaRequest = (idpregunta, pregunta) =>
+  axios.put(`${API}/preguntas/${idpregunta}`, pregunta);
+
+export const eliminarPreguntaRequest = (idpregunta) =>
+  axios.delete(`${API}/preguntas/${idpregunta}`);
+
 export const getTotalPreguntasPorCuestionarioRequest = (idcuestionario) =>
   axios.get(`${API}/preguntas/cuestionario/total/${idcuestionario}`);

@@ -89,6 +89,12 @@ Formato respuesta:
 export const getTotalAlternativasRespondidasRequest = () =>
   axios.get(`${API}/alternativas/all`);
 
+export const actualizarAlternativaRequest = (idalternativa, alternativa) =>
+  axios.put(`${API}/alternativas/${idalternativa}`, alternativa);
+
+export const eliminarAlternativaRequest = (idalternativa) =>
+  axios.delete(`${API}/alternativas/${idalternativa}`);
+
 // Petición a API PUIBLICA EXTERNA
 export const getUniversidadesPorPaisRequest = (nombrepais) =>
   axios.get(`http://universities.hipolabs.com/search?country=${nombrepais}`);

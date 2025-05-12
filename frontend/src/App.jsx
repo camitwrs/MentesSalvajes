@@ -11,6 +11,7 @@ import AdminPage from "./administracion/pages/AdminPage";
 import ProtectedRoutes from "./ProtectedRoutes";
 import Navbar from "./shared/components/Navbar";
 import { HeroUIProvider } from "@heroui/react";
+import EdicionPage from "./administracion/pages/EdicionPage";
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
             >
               <Route path="/dashboard-admin" element={<AdminPage />} />
               <Route path="/resumen/:idcuestionario" element={<ResumenPage />} />
+              <Route path="/editar-cuestionario/:idcuestionario" element={<EdicionPage />} />
             </Route>
 
             {/* PROTECTED ROUTES PARA ILUSTRADORES (ROL 4) */}

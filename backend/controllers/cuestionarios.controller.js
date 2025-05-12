@@ -55,6 +55,25 @@ export const getCuestionariosPorTitulo = async (req, res) => {
   }
 };
 
+export const getCuestionarioPorId = async (req, res) => {
+  const { idcuestionario } = req.params;
+
+  try {
+    const query = `SELECT * FROM cuestionarios WHERE idcuestionario = $1`;
+    const { rows } = await pool.query(query, [idcuestionario]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Cuestionario no encontrado" });
+    }
+
+    res.json(rows[0]); 
+  } catch (error) {
+    console.error("Error al buscar el cuestionario:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+
 export const getTotalCuestionarios = async (_, res) => {
   try {
     const result = await pool.query(
@@ -63,11 +82,11 @@ export const getTotalCuestionarios = async (_, res) => {
     res.json({ total_cuestionarios: result.rows[0].total_cuestionarios });
   } catch (error) {
     console.error(
-      "Error al obtener la cantidcuestionarioad de cuestionarios:",
+      "Error al obtener la cantidad de cuestionarios:",
       error
     );
     res.status(500).json({
-      error: "Error al obtener la cantidcuestionarioad de cuestionarios",
+      error: "Error al obtener la cantidad de cuestionarios",
     });
   }
 };
@@ -90,7 +109,7 @@ export const getDiferenciaCuestionarios = async (_, res) => {
 
 export const actualizarCuestionario = async (req, res) => {
   const { idcuestionario } = req.params;
-  const { titulocuestionario, estadocuestionario } = req.body;
+  const { titulocuestionario, estadocuestionario, descripcioncuestionario } = req.body;
 
   try {
     // Validar que se haya enviado el ID
@@ -114,6 +133,12 @@ export const actualizarCuestionario = async (req, res) => {
     if (estadocuestionario) {
       fields.push(`estadocuestionario = $${index}`);
       values.push(estadocuestionario);
+      index++;
+    }
+
+    if (descripcioncuestionario) {
+      fields.push(`descripcioncuestionario = $${index}`);
+      values.push(descripcioncuestionario);
       index++;
     }
 
