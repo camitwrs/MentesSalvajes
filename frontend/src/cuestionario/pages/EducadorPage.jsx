@@ -63,7 +63,7 @@ const EducadorPage = () => {
 
   const handleSelectCuestionario = (id) => {
     setQuizId(id);
-    navigate(`/cuestionario/${idcuestionario}`);
+    navigate(`/cuestionario/${id}`);
   };
 
   useEffect(() => {
@@ -268,7 +268,7 @@ const EducadorPage = () => {
                               className="flex items-center gap-2 bg-gray-400 text-white py-1.5 md:py-2 px-3 md:px-4 rounded-md cursor-not-allowed text-sm md:text-base whitespace-nowrap mt-2 sm:mt-0"
                               disabled
                             >
-                              Próximamente
+                              Próximamente!
                             </button>
                           )}
                         </div>
