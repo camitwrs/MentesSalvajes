@@ -16,20 +16,25 @@ import {
   Building,
   UsersRound,
   GraduationCap,
+  Table,
+  Eye,
+  ImageIcon,
 } from "lucide-react";
 import { getCuestionariosRequest } from "../../api/cuestionarios";
 import { getDatosEducadorRequest } from "../../api/usuarios";
+import { getHistorialRespuestasRequest } from "../../api/respuestas";
 import { FormContext } from "../context/FormContext";
 import { useAuth } from "../../autenticacion/context/AuthContext";
 
 const EducadorPage = () => {
   const [cuestionarios, setCuestionarios] = useState([]);
   const [isAccordionVisible, setIsAccordionVisible] = useState(false);
-  const [educador, setEducador] = useState(null); // Estado para los datos del educador
+  const [educador, setEducador] = useState(null);
+  const [historialRespuestas, setHistorialRespuestas] = useState([]);
 
   const navigate = useNavigate();
   const { setQuizId } = useContext(FormContext);
-  const { user } = useAuth(); // Obtener usuario autenticado
+  const { user } = useAuth();
 
   const handleSelectCuestionario = (id) => {
     setQuizId(id);
@@ -47,8 +52,7 @@ const EducadorPage = () => {
     };
 
     const fetchDatosEducador = async () => {
-      if (!user || !user.idusuario) return;
-
+      if (!user?.idusuario) return;
       try {
         const response = await getDatosEducadorRequest(user.idusuario);
         setEducador(response.data);
@@ -57,9 +61,32 @@ const EducadorPage = () => {
       }
     };
 
+    const fetchHistorial = async () => {
+      if (!user?.idusuario) return;
+      try {
+        const response = await getHistorialRespuestasRequest(user.idusuario);
+        const historial = response.data.map((item) => {
+          const fecha = new Date(item.fecharespuesta);
+          return {
+            id: item.idrespuesta,
+            nombre: item.titulocuestionario,
+            fecha: fecha.toLocaleDateString("es-ES"),
+            hora: fecha.toLocaleTimeString("es-ES", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+          };
+        });
+        setHistorialRespuestas(historial);
+      } catch (error) {
+        console.error("Error al obtener el historial de respuestas:", error);
+      }
+    };
+
     fetchCuestionarios();
     fetchDatosEducador();
-  }, [user, user.idusuario]); // Dependencia en user.idusuario
+    fetchHistorial();
+  }, [user?.idusuario]);
 
   return (
     <div className="container mx-auto">
@@ -175,14 +202,11 @@ const EducadorPage = () => {
             <CardBody>
               {educador ? (
                 <div className="p-5">
-                  {/* Nombre completo */}
                   <h3 className="text-lg md:text-xl font-bold text-YankeesBlue mb-4 border-b border-blue-100 pb-2">
                     {user.nombreusuario} {user.apellidousuario}
                   </h3>
 
-                  {/* Contenedor Responsivo */}
                   <div className="text-sm md:text-base">
-                    {/* Información Personal */}
                     <div>
                       <p className="flex items-center gap-2 mb-2">
                         <Cake className="text-YankeesBlue w-5 h-5 md:w-6 md:h-6" />
@@ -222,7 +246,6 @@ const EducadorPage = () => {
                       </p>
                     </div>
 
-                    {/* Información Profesional */}
                     <div>
                       <p className="flex items-center gap-2 mb-2">
                         <Building className="text-YankeesBlue w-7 h-5 md:w-6 md:h-6" />
@@ -254,7 +277,6 @@ const EducadorPage = () => {
                     </div>
                   </div>
 
-                  {/* Información de Contacto */}
                   <div className="mt-3 pt-2 border-t border-blue-100">
                     <p className="flex items-center gap-2 mb-2">
                       <Mail className="text-YankeesBlue w-5 h-5 md:w-6 md:h-6" />
@@ -279,6 +301,74 @@ const EducadorPage = () => {
             </CardBody>
           </Card>
         </div>
+      </div>
+
+      {/* Sección de historial de respuestas */}
+      <div className="px-4 md:px-8 pb-8">
+        <Card className="w-full rounded-md">
+          <CardHeader>
+            <div className="flex items-center px-2 text-xl md:text-2xl">
+              <Table className="w-5 h-5 mr-2 stroke-YankeesBlue" />
+              <h2 className="font-bold text-YankeesBlue">
+                Historial de Respuestas
+              </h2>
+            </div>
+          </CardHeader>
+          <CardBody>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Nombre del Cuestionario
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Fecha
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Hora
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Acciones
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {historialRespuestas.map((respuesta) => (
+                    <tr key={respuesta.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {respuesta.nombre}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {respuesta.fecha}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {respuesta.hora}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex justify-end gap-2">
+                          <button className="flex items-center gap-1 bg-Moonstone text-white py-1.5 px-3 rounded-md text-sm">
+                            <Eye className="w-4 h-4" />
+                            Ver respuestas
+                          </button>
+                          <button className="flex items-center gap-1 bg-YankeesBlue text-white py-1.5 px-3 rounded-md text-sm">
+                            <ImageIcon className="w-4 h-4" />
+                            Ver imagen
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {historialRespuestas.length === 0 && (
+                <div className="text-center py-6 text-gray-500">
+                  No se encontraron respuestas registradas.
+                </div>
+              )}
+            </div>
+          </CardBody>
+        </Card>
       </div>
     </div>
   );

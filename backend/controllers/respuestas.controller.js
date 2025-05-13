@@ -183,3 +183,32 @@ export const getTotalRespuestasPorCuestionario = async (req, res) => {
     });
   }
 };
+
+// NUEVO CONTROLADOR: Obtener historial por usuario
+export const obtenerHistorialRespuestasPorUsuario = async (req, res) => {
+  const { idusuario } = req.params;
+
+  try {
+    const result = await pool.query(
+      `SELECT 
+         r.idrespuesta, 
+         r.fecharespuesta, 
+         r.idcuestionario,
+         c.titulocuestionario
+       FROM respuestas r
+       JOIN cuestionarios c ON r.idcuestionario = c.idcuestionario
+       WHERE r.idusuario = $1
+       ORDER BY r.fecharespuesta DESC`,
+      [idusuario]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ mensaje: "No se encontraron respuestas para este usuario." });
+    }
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error al obtener historial de respuestas:", error);
+    res.status(500).json({ mensaje: "Error interno del servidor." });
+  }
+};
