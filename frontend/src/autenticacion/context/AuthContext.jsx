@@ -117,6 +117,7 @@ export const AuthProvider = ({ children }) => {
         logearse,
         logout,
         user,
+        setUser,
         estaAutenticado,
         errors,
         loading,

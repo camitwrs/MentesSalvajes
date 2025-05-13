@@ -19,9 +19,16 @@ import {
   Table,
   Eye,
   ImageIcon,
+  Pencil,
+  Save,
+  X,
 } from "lucide-react";
 import { getCuestionariosRequest } from "../../api/cuestionarios";
-import { getDatosEducadorRequest } from "../../api/usuarios";
+import {
+  getDatosEducadorRequest,
+  actualizarDatosEducadorRequest,
+  actualizarDatosUsuarioRequest,
+} from "../../api/usuarios";
 import { getHistorialRespuestasRequest } from "../../api/respuestas";
 import { FormContext } from "../context/FormContext";
 import { useAuth } from "../../autenticacion/context/AuthContext";
@@ -32,9 +39,31 @@ const EducadorPage = () => {
   const [educador, setEducador] = useState(null);
   const [historialRespuestas, setHistorialRespuestas] = useState([]);
 
+  const [editMode, setEditMode] = useState(false);
+
+  const [educadorForm, setEducadorForm] = useState({
+    edadeducador: "",
+    sexoeducador: "",
+    paiseducador: "",
+    intereseseducador: "",
+    institucioneducador: "",
+    tituloprofesionaleducador: "",
+    anosexperienciaeducador: "",
+  });
+
+  const [userForm, setUserForm] = useState({
+    nombreusuario: "",
+    apellidousuario: "",
+    correousuario: "",
+  });
+
+  const [guardando, setGuardando] = useState(false);
+  const [mensaje, setMensaje] = useState(null);
+  const [error, setError] = useState(null);
+
   const navigate = useNavigate();
   const { setQuizId } = useContext(FormContext);
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
 
   const handleSelectCuestionario = (id) => {
     setQuizId(id);
@@ -87,6 +116,106 @@ const EducadorPage = () => {
     fetchDatosEducador();
     fetchHistorial();
   }, [user?.idusuario]);
+
+  const handleEducadorInputChange = (e) => {
+    const { name, value } = e.target;
+    setEducadorForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleUserInputChange = (e) => {
+    const { name, value } = e.target;
+    setUserForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleEditarPerfil = () => {
+    setEditMode(true);
+  };
+
+  const handleCancelarEdicion = () => {
+    setEditMode(false);
+    setEducadorForm(educador);
+    setUserForm(user); // Restaurar los datos originales
+    setError(null);
+  };
+
+  const handleGuardarPerfil = async () => {
+    try {
+      setGuardando(true);
+      setError(null);
+
+      // Validar campos obligatorios del educador
+      if (
+        !educadorForm.edadeducador ||
+        !educadorForm.sexoeducador ||
+        !educadorForm.paiseducador
+      ) {
+        setError("Los campos de edad, sexo y país son obligatorios");
+        setGuardando(false);
+        return;
+      }
+
+      // Validar campos obligatorios del usuario
+      if (
+        !userForm.nombreusuario ||
+        !userForm.apellidousuario ||
+        !userForm.correousuario
+      ) {
+        setError("Los campos de nombre, apellido y correo son obligatorios");
+        setGuardando(false);
+        return;
+      }
+
+      // Validar formato de correo electrónico
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(userForm.correousuario)) {
+        setError("El formato del correo electrónico no es válido");
+        setGuardando(false);
+        return;
+      }
+
+      // Llamada a la API para actualizar los datos (educador+usuario)
+      const responseEducador = await actualizarDatosEducadorRequest(
+        user.idusuario,
+        educadorForm
+      );
+
+      const responseUsuario = await actualizarDatosUsuarioRequest(
+        user.idusuario,
+        userForm
+      );
+
+      if (responseEducador.status === 200 && responseUsuario.status === 200) {
+        // Actualizar el estado local con los nuevos datos
+        setEducador({
+          ...educador,
+          ...educadorForm,
+        });
+
+        // Actualizar el contexto de autenticación con los nuevos datos del usuario
+        setUser({
+          ...user,
+          ...userForm,
+        });
+
+        setEditMode(false);
+        setMensaje("Perfil actualizado correctamente");
+        setTimeout(() => setMensaje(null), 3000);
+      } else {
+        setError("No se pudo actualizar el perfil");
+      }
+    } catch (err) {
+      console.error("Error al actualizar el perfil:", err);
+      setError("Ocurrió un error al guardar los cambios");
+    } finally {
+      setGuardando(false);
+    }
+  };
 
   return (
     <div className="container mx-auto">
@@ -194,107 +323,313 @@ const EducadorPage = () => {
         <div className="w-full md:w-1/2 mt-4 md:mt-0">
           <Card className="w-full rounded-md">
             <CardHeader>
-              <div className="flex items-center px-2 text-xl md:text-2xl">
-                <User className="w-5 h-5 mr-2 stroke-YankeesBlue" />
-                <h2 className="font-bold text-YankeesBlue">Mi Perfil</h2>
+              <div className="flex items-center justify-between px-2">
+                <div className="flex items-center text-xl md:text-2xl">
+                  <User className="w-5 h-5 mr-2 stroke-YankeesBlue" />
+                  <h2 className="font-bold text-YankeesBlue">Mi Perfil</h2>
+                </div>
+                {!editMode ? (
+                  <button
+                    onClick={handleEditarPerfil}
+                    className="ml-4 flex items-center gap-1 bg-Moonstone text-white py-1.5 px-3 rounded-md text-sm"
+                  >
+                    <Pencil className="w-4 h-4" />
+                    Editar
+                  </button>
+                ) : (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleCancelarEdicion}
+                      className="ml-4 flex items-center gap-1 bg-gray-400 text-white py-1.5 px-3 rounded-md text-sm"
+                    >
+                      <X className="w-4 h-4" />
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={handleGuardarPerfil}
+                      disabled={guardando}
+                      className="flex items-center gap-1 bg-Moonstone text-white py-1.5 px-3 rounded-md text-sm"
+                    >
+                      {guardando ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                      ) : (
+                        <Save className="w-4 h-4" />
+                      )}
+                      Guardar
+                    </button>
+                  </div>
+                )}
               </div>
             </CardHeader>
             <CardBody>
-              {educador ? (
-                <div className="p-5">
-                  <h3 className="text-lg md:text-xl font-bold text-YankeesBlue mb-4 border-b border-blue-100 pb-2">
-                    {user.nombreusuario} {user.apellidousuario}
-                  </h3>
-
-                  <div className="text-sm md:text-base">
-                    <div>
-                      <p className="flex items-center gap-2 mb-2">
-                        <Cake className="text-YankeesBlue w-5 h-5 md:w-6 md:h-6" />
-                        <span className="font-medium text-YankeesBlue">
-                          Edad:
-                        </span>
-                        <span className="text-gray-500">
-                          {educador.edadeducador} años
-                        </span>
-                      </p>
-                      <p className="flex items-center gap-2 mb-2">
-                        <UsersRound className="text-YankeesBlue w-5 h-5 md:w-6 md:h-6" />
-                        <span className="font-medium text-YankeesBlue">
-                          Sexo:
-                        </span>
-                        <span className="text-gray-500">
-                          {educador.sexoeducador}
-                        </span>
-                      </p>
-                      <p className="flex items-center gap-2 mb-2">
-                        <Earth className="text-YankeesBlue w-5 h-5 md:w-6 md:h-6" />
-                        <span className="font-medium text-YankeesBlue">
-                          País:
-                        </span>
-                        <span className="text-gray-500">
-                          {educador.paiseducador}
-                        </span>
-                      </p>
-                      <p className="flex items-center gap-2 mb-2">
-                        <Puzzle className="text-YankeesBlue w-5 h-5 md:w-6 md:h-6" />
-                        <span className="font-medium text-YankeesBlue">
-                          Intereses:
-                        </span>
-                        <span className="text-gray-500">
-                          {educador.intereseseducador}
-                        </span>
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="flex items-center gap-2 mb-2">
-                        <Building className="text-YankeesBlue w-7 h-5 md:w-6 md:h-6" />
-                        <span className="font-medium text-YankeesBlue">
-                          Institución:
-                        </span>
-                        <span className="text-gray-500">
-                          {educador.institucioneducador}
-                        </span>
-                      </p>
-                      <p className="flex items-center gap-2 mb-2">
-                        <BookOpen className="text-YankeesBlue w-5 h-5 md:w-6 md:h-6" />
-                        <span className="font-medium text-YankeesBlue">
-                          Ocupación:
-                        </span>
-                        <span className="text-gray-500">
-                          {educador.tituloprofesionaleducador}
-                        </span>
-                      </p>
-                      <p className="flex items-center gap-2 mb-2">
-                        <GraduationCap className="text-YankeesBlue w-5 h-5 md:w-6 md:h-6" />
-                        <span className="font-medium text-YankeesBlue">
-                          Años de Experiencia:
-                        </span>
-                        <span className="text-gray-500">
-                          {educador.anosexperienciaeducador}
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 pt-2 border-t border-blue-100">
-                    <p className="flex items-center gap-2 mb-2">
-                      <Mail className="text-YankeesBlue w-5 h-5 md:w-6 md:h-6" />
-                      <span className="font-medium text-YankeesBlue">
-                        Correo:
-                      </span>
-                      <span className="text-gray-500">
-                        {user.correousuario}
-                      </span>
-                    </p>
-                  </div>
+              {/* Mensajes de error o éxito */}
+              {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex justify-between mx-5">
+                  <span>{error}</span>
+                  <button onClick={() => setError(null)}>
+                    <X className="h-5 w-5" />
+                  </button>
                 </div>
-              ) : (
+              )}
+
+              {mensaje && (
+                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 flex justify-between mx-5">
+                  <span>{mensaje}</span>
+                  <button onClick={() => setMensaje(null)}>
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+              )}
+
+              {user && (
+                <div className="p-5">
+                  {/* Información básica del usuario */}
+                  <div className="mb-6 border-b border-blue-100 pb-4">
+                    <h3 className="text-lg md:text-xl font-bold text-YankeesBlue mb-4">
+                      Información Personal
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <label className="block text-YankeesBlue font-medium mb-1">
+                          Nombre
+                        </label>
+                        {editMode ? (
+                          <input
+                            type="text"
+                            name="nombreusuario"
+                            value={userForm.nombreusuario}
+                            onChange={handleUserInputChange}
+                            className="border border-gray-300 rounded-md p-2 w-full"
+                          />
+                        ) : (
+                          <p className="text-gray-500">{user.nombreusuario}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-YankeesBlue font-medium mb-1">
+                          Apellido
+                        </label>
+                        {editMode ? (
+                          <input
+                            type="text"
+                            name="apellidousuario"
+                            value={userForm.apellidousuario}
+                            onChange={handleUserInputChange}
+                            className="border border-gray-300 rounded-md p-2 w-full"
+                          />
+                        ) : (
+                          <p className="text-gray-500">
+                            {user.apellidousuario}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-YankeesBlue font-medium mb-1">
+                        Correo Electrónico
+                      </label>
+                      {editMode ? (
+                        <input
+                          type="email"
+                          name="correousuario"
+                          value={userForm.correousuario}
+                          onChange={handleUserInputChange}
+                          className="border border-gray-300 rounded-md p-2 w-full"
+                        />
+                      ) : (
+                        <p className="flex items-center gap-2 text-gray-500">
+                          <Mail className="text-YankeesBlue w-5 h-5" />
+                          {user.correousuario}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Información del educador */}
+                  {educador && (
+                    <div className="text-sm md:text-base">
+                      <h3 className="text-lg font-bold text-YankeesBlue mb-4">
+                        Información Profesional
+                      </h3>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                        <div>
+                          <p className="flex items-center gap-2 mb-1">
+                            <Cake className="text-YankeesBlue w-5 h-5" />
+                            <span className="font-medium text-YankeesBlue">
+                              Edad:
+                            </span>
+                          </p>
+                          {editMode ? (
+                            <input
+                              type="number"
+                              name="edadeducador"
+                              value={educadorForm.edadeducador}
+                              onChange={handleEducadorInputChange}
+                              className="border border-gray-300 rounded-md p-2 w-full"
+                              min="18"
+                              max="100"
+                            />
+                          ) : (
+                            <p className="text-gray-500 ml-7">
+                              {educador.edadeducador} años
+                            </p>
+                          )}
+                        </div>
+
+                        <div>
+                          <p className="flex items-center gap-2 mb-1">
+                            <UsersRound className="text-YankeesBlue w-5 h-5" />
+                            <span className="font-medium text-YankeesBlue">
+                              Sexo:
+                            </span>
+                          </p>
+                          {editMode ? (
+                            <select
+                              name="sexoeducador"
+                              value={educadorForm.sexoeducador}
+                              onChange={handleEducadorInputChange}
+                              className="border border-gray-300 rounded-md p-2 w-full"
+                            >
+                              <option value="">Seleccionar</option>
+                              <option value="Masculino">Masculino</option>
+                              <option value="Femenino">Femenino</option>
+                              <option value="Otro">Otro</option>
+                              <option value="Prefiero no decir">
+                                Prefiero no decir
+                              </option>
+                            </select>
+                          ) : (
+                            <p className="text-gray-500 ml-7">
+                              {educador.sexoeducador}
+                            </p>
+                          )}
+                        </div>
+
+                        <div>
+                          <p className="flex items-center gap-2 mb-1">
+                            <Earth className="text-YankeesBlue w-5 h-5" />
+                            <span className="font-medium text-YankeesBlue">
+                              País:
+                            </span>
+                          </p>
+                          {editMode ? (
+                            <input
+                              type="text"
+                              name="paiseducador"
+                              value={educadorForm.paiseducador}
+                              onChange={handleEducadorInputChange}
+                              className="border border-gray-300 rounded-md p-2 w-full"
+                            />
+                          ) : (
+                            <p className="text-gray-500 ml-7">
+                              {educador.paiseducador}
+                            </p>
+                          )}
+                        </div>
+
+                        <div>
+                          <p className="flex items-center gap-2 mb-1">
+                            <Puzzle className="text-YankeesBlue w-5 h-5" />
+                            <span className="font-medium text-YankeesBlue">
+                              Intereses:
+                            </span>
+                          </p>
+                          {editMode ? (
+                            <input
+                              type="text"
+                              name="intereseseducador"
+                              value={educadorForm.intereseseducador}
+                              onChange={handleEducadorInputChange}
+                              className="border border-gray-300 rounded-md p-2 w-full"
+                            />
+                          ) : (
+                            <p className="text-gray-500 ml-7">
+                              {educador.intereseseducador}
+                            </p>
+                          )}
+                        </div>
+
+                        <div>
+                          <p className="flex items-center gap-2 mb-1">
+                            <Building className="text-YankeesBlue w-5 h-5" />
+                            <span className="font-medium text-YankeesBlue">
+                              Institución:
+                            </span>
+                          </p>
+                          {editMode ? (
+                            <input
+                              type="text"
+                              name="institucioneducador"
+                              value={educadorForm.institucioneducador}
+                              onChange={handleEducadorInputChange}
+                              className="border border-gray-300 rounded-md p-2 w-full"
+                            />
+                          ) : (
+                            <p className="text-gray-500 ml-7">
+                              {educador.institucioneducador}
+                            </p>
+                          )}
+                        </div>
+
+                        <div>
+                          <p className="flex items-center gap-2 mb-1">
+                            <BookOpen className="text-YankeesBlue w-5 h-5" />
+                            <span className="font-medium text-YankeesBlue">
+                              Ocupación:
+                            </span>
+                          </p>
+                          {editMode ? (
+                            <input
+                              type="text"
+                              name="tituloprofesionaleducador"
+                              value={educadorForm.tituloprofesionaleducador}
+                              onChange={handleEducadorInputChange}
+                              className="border border-gray-300 rounded-md p-2 w-full"
+                            />
+                          ) : (
+                            <p className="text-gray-500 ml-7">
+                              {educador.tituloprofesionaleducador}
+                            </p>
+                          )}
+                        </div>
+
+                        <div>
+                          <p className="flex items-center gap-2 mb-1">
+                            <GraduationCap className="text-YankeesBlue w-5 h-5" />
+                            <span className="font-medium text-YankeesBlue">
+                              Años de Experiencia:
+                            </span>
+                          </p>
+                          {editMode ? (
+                            <input
+                              type="number"
+                              name="anosexperienciaeducador"
+                              value={educadorForm.anosexperienciaeducador}
+                              onChange={handleEducadorInputChange}
+                              className="border border-gray-300 rounded-md p-2 w-full"
+                              min="0"
+                              max="70"
+                            />
+                          ) : (
+                            <p className="text-gray-500 ml-7">
+                              {educador.anosexperienciaeducador}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {!user && (
                 <div className="p-6 flex justify-center items-center min-h-[200px]">
                   <p className="text-gray-500 text-center">
-                    {user?.idusuario
-                      ? "Cargando información del perfil..."
-                      : "No se encontró usuario activo."}
+                    Cargando información del perfil...
                   </p>
                 </div>
               )}

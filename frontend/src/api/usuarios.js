@@ -14,3 +14,9 @@ export const getTotalEducadoresRequest = () => axios.get(`${API}/usuarios/all`);
 
 export const getDiferenciaEducadoresRequest = () =>
   axios.get(`${API}/usuarios/diferencia`);
+
+export const actualizarDatosEducadorRequest = (idusuario, data) =>
+  axios.put(`${API}/usuarios/datos-educador/${idusuario}`, data);
+
+export const actualizarDatosUsuarioRequest = (idusuario, data) =>
+  axios.put(`${API}/usuarios/datos-usuario/${idusuario}`, data);
