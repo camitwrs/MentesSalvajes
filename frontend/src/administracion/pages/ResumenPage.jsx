@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-//import { Card, CardHeader, CardBody } from "@heroui/card";
-//import Chart from "react-apexcharts";
 import { getPreguntasPorCuestionarioRequest } from "../../api/preguntas";
 import {
   getTotalAlternativasRespondidasRequest,
   getAlternativasPorPreguntaRequest,
 } from "../../api/alternativas";
+import { getRespuestasPorCodigoRequest } from "../../api/respuestas";
 import SimpleChart from "../components/SimpleChart";
 import ColumnChart from "../components/ColumnChart";
 import RadarChart from "../components/RadarChart";
@@ -28,6 +27,33 @@ const tipoGraficoPorPregunta = (id) => {
   return "pie";
 };
 
+// Agrupar respuestas planas (respuestasdetalle) en formato esperado por los gráficos
+const agruparRespuestasPorPregunta = (respuestas) => {
+  const agrupadas = {};
+
+  respuestas.forEach((fila) => {
+    const { idpregunta, idalternativa } = fila;
+
+    if (!agrupadas[idpregunta]) agrupadas[idpregunta] = {};
+
+    if (!agrupadas[idpregunta][idalternativa]) {
+      agrupadas[idpregunta][idalternativa] = 0;
+    }
+
+    agrupadas[idpregunta][idalternativa]++;
+  });
+
+  return Object.entries(agrupadas).map(([idpregunta, alternativasMap]) => ({
+    idpregunta: Number(idpregunta),
+    alternativas: Object.entries(alternativasMap).map(
+      ([idalternativa, total]) => ({
+        idalternativa: Number(idalternativa),
+        total_respuestas: total,
+      })
+    ),
+  }));
+};
+
 const ResumenPage = () => {
   const { idcuestionario } = useParams();
   const [filtroSesion, setFiltroSesion] = useState("");
@@ -42,38 +68,32 @@ const ResumenPage = () => {
       try {
         setLoading(true);
 
-        const preguntasResponse = await getPreguntasPorCuestionarioRequest(
-          idcuestionario
-        );
+        const preguntasResponse = await getPreguntasPorCuestionarioRequest(idcuestionario);
         const preguntasFiltradas = preguntasResponse.data.map((pregunta) => ({
           idpregunta: pregunta.idpregunta,
           textopregunta: pregunta.textopregunta,
         }));
         setPreguntas(preguntasFiltradas);
 
-        const respuestasResponse = await getTotalAlternativasRespondidasRequest(
-          filtroSesion
-        );
-        setRespuestasPorPregunta(respuestasResponse.data);
-
         const alternativasPorPregunta = {};
-        const alternativasRequests = preguntasFiltradas.map(
-          async (pregunta) => {
-            const response = await getAlternativasPorPreguntaRequest(
-              pregunta.idpregunta
-            );
-            alternativasPorPregunta[pregunta.idpregunta] = response.data.reduce(
-              (acc, alt) => {
-                acc[alt.idalternativa] = alt.textoalternativa;
-                return acc;
-              },
-              {}
-            );
-          }
-        );
-
+        const alternativasRequests = preguntasFiltradas.map(async (pregunta) => {
+          const response = await getAlternativasPorPreguntaRequest(pregunta.idpregunta);
+          alternativasPorPregunta[pregunta.idpregunta] = response.data.reduce((acc, alt) => {
+            acc[alt.idalternativa] = alt.textoalternativa;
+            return acc;
+          }, {});
+        });
         await Promise.all(alternativasRequests);
         setAlternativasData(alternativasPorPregunta);
+
+        if (filtroSesion && filtroSesion.trim() !== "") {
+          const respuesta = await getRespuestasPorCodigoRequest(filtroSesion);
+          const agrupadas = agruparRespuestasPorPregunta(respuesta.data);
+          setRespuestasPorPregunta(agrupadas);
+        } else {
+          const respuesta = await getTotalAlternativasRespondidasRequest();
+          setRespuestasPorPregunta(respuesta.data);
+        }
       } catch (err) {
         setError(err.message || "Error al cargar los datos");
         console.error("Error:", err);
@@ -85,12 +105,8 @@ const ResumenPage = () => {
     fetchData();
   }, [idcuestionario, filtroSesion]);
 
-  const getRespuestasParaPregunta = (idpregunta) => {
-    return (
-      respuestasPorPregunta.find((item) => item.idpregunta === idpregunta)
-        ?.alternativas || []
-    );
-  };
+  const getRespuestasParaPregunta = (idpregunta) =>
+    respuestasPorPregunta.find((item) => item.idpregunta === idpregunta)?.alternativas || [];
 
   const getTextoAlternativa = (idpregunta, idalternativa) => {
     const texto = alternativasData[idpregunta]?.[idalternativa];
@@ -99,27 +115,18 @@ const ResumenPage = () => {
 
   const getTotalRespuestasPregunta = (idpregunta) => {
     const alternativas = getRespuestasParaPregunta(idpregunta);
-    return alternativas.reduce(
-      (acc, alt) => acc + Number(alt.total_respuestas),
-      0
-    );
+    return alternativas.reduce((acc, alt) => acc + Number(alt.total_respuestas), 0);
   };
 
   const renderChart = (pregunta) => {
     const respuestas = getRespuestasParaPregunta(pregunta.idpregunta);
     const alternativasTexto = alternativasData[pregunta.idpregunta] || {};
 
-    // Paso 1: armar mapa de conteo por texto
     const alternativasCompletasMap = Object.entries(alternativasTexto).reduce(
       (acc, [id, texto]) => {
-        const encontrada = respuestas.find(
-          (r) => r.idalternativa === Number(id)
-        );
+        const encontrada = respuestas.find((r) => r.idalternativa === Number(id));
         const total = encontrada ? Number(encontrada.total_respuestas) : 0;
-        const key = texto.toLowerCase().includes("no aplica")
-          ? "No Aplica"
-          : texto;
-
+        const key = texto.toLowerCase().includes("no aplica") ? "No Aplica" : texto;
         if (!acc[key]) acc[key] = 0;
         acc[key] += total;
         return acc;
@@ -127,27 +134,20 @@ const ResumenPage = () => {
       {}
     );
 
-    // Paso 2: agregar manualmente "No Aplica" si viene suelta
     respuestas.forEach((resp) => {
       const id = resp.idalternativa;
       if (!alternativasTexto[id]) {
         let texto = getTextoAlternativa(pregunta.idpregunta, id);
         if (texto.toLowerCase().includes("no aplica")) {
-          if (!alternativasCompletasMap["No Aplica"])
-            alternativasCompletasMap["No Aplica"] = 0;
-          alternativasCompletasMap["No Aplica"] += Number(
-            resp.total_respuestas
-          );
+          if (!alternativasCompletasMap["No Aplica"]) alternativasCompletasMap["No Aplica"] = 0;
+          alternativasCompletasMap["No Aplica"] += Number(resp.total_respuestas);
         }
       }
     });
 
-    // Paso 3: construir array ordenado por idalternativa
     const alternativasCompletas = Object.entries(alternativasTexto)
       .map(([id, texto]) => {
-        const key = texto.toLowerCase().includes("no aplica")
-          ? "No Aplica"
-          : texto;
+        const key = texto.toLowerCase().includes("no aplica") ? "No Aplica" : texto;
         return {
           idalternativa: Number(id),
           textoalternativa: key,
@@ -156,7 +156,6 @@ const ResumenPage = () => {
       })
       .sort((a, b) => a.idalternativa - b.idalternativa);
 
-    // Paso 4: agregar "No Aplica" suelta si no está incluida
     if (
       alternativasCompletasMap["No Aplica"] &&
       !alternativasCompletas.some((a) => a.textoalternativa === "No Aplica")
@@ -170,82 +169,64 @@ const ResumenPage = () => {
 
     const labels = alternativasCompletas.map((alt) => alt.textoalternativa);
     const values = alternativasCompletas.map((alt) => alt.total_respuestas);
-
     const tipo = tipoGraficoPorPregunta(pregunta.idpregunta);
 
     if (alternativasCompletas.length === 0) {
-      return (
-        <p className="text-gray-500 text-sm">No hay datos para mostrar.</p>
-      );
+      return <p className="text-gray-500 text-sm">No hay datos para mostrar.</p>;
     }
 
-    if (tipo === "pie") {
-      return <SimpleChart labels={labels} series={values} title="Respuestas" />;
+    switch (tipo) {
+      case "pie":
+        return <SimpleChart labels={labels} series={values} title="Respuestas" />;
+      case "column":
+        return <ColumnChart series={[{ name: "Respuestas", data: values }]} categories={labels} />;
+      case "radar":
+        return <RadarChart series={[{ name: "Respuestas", data: values }]} categories={labels} />;
+      case "angle":
+        return <AngleChart series={values} labels={labels} />;
+      default:
+        return null;
     }
-
-    if (tipo === "column") {
-      return (
-        <ColumnChart
-          series={[{ name: "Respuestas", data: values }]}
-          categories={labels}
-        />
-      );
-    }
-
-    if (tipo === "radar") {
-      return (
-        <RadarChart
-          series={[{ name: "Respuestas", data: values }]}
-          categories={labels}
-        />
-      );
-    }
-
-    if (tipo === "angle") {
-      return <AngleChart series={values} labels={labels} />;
-    }
-
-    return null;
   };
-
-  if (loading) return <p className="text-center text-gray-600">Cargando...</p>;
-  if (error) return <p className="text-red-500 text-center">Error: {error}</p>;
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
-      <FiltroSesion
-        onChange={(codigo) => setFiltroSesion(codigo)}
-        idcuestionario={idcuestionario}
-      />
+      <FiltroSesion onChange={setFiltroSesion} idcuestionario={idcuestionario} />
+
+      {filtroSesion && (
+        <p className="text-center text-sm text-gray-500 mb-4">
+          Mostrando resultados para la sesión: <strong>{filtroSesion}</strong>
+        </p>
+      )}
 
       <h1 className="text-2xl font-extrabold text-gray-900 mb-10 text-center">
         Resumen del Cuestionario
       </h1>
 
-      <div className="space-y-12">
-        {preguntas
-          .filter((p) => !preguntasExcluidas.includes(p.idpregunta))
-          .map((pregunta) => (
-            <div
-              key={pregunta.idpregunta}
-              className="bg-white shadow-md rounded-lg border-l-4 border-blue-500 p-6 space-y-4"
-            >
-              <div>
-                <h2 className="text-lg font-semibold text-gray-800">
-                  {pregunta.textopregunta}
-                </h2>
-                <p className="text-sm text-gray-500 mt-1">
-                  Total de respuestas:{" "}
-                  {getTotalRespuestasPregunta(pregunta.idpregunta)}
-                </p>
+      {loading ? (
+        <p className="text-center text-gray-600">Cargando...</p>
+      ) : error ? (
+        <p className="text-red-500 text-center">Error: {error}</p>
+      ) : (
+        <div className="space-y-12">
+          {preguntas
+            .filter((p) => !preguntasExcluidas.includes(p.idpregunta))
+            .map((pregunta) => (
+              <div
+                key={pregunta.idpregunta}
+                className="bg-white shadow-md rounded-lg border-l-4 border-blue-500 p-6 space-y-4"
+              >
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-800">{pregunta.textopregunta}</h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Total de respuestas: {getTotalRespuestasPregunta(pregunta.idpregunta)}
+                  </p>
+                </div>
+                <div className="w-full overflow-x-auto">{renderChart(pregunta)}</div>
               </div>
-
-              <div className="w-full overflow-x-auto">
-                <div>{renderChart(pregunta)}</div>
-              </div>
-            </div>
-          ))}
-      </div>
+            ))}
+        </div>
+      )}
     </div>
   );
 };

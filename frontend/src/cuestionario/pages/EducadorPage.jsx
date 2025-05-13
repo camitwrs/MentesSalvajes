@@ -5,8 +5,6 @@ import { Accordion, AccordionItem } from "@heroui/accordion";
 import {
   ClipboardList,
   User,
-  PanelTopOpen,
-  PanelBottomOpen,
   MoveRight,
   Mail,
   BookOpen,
@@ -34,7 +32,6 @@ import { useAuth } from "../../autenticacion/context/AuthContext";
 
 const EducadorPage = () => {
   const [cuestionarios, setCuestionarios] = useState([]);
-  const [isAccordionVisible, setIsAccordionVisible] = useState(false);
   const [educador, setEducador] = useState(null);
   const [historialRespuestas, setHistorialRespuestas] = useState([]);
 
@@ -236,30 +233,7 @@ const EducadorPage = () => {
               </p>
             </CardBody>
             <CardFooter className="px-4 flex flex-col items-start">
-              <button
-                className="flex items-center gap-2 bg-YankeesBlue text-white py-1.5 md:py-2 px-3 md:px-4 rounded-md text-sm md:text-base"
-                onClick={() => setIsAccordionVisible(!isAccordionVisible)}
-              >
-                {isAccordionVisible ? (
-                  <>
-                    <PanelBottomOpen className="w-4 h-4" />
-                    Ocultar Cuestionarios
-                  </>
-                ) : (
-                  <>
-                    <PanelTopOpen className="w-4 h-4" />
-                    Ver Cuestionarios
-                  </>
-                )}
-              </button>
-
-              <div
-                className={`w-full transition-all duration-300 ${
-                  isAccordionVisible
-                    ? "opacity-100 max-h-screen mt-3"
-                    : "opacity-0 max-h-0 overflow-hidden"
-                }`}
-              >
+              <div className="w-full mt-3">
                 <Accordion variant="shadow">
                   {cuestionarios.length > 0 ? (
                     cuestionarios.map((cuestionario, index) => (
@@ -681,9 +655,12 @@ const EducadorPage = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end gap-2">
-                          <button className="flex items-center gap-1 bg-Moonstone text-white py-1.5 px-3 rounded-md text-sm">
+                          <button
+                            className="flex items-center gap-1 bg-gray-500 text-white py-1.5 px-3 rounded-md text-sm cursor-not-allowed"
+                            disabled
+                          >
                             <Eye className="w-4 h-4" />
-                            Ver respuestas
+                            Ver detalle (Próximamente)
                           </button>
                         </div>
                       </td>
