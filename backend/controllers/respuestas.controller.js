@@ -6,17 +6,24 @@ export const guardarRespuesta = async (req, res) => {
   try {
     await pool.query("BEGIN"); // Iniciar transacción
 
-    // Validar que el codigosesion existe
-    const sesionResult = await pool.query(
-      `SELECT idsesion FROM sesiones WHERE codigosesion = $1`,
-      [codigosesion]
-    );
+    let idsesion = null;
 
-    if (sesionResult.rows.length === 0) {
-      return res.status(404).json({ error: "El código de sesión no es válido." });
+    // Validar que el codigosesion existe solo si no es null
+    if (codigosesion) {
+      const sesionResult = await pool.query(
+        `SELECT idsesion FROM sesiones WHERE codigosesion = $1`,
+        [codigosesion]
+      );
+
+      if (sesionResult.rows.length === 0) {
+        await pool.query("ROLLBACK");
+        return res
+          .status(404)
+          .json({ error: "El código de sesión no es válido." });
+      }
+
+      idsesion = sesionResult.rows[0].idsesion;
     }
-
-    const idsesion = sesionResult.rows[0].idsesion;
 
     // 1️. Insertar en la tabla `respuestas` y obtener el `idrespuesta`
     const result = await pool.query(
