@@ -1,28 +1,29 @@
 import { useEffect, useState, useContext } from "react";
-import ReactDOMServer from "react-dom/server";
+//import ReactDOMServer from "react-dom/server";
 import { useAuth } from "../../autenticacion/context/AuthContext";
 import { getDatosEducadorRequest } from "../../api/usuarios";
 import { getRespuestasDetalleRequest } from "../../api/respuestas";
 import { FormContext } from "../context/FormContext";
 import { Spinner } from "@heroui/spinner";
 import PropTypes from "prop-types";
-import { guardarMensajeRequest } from "./../../api/ilustraciones";
+//import { guardarMensajeRequest } from "./../../api/ilustraciones";
 
-import ballenas from "../assets/cetaceo.svg";
-import focas from "../assets/pinipedo.svg";
-import tortugas from "../assets/tortuga.svg";
-import orcas from "../assets/orca.svg";
-import pinguinos from "../assets/pinguino.svg";
-import nutrias from "../assets/mustelido.svg";
+import Ballenas from "../assets/cetaceo.svg";
+import Focas from "../assets/pinipedo.svg";
+import TortugasMarinas from "../assets/tortuga.svg";
+import Orcas from "../assets/orca.svg";
+import Pingüinos from "../assets/pinguino.svg";
+import Nutrias from "../assets/mustelido.svg";
 
 const imagenesPorRespuesta = {
-  Ballenas: ballenas,
-  Focas: focas,
-  "Tortuga marinas": tortugas,
-  Orcas: orcas,
-  Pingüinos: pinguinos,
-  Nutrias: nutrias,
+  Ballenas: Ballenas,
+  Focas: Focas,
+  "Tortugas marinas": TortugasMarinas,
+  Orcas: Orcas,
+  Pingüinos: Pingüinos,
+  Nutrias: Nutrias,
 };
+
 
 const Final = ({ submitSuccess }) => {
   const { user } = useAuth();
@@ -75,10 +76,13 @@ const Final = ({ submitSuccess }) => {
 
   const getImagenSegunRespuesta = () => {
     const respuesta = respuestasDetalle.find(
-      (resp) => Number(resp.idpregunta) === 8
+      (resp) => Number(resp.idpregunta) === 12
     );
-    return respuesta
-      ? imagenesPorRespuesta[respuesta.caracteristicaalternativa]
+
+    const clave = respuesta?.caracteristicaalternativa?.trim(); // Elimina espacios
+
+    return clave && imagenesPorRespuesta[clave]
+      ? imagenesPorRespuesta[clave]
       : null;
   };
 
@@ -89,30 +93,40 @@ const Final = ({ submitSuccess }) => {
         {user?.nombreusuario} {user?.apellidousuario}
       </span>{" "}
       +{" "}
-      <span className="font-bold text-YankeesBlue">{getCaracteristica(32)}</span>{" "}
+      <span className="font-bold text-YankeesBlue">
+        {getCaracteristica("32")}
+      </span>{" "}
       +{" "}
-      <span className="font-bold text-YankeesBlue">{getCaracteristica(37)}</span>
+      <span className="font-bold text-YankeesBlue">
+        {getCaracteristica("37")}
+      </span>
       <br />
       Su principal comportamiento es:{" "}
-      <span className="font-bold text-YankeesBlue">{getCaracteristica(40)}</span>
+      <span className="font-bold text-YankeesBlue">
+        {getCaracteristica("40")}
+      </span>
       <br />
       Su capacidad de sumergirse en las profundidades alcanza hasta los:{" "}
       <span className="font-bold text-YankeesBlue">{getCaracteristica(9)}</span>
       <br />
       Su velocidad de desplazamiento es de:{" "}
-      <span className="font-bold text-YankeesBlue">{getCaracteristica(10)}</span>.
+      <span className="font-bold text-YankeesBlue">
+        {getCaracteristica("10")}
+      </span>
+      .
       <br />
       La distancia que puede recorrer al salir del agua es de:{" "}
-      <span className="font-bold text-YankeesBlue">{getCaracteristica(11)}</span>.
+      <span className="font-bold text-YankeesBlue">
+        {getCaracteristica("11")}
+      </span>
+      .
       <br />
       Su hábitat es:{" "}
       <span className="font-bold text-YankeesBlue">
         {educador?.paiseducador || "desconocido"}
       </span>{" "}
       y se caracteriza por tener un entorno rodeado de{" "}
-      {[
-        15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
-      ].map((id, index, array) => (
+      {[15, 16, 17, 18, 19, 20, 21, 22, 23, 24].map((id, index, array) => (
         <span key={id} className="font-bold text-YankeesBlue">
           {getCaracteristica(id)}
           {index < array.length - 1 ? ", " : "."}
@@ -121,10 +135,14 @@ const Final = ({ submitSuccess }) => {
       <br />
       <br />
       Su morfología es de un:{" "}
-      <span className="font-bold text-YankeesBlue">{getCaracteristica(12)}</span>
+      <span className="font-bold text-YankeesBlue">
+        {getCaracteristica(12)}
+      </span>
       <br />
       Tiene rayas o lunares de color:{" "}
-      <span className="font-bold text-YankeesBlue">{getCaracteristica(13)}</span>
+      <span className="font-bold text-YankeesBlue">
+        {getCaracteristica(13)}
+      </span>
       <br />
       Su tamaño es de:{" "}
       <span className="font-bold text-YankeesBlue">{getCaracteristica(2)}</span>
@@ -134,34 +152,33 @@ const Final = ({ submitSuccess }) => {
     </>
   );
 
+  /*
   useEffect(() => {
     if (!user || !educador || respuestasDetalle.length === 0) return;
 
     const descripcionHTML = ReactDOMServer.renderToStaticMarkup(
       generarDescripcion()
     );
-
     const descripcionToSend = descripcionHTML
       .replace(/<[^>]*>/g, "") // Elimina etiquetas HTML
       .replace(/\s+/g, " ") // Normaliza espacios
       .replace(/\. /g, ".\n"); // Saltos de línea opcionales
 
+    
     const mensajeToSend = {
       tituloilustracion: `${user.nombreusuario} ${user.apellidousuario}`,
       descripcionllustracion: descripcionToSend,
       ideducador: user.idusuario,
     };
-
-    /*
     guardarMensajeRequest(mensajeToSend)
       .then((response) => {
         console.log("Mensaje enviado correctamente:", response.data);
       })
       .catch((error) => {
         console.error("Error al enviar el mensaje:", error);
-    });
-    */
+      });
   }, [user, educador, respuestasDetalle, generarDescripcion]);
+  */
 
   const imagenPerfil = getImagenSegunRespuesta();
 

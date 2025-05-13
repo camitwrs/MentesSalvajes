@@ -18,7 +18,6 @@ import {
   GraduationCap,
   Table,
   Eye,
-  ImageIcon,
   Pencil,
   Save,
   X,
@@ -685,10 +684,6 @@ const EducadorPage = () => {
                           <button className="flex items-center gap-1 bg-Moonstone text-white py-1.5 px-3 rounded-md text-sm">
                             <Eye className="w-4 h-4" />
                             Ver respuestas
-                          </button>
-                          <button className="flex items-center gap-1 bg-YankeesBlue text-white py-1.5 px-3 rounded-md text-sm">
-                            <ImageIcon className="w-4 h-4" />
-                            Ver imagen
                           </button>
                         </div>
                       </td>

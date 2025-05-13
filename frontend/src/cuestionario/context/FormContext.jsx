@@ -33,7 +33,7 @@ export const FormProvider = ({ children }) => {
     const questionsConfig = {
       1: [2, 3, 4, 5, 6, 7, 9, 10, 11],
       7: [9, 10, 11],
-      25: [25],
+      25: [26],
     };
 
     const completedUserData = Object.keys(questionsConfig).reduce(
