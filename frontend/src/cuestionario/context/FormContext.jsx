@@ -29,7 +29,7 @@ export const FormProvider = ({ children }) => {
     setIsQuizStarted(true); // Cambiar el estado para iniciar el cuestionario
   }
 
-  const submitData = async () => {
+  const submitData = async (sessionCode) => {
     const questionsConfig = {
       1: [2, 3, 4, 5, 6, 7, 9, 10, 11],
       7: [9, 10, 11],
@@ -77,6 +77,7 @@ export const FormProvider = ({ children }) => {
     const finalDataToSend = {
       idusuario: user.idusuario,
       idcuestionario: quizId,
+      codigosesion: sessionCode,
       respuestas: {
         ...finalData,
         ...completedUserData,
@@ -84,7 +85,6 @@ export const FormProvider = ({ children }) => {
     };
 
     try {
-      console.log("finaldatatosend", finalDataToSend);
       const response = await guardarRespuestaRequest(finalDataToSend);
     } catch (error) {
       console.error("Error al enviar respuestas:", error);
@@ -94,15 +94,6 @@ export const FormProvider = ({ children }) => {
     setCurrentQuestionIndex(0);
     setIsQuizStarted(false);
   };
-
-  useEffect(() => {
-    console.log("userData actualizado:", userData);
-    console.log("quizId actualizado:", quizId);
-  }, [userData, quizId]);
-
-  useEffect(() => {
-    console.log("finalData actualizado:", finalData);
-  }, [finalData]);
 
   useEffect(() => {
     if (quizId) {

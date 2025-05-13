@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export const useManejoEnvio = (submitData) => {
+export const useManejoEnvio = (submitData, sessionCode) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -9,7 +9,7 @@ export const useManejoEnvio = (submitData) => {
     setIsSubmitting(true);
     try {
       setSubmitSuccess(false);
-      await submitData();
+      await submitData(sessionCode);
       setSubmitSuccess(true);
       setSubmitError("");
     } catch (error) {

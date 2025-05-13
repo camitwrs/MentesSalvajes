@@ -2,8 +2,19 @@ import PropTypes from "prop-types";
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
 import { useNavigate } from "react-router-dom";
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/modal";
-import { BarChartIcon as ChartBarIcon, Trash2Icon, EditIcon } from "lucide-react";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "@heroui/modal";
+import {
+  BarChartIcon as ChartBarIcon,
+  Trash2Icon,
+  EditIcon,
+  KeyRound,
+} from "lucide-react";
 import { eliminarCuestionarioRequest } from "../../api/cuestionarios";
 import { useAlert } from "../../shared/context/AlertContext";
 import { useState } from "react";
@@ -23,6 +34,10 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
     navigate(`/editar-cuestionario/${idcuestionario}`);
   };
 
+  const handleGestionarSesiones = (idcuestionario) => {
+    navigate(`/sesiones/${idcuestionario}`);
+  };
+
   const handleEliminarCuestionario = (cuestionario) => {
     setCuestionarioAEliminar(cuestionario);
     setIsDeleteModalOpen(true);
@@ -35,7 +50,8 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
 
   const handleConfirmarEliminar = async () => {
     if (!cuestionarioAEliminar) return;
-    const idcuestionario = cuestionarioAEliminar.idcuestionario || cuestionarioAEliminar.id;
+    const idcuestionario =
+      cuestionarioAEliminar.idcuestionario || cuestionarioAEliminar.id;
 
     try {
       const response = await eliminarCuestionarioRequest(idcuestionario);
@@ -96,11 +112,16 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
           {cuestionarios.map((cuestionario) => {
             if (!cuestionario) return null;
 
-            const isActive = cuestionario.estadocuestionario?.toLowerCase() === "activo";
-            const idcuestionario = cuestionario.idcuestionario || cuestionario.id;
+            const isActive =
+              cuestionario.estadocuestionario?.toLowerCase() === "activo";
+            const idcuestionario =
+              cuestionario.idcuestionario || cuestionario.id;
 
             if (!idcuestionario) {
-              console.warn("Cuestionario sin ID válido encontrado:", cuestionario);
+              console.warn(
+                "Cuestionario sin ID válido encontrado:",
+                cuestionario
+              );
               return null;
             }
 
@@ -119,13 +140,17 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
                 </td>
                 <td className={`${cellBaseStyle} border-b md:border-none`}>
                   <span className={cellLabelStyle}>Preguntas:</span>
-                  <div className={`${cellContentStyle} inline-block md:block text-gray-600 font-semibold`}>
+                  <div
+                    className={`${cellContentStyle} inline-block md:block text-gray-600 font-semibold`}
+                  >
                     {cuestionario.total_preguntas || 0}
                   </div>
                 </td>
                 <td className={`${cellBaseStyle} border-b md:border-none`}>
                   <span className={cellLabelStyle}>Respuestas:</span>
-                  <div className={`${cellContentStyle} inline-block md:block text-gray-600 font-semibold`}>
+                  <div
+                    className={`${cellContentStyle} inline-block md:block text-gray-600 font-semibold`}
+                  >
                     {cuestionario.total_respuestas}
                   </div>
                 </td>
@@ -134,7 +159,9 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
                   <div className={`${cellContentStyle} inline-block md:block`}>
                     <Chip
                       className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
+                        isActive
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
                       }`}
                     >
                       {cuestionario.estadocuestionario || "Desconocido"}
@@ -143,9 +170,13 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
                 </td>
                 <td className={`${cellBaseStyle} border-b md:border-none`}>
                   <span className={cellLabelStyle}>Creado:</span>
-                  <div className={`${cellContentStyle} inline-block md:block text-gray-600`}>
+                  <div
+                    className={`${cellContentStyle} inline-block md:block text-gray-600`}
+                  >
                     {cuestionario.fechacreacioncuestionario
-                      ? new Date(cuestionario.fechacreacioncuestionario).toLocaleDateString()
+                      ? new Date(
+                          cuestionario.fechacreacioncuestionario
+                        ).toLocaleDateString()
                       : "N/A"}
                   </div>
                 </td>
@@ -154,14 +185,36 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
                     <Button
                       color={isActive ? "primary" : "neutral"}
                       size="sm"
-                      onPress={() => isActive && handleVerEstadisticas(idcuestionario)}
+                      onPress={() =>
+                        isActive && handleVerEstadisticas(idcuestionario)
+                      }
                       disabled={!isActive}
                       className={`flex items-center gap-1 transition-all ${
-                        isActive ? "hover:bg-blue-600 hover:shadow-md" : "opacity-70 cursor-not-allowed"
+                        isActive
+                          ? "hover:bg-blue-600 hover:shadow-md"
+                          : "opacity-70 cursor-not-allowed"
                       }`}
                     >
                       <ChartBarIcon className="w-4 h-4" />
-                      <span className="hidden lg:inline">Ver estadísticas</span>
+                      <span className="hidden lg:inline">
+                        Estadísticas generales
+                      </span>
+                    </Button>
+                    <Button
+                      color={isActive ? "default" : "neutral"}
+                      size="sm"
+                      onPress={() =>
+                        isActive && handleGestionarSesiones(idcuestionario)
+                      }
+                      disabled={!isActive}
+                      className={`flex items-center gap-1 transition-all ${
+                        isActive
+                          ? "hover:bg-gray-400 hover:shadow-md"
+                          : "opacity-70 cursor-not-allowed"
+                      }`}
+                    >
+                      <KeyRound className="w-4 h-4" />
+                      <span className="hidden lg:inline">Sesiones</span>
                     </Button>
                     <Button
                       color="secondary"
@@ -195,12 +248,21 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
           <ModalBody>
             <p>
               ¿Estás seguro de que deseas eliminar el cuestionario{" "}
-              <strong>&ldquo;{cuestionarioAEliminar?.titulocuestionario || ""}&rdquo;</strong>?
+              <strong>
+                &ldquo;{cuestionarioAEliminar?.titulocuestionario || ""}&rdquo;
+              </strong>
+              ?
             </p>
-            <p className="mt-2 text-sm text-gray-500">Esta acción no se puede deshacer.</p>
+            <p className="mt-2 text-sm text-gray-500">
+              Esta acción no se puede deshacer.
+            </p>
           </ModalBody>
           <ModalFooter>
-            <Button color="secondary" onPress={handleCloseDeleteModal} className="mr-2">
+            <Button
+              color="secondary"
+              onPress={handleCloseDeleteModal}
+              className="mr-2"
+            >
               Cancelar
             </Button>
             <Button color="danger" onPress={handleConfirmarEliminar}>

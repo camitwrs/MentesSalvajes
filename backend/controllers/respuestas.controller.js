@@ -1,28 +1,39 @@
 import pool from "../config/pg.js";
 
 export const guardarRespuesta = async (req, res) => {
-  const { idusuario, respuestas, idcuestionario } = req.body;
+  const { idusuario, respuestas, idcuestionario, codigosesion } = req.body;
 
+  console.log("codigo",codigosesion)
   try {
     await pool.query("BEGIN"); // Iniciar transacción
-    console.log("ENTRE AL BACKEND GUARDARRESPUESTA")
-    // 1️. Insertar en la tabla `respuestas` y obtener el `idrespuesta`
-    const result = await pool.query(
-      `INSERT INTO respuestas (idusuario, idcuestionario)
-      VALUES ($1, $2) 
-      RETURNING idrespuesta;`,
-      [idusuario, idcuestionario]
+
+    // Validar que el codigosesion existe
+    const sesionResult = await pool.query(
+      `SELECT idsesion FROM sesiones WHERE codigosesion = $1`,
+      [codigosesion]
     );
 
-    console.log("PRIMER INSERT")
+    if (sesionResult.rows.length === 0) {
+      return res.status(404).json({ error: "El código de sesión no es válido." });
+    }
+
+    const idsesion = sesionResult.rows[0].idsesion;
+
+    // 1️. Insertar en la tabla `respuestas` y obtener el `idrespuesta`
+    const result = await pool.query(
+      `INSERT INTO respuestas (idusuario, idcuestionario, idsesion)
+       VALUES ($1, $2, $3)
+       RETURNING idrespuesta;`,
+      [idusuario, idcuestionario, idsesion]
+    );
+
     if (result.rows.length === 0 || !result.rows[0].idrespuesta) {
-      throw new Error("No se pudo generar el idrespuesta.");
+      throw new Error("No se pudo generar el idrespuesta");
     }
 
     const idrespuesta = result.rows[0].idrespuesta;
 
     // 2️. Insertar respuestas en `respuestasdetalle`
-    console.log("PASO 2")
     for (const [idpregunta, valor] of Object.entries(respuestas)) {
       let textoRespuesta = "";
       let idalternativa = null;
@@ -31,7 +42,6 @@ export const guardarRespuesta = async (req, res) => {
       // 🔹 **CASO 1: Respuesta de TEXTO ABIERTO o "No aplica"**
       if (typeof valor === "string") {
         textoRespuesta = valor.trim(); // Guardar el texto directamente
-        console.log(`Texto respuesta para pregunta ${idpregunta}: ${textoRespuesta}`);
 
         await pool.query(
           `INSERT INTO respuestasdetalle (idrespuesta, idpregunta, respuestaelegida) 
@@ -42,7 +52,7 @@ export const guardarRespuesta = async (req, res) => {
       
       // 🔹 **CASO 2: Respuesta seleccionada de alternativas (Número ENTERO)**
       else if (!isNaN(valor)) {
-        console.log(`Procesando alternativa para pregunta ${idpregunta}: ${valor}`);
+        
         const alternativa = await pool.query(
           `SELECT idalternativa, textoalternativa, caracteristicaalternativa 
           FROM alternativas 
@@ -56,29 +66,23 @@ export const guardarRespuesta = async (req, res) => {
           idalternativa = alternativaData.idalternativa;
           caracteristicaalternativa = alternativaData.caracteristicaalternativa;
 
-          console.log(`Insertando alternativa para pregunta ${idpregunta}: ${textoRespuesta}`);
-
           await pool.query(
             `INSERT INTO respuestasdetalle (idrespuesta, idpregunta, respuestaelegida, idalternativa, caracteristicaalternativa) 
             VALUES ($1, $2, $3, $4, $5);`,
             [idrespuesta, idpregunta, textoRespuesta, idalternativa, caracteristicaalternativa]
           );
-        } else {
-          console.warn(`No se encontró alternativa para idalternativa ${valor} en pregunta ${idpregunta}.`);
-        }
+        } 
       }
     
     }
 
     await pool.query("COMMIT"); // Confirmar transacción
-    console.log("Enviando respuesta al cliente...");
     res.status(201).json({ message: "Respuestas guardadas correctamente."});
-    console.log("FINAL 1")
   } catch (error) {
-    console.log("ERROR JAJA LOL")
+
     await pool.query("ROLLBACK"); // Revertir cambios si hay error
 
-    res.status(500);
+    res.status(500).json({ message: "Ocurrió un error al guardar las respuestas."});;
   }
 };
 

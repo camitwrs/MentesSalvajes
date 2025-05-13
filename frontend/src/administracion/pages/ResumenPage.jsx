@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { Card, CardHeader, CardBody } from '@heroui/card';
 import Chart from 'react-apexcharts';
 import { 
@@ -10,11 +10,16 @@ import { getTotalAlternativasRespondidasRequest,
 
 const ResumenPage = () => {
   const { idcuestionario } = useParams();
+  const location = useLocation(); // Obtener la ubicación actual
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [preguntas, setPreguntas] = useState([]);
   const [respuestasPorPregunta, setRespuestasPorPregunta] = useState([]);
   const [alternativasData, setAlternativasData] = useState({});
+
+  // Obtener el parámetro `session` de la URL
+  const searchParams = new URLSearchParams(location.search);
+  const codigosesion = searchParams.get('session'); // Si existe, obtendrá el valor de `session`
 
   useEffect(() => {
     const fetchData = async () => {

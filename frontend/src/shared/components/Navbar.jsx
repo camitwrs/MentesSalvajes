@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../../autenticacion/context/AuthContext";
 import UserNav from "../../shared/components/UserNav";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, House } from "lucide-react";
 
 const roles = {
   1: "Educador",
@@ -48,12 +48,15 @@ const Navbar = () => {
         {/* Alineación corregida en pantallas grandes */}
         <div className="flex items-center h-16 md:h-20">
           {/* Texto Bienvenido alineado a la izquierda */}
-          <p
-            className="font-bold text-lg md:text-2xl text-white cursor-pointer transition-transform duration-200 "
-            onClick={navigateToDashboard}
-          >
-            Bienvenido, {rolUsuario}
-          </p>
+          <div className="flex items-center font-bold text-lg md:text-2xl text-white transition-transform duration-200">
+            {/* Ícono House clickeable */}
+            <House
+              className="w-8 h-8 mr-4 cursor-pointer transition-transform duration-200 hover:scale-110"
+              onClick={navigateToDashboard}
+            />
+            {/* Texto Bienvenido */}
+            <p className="text-lg font-normal">Bienvenido, {rolUsuario}</p>
+          </div>
 
           {/* UserNav alineado a la derecha en pantallas grandes */}
           <div className="ml-auto hidden md:block">

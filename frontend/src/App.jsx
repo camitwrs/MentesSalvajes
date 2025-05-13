@@ -12,6 +12,7 @@ import ProtectedRoutes from "./ProtectedRoutes";
 import Navbar from "./shared/components/Navbar";
 import { HeroUIProvider } from "@heroui/react";
 import EdicionPage from "./administracion/pages/EdicionPage";
+import SesionesPage from "./administracion/pages/SesionesPage";
 
 function App() {
   return (
@@ -47,8 +48,18 @@ function App() {
               }
             >
               <Route path="/dashboard-admin" element={<AdminPage />} />
-              <Route path="/resumen/:idcuestionario" element={<ResumenPage />} />
-              <Route path="/editar-cuestionario/:idcuestionario" element={<EdicionPage />} />
+              <Route
+                path="/resumen/:idcuestionario"
+                element={<ResumenPage />}
+              />
+              <Route
+                path="/sesiones/:idcuestionario"
+                element={<SesionesPage />}
+              />
+              <Route
+                path="/editar-cuestionario/:idcuestionario"
+                element={<EdicionPage />}
+              />
             </Route>
 
             {/* PROTECTED ROUTES PARA ILUSTRADORES (ROL 4) */}
