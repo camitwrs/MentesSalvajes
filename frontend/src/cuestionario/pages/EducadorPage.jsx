@@ -67,7 +67,7 @@ const EducadorPage = () => {
 
   const handleSelectCuestionario = (id) => {
     setQuizId(id);
-    navigate(`/cuestionario/${id}`);
+    navigate(`/cuestionario/${idcuestionario}`);
   };
 
   useEffect(() => {

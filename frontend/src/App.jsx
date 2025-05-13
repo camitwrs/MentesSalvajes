@@ -13,6 +13,28 @@ import Navbar from "./shared/components/Navbar";
 import { HeroUIProvider } from "@heroui/react";
 import EdicionPage from "./administracion/pages/EdicionPage";
 import SesionesPage from "./administracion/pages/SesionesPage";
+import { useAuth } from "./autenticacion/context/AuthContext";
+import { Navigate } from "react-router-dom";
+
+// Componente para redirigir según el rol si ya está autenticado
+const RedirectIfAuthenticated = ({ element }) => {
+  const { estaAutenticado, user } = useAuth();
+
+  if (estaAutenticado) {
+    switch (user?.idrol) {
+      case 1:
+        return <Navigate to="/dashboard-educator" replace />;
+      case 2:
+        return <Navigate to="/dashboard-admin" replace />;
+      case 4:
+        return <Navigate to="/dashboard-artist" replace />;
+      default:
+        return <Navigate to="/" replace />;
+    }
+  }
+
+  return element;
+};
 
 function App() {
   return (
@@ -22,8 +44,14 @@ function App() {
           <Routes>
             {/* RUTAS PÚBLICAS (Sin Navbar) */}
             <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+            <Route
+              path="/login"
+              element={<RedirectIfAuthenticated element={<LoginPage />} />}
+            />
+            <Route
+              path="/register"
+              element={<RedirectIfAuthenticated element={<RegisterPage />} />}
+            />
 
             {/* PROTECTED ROUTES PARA EDUCADORES (ROL 1) */}
             <Route
@@ -35,7 +63,10 @@ function App() {
               }
             >
               <Route path="/dashboard-educator" element={<EducadorPage />} />
-              <Route path="/cuestionario/1" element={<CuestionarioPage />} />
+              <Route
+                path="/cuestionario/:idcuestionario"
+                element={<CuestionarioPage />}
+              />
             </Route>
 
             {/* PROTECTED ROUTES PARA ADMINISTRADORES (ROL 2) */}

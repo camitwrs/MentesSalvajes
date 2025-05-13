@@ -24,12 +24,8 @@ const LoginPage = () => {
     errors: loginErrors,
   } = useAuth();
 
-  useEffect(() => {
-    // Al cargar LoginPage, verificar si ya hay sesión activa
-    checkLogin();
-  }, []);
-
   const navigate = useNavigate();
+  
   useEffect(() => {
     if (estaAutenticado) {
       switch (user?.idrol) {
