@@ -6,6 +6,7 @@ import {
   getDiferenciaRespuestas,
   getTotalRespuestasPorCuestionario,
   obtenerHistorialRespuestasPorUsuario,
+  getRespuestasPorCodigo
 } from "../controllers/respuestas.controller.js";
 
 const router = Router();
@@ -17,5 +18,6 @@ router.get("/", getAllTotalRespuestas);
 router.get("/diferencia", getDiferenciaRespuestas);
 router.get("/cuestionario/:idcuestionario", getTotalRespuestasPorCuestionario);
 router.get("/historial/:idusuario", obtenerHistorialRespuestasPorUsuario);
+router.get("/codigo/:codigosesion", getRespuestasPorCodigo);
 
 export default router;

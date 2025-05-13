@@ -60,7 +60,7 @@ const SesionesPage = () => {
   }
 
   return (
-    <div className="p-8 space-y-6 bg-gray-50">
+    <div className="p-8 space-y-6 bg-gray-50 h-screen">
       <div className="flex items-center mb-6">
         <Button
           color="default"

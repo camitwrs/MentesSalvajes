@@ -44,10 +44,6 @@ const GestionSesiones = ({ idcuestionario }) => {
     );
   };
 
-  const handleVerEstadisticas = (idcuestionario, idsesion) => {
-    navigate(`/resumen/${idcuestionario}?session=${idsesion}`);
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center items-center py-8">
@@ -104,7 +100,6 @@ const GestionSesiones = ({ idcuestionario }) => {
       <div className="mt-4">
         <ListaSesiones
           sesiones={sesiones}
-          onViewStats={handleVerEstadisticas}
           onDeleteSession={handleEliminarSesion}
         />
       </div>

@@ -11,7 +11,7 @@ import {
 import { useAlert } from "../../shared/context/AlertContext";
 import { eliminarSesionRequest } from "../../api/sesiones";
 
-const ListaSesiones = ({ sesiones, onViewStats, onDeleteSession }) => {
+const ListaSesiones = ({ sesiones, onDeleteSession }) => {
   const [deleteModal, setDeleteModal] = useState({ open: false, sesion: null });
   const [codigoCopiado, setCodigoCopiado] = useState(null);
   const { showAlert } = useAlert();
@@ -59,13 +59,10 @@ const ListaSesiones = ({ sesiones, onViewStats, onDeleteSession }) => {
         <thead className="bg-gray-50">
           <tr>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Código
+              Código de la sesión
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Nombre
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Participantes
+              Nombre de la sesión
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Fecha y Hora
@@ -99,19 +96,6 @@ const ListaSesiones = ({ sesiones, onViewStats, onDeleteSession }) => {
                 <div className="text-sm font-medium text-gray-900">
                   {sesion.nombresesion}
                 </div>
-                {sesion.descripcionsesion && (
-                  <div className="text-xs text-gray-500">
-                    {sesion.descripcionsesion}
-                  </div>
-                )}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="flex items-center">
-                  <Users className="w-4 h-4 mr-1 text-gray-500" />
-                  <span className="text-sm text-gray-500">
-                    {sesion.total_participantes || 0}
-                  </span>
-                </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {new Date(sesion.fechacreacionsesion).toLocaleDateString()}{" "}
@@ -122,22 +106,6 @@ const ListaSesiones = ({ sesiones, onViewStats, onDeleteSession }) => {
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div className="flex justify-end space-x-2">
-                  <Button
-                    color="primary"
-                    size="sm"
-                    onPress={() =>
-                      onViewStats(
-                        sesion.idsesion || sesion.id,
-                        sesion.codigosesion
-                      )
-                    }
-                    className="flex items-center gap-1"
-                  >
-                    <BarChart className="w-4 h-4" />
-                    <span className="hidden sm:inline">
-                      Estadísticas de sesión
-                    </span>
-                  </Button>
                   <Button
                     color="danger"
                     size="sm"

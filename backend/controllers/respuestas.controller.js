@@ -3,7 +3,6 @@ import pool from "../config/pg.js";
 export const guardarRespuesta = async (req, res) => {
   const { idusuario, respuestas, idcuestionario, codigosesion } = req.body;
 
-  console.log("codigo",codigosesion)
   try {
     await pool.query("BEGIN"); // Iniciar transacción
 
@@ -129,6 +128,55 @@ export const getRespuestasDetalle = async (req, res) => {
     await pool.query("COMMIT"); // Confirmar transacción
 
     res.status(200).json(detalles.rows);
+  } catch (error) {
+    await pool.query("ROLLBACK"); // Revertir transacción en caso de error
+    res.status(500).json({ error: "Error interno del servidor." });
+  }
+};
+
+export const getRespuestasPorCodigo = async (req, res) => {
+  const { codigosesion } = req.params;
+
+  try {
+    await pool.query("BEGIN"); // Iniciar transacción
+
+    // 1. Verificar que el codigosesion existe en la tabla respuestas
+    const sesionResult = await pool.query(
+      `SELECT idsesion FROM sesiones WHERE codigosesion = $1`,
+      [codigosesion]
+    );
+
+    if (sesionResult.rows.length === 0) {
+      await pool.query("ROLLBACK"); // Revertir si no se encuentra el codigosesion
+
+      return res
+        .status(404)
+        .json({ error: "No se encontró una sesión con el código proporcionado." });
+    }
+
+    const idsesion = sesionResult.rows[0].idsesion;
+
+    // 🔹 2. Obtener los detalles de respuestasdetalle usando el idsesion
+    const detalles = await pool.query(
+      `SELECT *
+       FROM respuestasdetalle rd
+       INNER JOIN respuestas r ON rd.idrespuesta = r.idrespuesta
+       WHERE r.idsesion = $1;`,
+      [idsesion]
+    );
+
+    if (detalles.rows.length === 0) {
+      await pool.query("ROLLBACK"); // Revertir si no hay detalles
+
+      return res
+        .status(404)
+        .json({ error: "No se encontraron detalles para esta sesión." });
+    }
+
+    await pool.query("COMMIT"); // Confirmar transacción
+
+    res.status(200).json(detalles.rows);
+
   } catch (error) {
     await pool.query("ROLLBACK"); // Revertir transacción en caso de error
     res.status(500).json({ error: "Error interno del servidor." });

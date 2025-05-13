@@ -13,3 +13,4 @@ export const crearSesionRequest = (sesion) =>
 
 export const validarCodigoSesionRequest = (codigosesion) =>
   axios.get(`${API}/sesiones/validar/${codigosesion}`);
+
