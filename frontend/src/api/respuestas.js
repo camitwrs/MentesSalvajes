@@ -62,3 +62,6 @@ export const getRespuestasPorCodigoRequest = (codigosesion) =>
 
 export const getHistorialRespuestasRequest = (idusuario) =>
   axios.get(`${API}/respuestas/historial/${idusuario}`);
+
+export const getDetallePorRespuestaRequest = (idrespuesta) =>
+  axios.get(`${API}/respuestas/detalle/${idrespuesta}`);

@@ -92,6 +92,40 @@ export const guardarRespuesta = async (req, res) => {
   }
 };
 
+export const getDetallePorRespuesta = async (req, res) => {
+  const { idrespuesta } = req.params; // Obtener el idrespuesta de los parámetros
+
+  try {
+    // Consultar los detalles de respuestasdetalle según el idrespuesta
+    const result = await pool.query(
+      `
+      SELECT 
+      *
+      FROM 
+        respuestasdetalle
+      WHERE 
+        idrespuesta = $1
+      `,
+      [idrespuesta]
+    );
+
+    // Verificar si hay resultados
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "No se encontraron detalles para la respuesta proporcionada." });
+    }
+
+    // Retornar los detalles encontrados
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error en getDetallePorRespuesta:", error);
+    res.status(500).json({ error: "Error interno del servidor." });
+  }
+};
+
+
+
 export const getRespuestasDetalle = async (req, res) => {
   const { idusuario, idcuestionario } = req.query;
   try {
