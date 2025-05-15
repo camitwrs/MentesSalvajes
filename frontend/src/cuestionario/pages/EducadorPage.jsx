@@ -123,8 +123,9 @@ const EducadorPage = () => {
           return {
             id: item.idrespuesta,
             nombre: item.titulocuestionario,
-            fecha: fecha.toLocaleDateString("es-ES"),
-            hora: fecha.toLocaleTimeString("es-ES", {
+            fecha: fecha.toLocaleDateString("es-CL"),
+            hora: fecha.toLocaleTimeString("es-CL", {
+              timeZone: "America/Santiago",
               hour: "2-digit",
               minute: "2-digit",
             }),
