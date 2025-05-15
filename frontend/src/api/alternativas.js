@@ -97,7 +97,7 @@ export const eliminarAlternativaRequest = (idalternativa) =>
 
 // Petición a API PUIBLICA EXTERNA
 export const getUniversidadesPorPaisRequest = (nombrepais) =>
-  axios.get(`http://universities.hipolabs.com/search?country=${nombrepais}`);
+  axios.get(`https://universities.hipolabs.com/search?country=${nombrepais}`);
 
 // alternativas.js
 export const getPaisesExternosRequest = async () => {
