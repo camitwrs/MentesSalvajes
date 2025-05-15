@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-
 import { getPreguntasPorCuestionarioRequest } from "../../api/preguntas";
 import {
   getTotalAlternativasRespondidasRequest,
   getAlternativasPorPreguntaRequest,
 } from "../../api/alternativas";
 import { getRespuestasPorCodigoRequest } from "../../api/respuestas";
-import { getSesionesPorCuestionarioRequest } from "../../api/sesiones";
+
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 import SimpleChart from "../components/SimpleChart";
 import ColumnChart from "../components/ColumnChart";
@@ -34,11 +33,14 @@ const tipoGraficoPorPregunta = (id) => {
 
 const agruparRespuestasPorPregunta = (respuestas) => {
   const agrupadas = {};
-  respuestas.forEach(({ idpregunta, idalternativa }) => {
+  respuestas.forEach((fila) => {
+    const { idpregunta, idalternativa } = fila;
+
     if (!agrupadas[idpregunta]) agrupadas[idpregunta] = {};
     if (!agrupadas[idpregunta][idalternativa]) {
       agrupadas[idpregunta][idalternativa] = 0;
     }
+
     agrupadas[idpregunta][idalternativa]++;
   });
 
@@ -55,65 +57,69 @@ const agruparRespuestasPorPregunta = (respuestas) => {
 
 const ResumenPage = () => {
   const { idcuestionario } = useParams();
-
   const [filtroSesion, setFiltroSesion] = useState("");
-  const [nombreSesionVisible, setNombreSesionVisible] = useState("");
-  const [totalParticipantes, setTotalParticipantes] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [preguntas, setPreguntas] = useState([]);
   const [respuestasPorPregunta, setRespuestasPorPregunta] = useState([]);
   const [alternativasData, setAlternativasData] = useState({});
-  const [sesiones, setSesiones] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1200
+  );
+  const [totalParticipantes, setTotalParticipantes] = useState(0);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
 
-        const preguntasResponse = await getPreguntasPorCuestionarioRequest(idcuestionario);
-        const preguntasFiltradas = preguntasResponse.data.map((p) => ({
-          idpregunta: p.idpregunta,
-          textopregunta: p.textopregunta,
+        const preguntasResponse = await getPreguntasPorCuestionarioRequest(
+          idcuestionario
+        );
+        const preguntasFiltradas = preguntasResponse.data.map((pregunta) => ({
+          idpregunta: pregunta.idpregunta,
+          textopregunta: pregunta.textopregunta,
         }));
         setPreguntas(preguntasFiltradas);
 
-        const sesionesResponse = await getSesionesPorCuestionarioRequest(idcuestionario);
-        setSesiones(sesionesResponse.data || []);
-
         const alternativasPorPregunta = {};
-        const alternativasRequests = preguntasFiltradas.map(async (pregunta) => {
-          const response = await getAlternativasPorPreguntaRequest(pregunta.idpregunta);
-          alternativasPorPregunta[pregunta.idpregunta] = response.data.reduce(
-            (acc, alt) => {
-              acc[alt.idalternativa] = alt.textoalternativa;
-              return acc;
-            },
-            {}
-          );
-        });
+        const alternativasRequests = preguntasFiltradas.map(
+          async (pregunta) => {
+            const response = await getAlternativasPorPreguntaRequest(
+              pregunta.idpregunta
+            );
+            alternativasPorPregunta[pregunta.idpregunta] = response.data.reduce(
+              (acc, alt) => {
+                acc[alt.idalternativa] = alt.textoalternativa;
+                return acc;
+              },
+              {}
+            );
+          }
+        );
         await Promise.all(alternativasRequests);
         setAlternativasData(alternativasPorPregunta);
 
         if (filtroSesion && filtroSesion.trim() !== "") {
           const respuesta = await getRespuestasPorCodigoRequest(filtroSesion);
-          const { data } = respuesta;
-
-          const sesionEncontrada = sesionesResponse.data.find(
-            (s) => s.codigosesion === filtroSesion
+          setTotalParticipantes(
+            new Set(respuesta.data.map((r) => r.idpersona)).size
           );
-          setNombreSesionVisible(sesionEncontrada?.nombresesion || "Sin nombre");
-
-          const participantesUnicos = new Set(data.map((r) => r.idpersona)).size;
-          setTotalParticipantes(participantesUnicos);
-
-          const agrupadas = agruparRespuestasPorPregunta(data);
+          const agrupadas = agruparRespuestasPorPregunta(respuesta.data);
           setRespuestasPorPregunta(agrupadas);
         } else {
           const respuesta = await getTotalAlternativasRespondidasRequest();
           setRespuestasPorPregunta(respuesta.data);
-          setNombreSesionVisible("General");
-          setTotalParticipantes(0);
+          setTotalParticipantes(0); // o podrías estimar desde los datos
         }
       } catch (err) {
         if (err.response.status === 404) {
@@ -140,34 +146,142 @@ const ResumenPage = () => {
   };
 
   const getTotalRespuestasPregunta = (idpregunta) => {
-    const alternativas = getRespuestasParaPregunta(idpregunta);
-    return alternativas.reduce(
-      (acc, alt) => acc + Number(alt.total_respuestas),
-      0
+    const respuestas = getRespuestasParaPregunta(idpregunta);
+    const alternativasTexto = alternativasData[idpregunta] || {};
+
+    const alternativasCompletasMap = Object.entries(alternativasTexto).reduce(
+      (acc, [id, texto]) => {
+        const encontrada = respuestas.find(
+          (r) => r.idalternativa === Number(id)
+        );
+        const total = encontrada ? Number(encontrada.total_respuestas) : 0;
+        const key = texto.toLowerCase().includes("no aplica")
+          ? "No Aplica"
+          : texto;
+        acc[key] = (acc[key] || 0) + total;
+        return acc;
+      },
+      {}
     );
+
+    // Extra alternativas no registradas
+    respuestas.forEach((resp) => {
+      const id = resp.idalternativa;
+      if (!alternativasTexto[id]) {
+        const texto = getTextoAlternativa(idpregunta, id);
+        const key = texto.toLowerCase().includes("no aplica")
+          ? "No Aplica"
+          : texto;
+        alternativasCompletasMap[key] =
+          (alternativasCompletasMap[key] || 0) + Number(resp.total_respuestas);
+      }
+    });
+
+    const totalRespuestasActuales = Object.values(
+      alternativasCompletasMap
+    ).reduce((sum, val) => sum + val, 0);
+    const faltantes = totalParticipantes - totalRespuestasActuales;
+
+    // Sumar faltantes a "No Aplica"
+    if (faltantes > 0) {
+      alternativasCompletasMap["No Aplica"] =
+        (alternativasCompletasMap["No Aplica"] || 0) + faltantes;
+    }
+
+    return Object.values(alternativasCompletasMap).reduce((a, b) => a + b, 0);
   };
 
   const renderChart = (pregunta) => {
     const respuestas = getRespuestasParaPregunta(pregunta.idpregunta);
-    const labels = respuestas.map((r) =>
-      getTextoAlternativa(pregunta.idpregunta, r.idalternativa)
+    const alternativasTexto = alternativasData[pregunta.idpregunta] || {};
+
+    const alternativasCompletasMap = Object.entries(alternativasTexto).reduce(
+      (acc, [id, texto]) => {
+        const encontrada = respuestas.find(
+          (r) => r.idalternativa === Number(id)
+        );
+        const total = encontrada ? Number(encontrada.total_respuestas) : 0;
+        const key = texto.toLowerCase().includes("no aplica")
+          ? "No Aplica"
+          : texto;
+        acc[key] = (acc[key] || 0) + total;
+        return acc;
+      },
+      {}
     );
-    const values = respuestas.map((r) => Number(r.total_respuestas));
+
+    respuestas.forEach((resp) => {
+      const id = resp.idalternativa;
+      if (!alternativasTexto[id]) {
+        const texto = getTextoAlternativa(pregunta.idpregunta, id);
+        const key = texto.toLowerCase().includes("no aplica")
+          ? "No Aplica"
+          : texto;
+        alternativasCompletasMap[key] =
+          (alternativasCompletasMap[key] || 0) + Number(resp.total_respuestas);
+      }
+    });
+
+    const totalRespuestasActuales = Object.values(
+      alternativasCompletasMap
+    ).reduce((sum, val) => sum + val, 0);
+    const faltantes = totalParticipantes - totalRespuestasActuales;
+    if (faltantes > 0) {
+      alternativasCompletasMap["No Aplica"] =
+        (alternativasCompletasMap["No Aplica"] || 0) + faltantes;
+    }
+
+    const alternativasCompletas = Object.entries(alternativasCompletasMap).map(
+      ([textoalternativa, total]) => ({
+        textoalternativa,
+        total_respuestas: total,
+      })
+    );
+
+    const labels = alternativasCompletas.map((alt) => alt.textoalternativa);
+    const values = alternativasCompletas.map((alt) => alt.total_respuestas);
     const tipo = tipoGraficoPorPregunta(pregunta.idpregunta);
 
-    if (values.length === 0) {
-      return <p className="text-gray-500 text-sm">No hay datos para mostrar.</p>;
+    if (alternativasCompletas.length === 0) {
+      return (
+        <p className="text-gray-500 text-sm">No hay datos para mostrar.</p>
+      );
     }
 
     switch (tipo) {
       case "pie":
-        return <SimpleChart labels={labels} series={values} />;
+        return (
+          <SimpleChart
+            labels={labels}
+            series={values}
+            title="Respuestas"
+            windowWidth={windowWidth}
+          />
+        );
       case "column":
-        return <ColumnChart series={[{ name: "Respuestas", data: values }]} categories={labels} />;
+        return (
+          <ColumnChart
+            series={[{ name: "Respuestas", data: values }]}
+            categories={labels}
+            windowWidth={windowWidth}
+          />
+        );
       case "radar":
-        return <RadarChart series={[{ name: "Respuestas", data: values }]} categories={labels} />;
+        return (
+          <RadarChart
+            series={[{ name: "Respuestas", data: values }]}
+            categories={labels}
+            windowWidth={windowWidth}
+          />
+        );
       case "angle":
-        return <AngleChart series={values} labels={labels} />;
+        return (
+          <AngleChart
+            series={values}
+            labels={labels}
+            windowWidth={windowWidth}
+          />
+        );
       default:
         return null;
     }
@@ -177,9 +291,9 @@ const ResumenPage = () => {
     const pdf = new jsPDF();
     const title = "Resumen de Respuestas";
     const fecha = new Date();
-    const fechaStr = `${String(fecha.getDate()).padStart(2, '0')}/${
-      String(fecha.getMonth() + 1).padStart(2, '0')
-    }/${fecha.getFullYear()}`;
+    const fechaStr = `${String(fecha.getDate()).padStart(2, "0")}/${String(
+      fecha.getMonth() + 1
+    ).padStart(2, "0")}/${fecha.getFullYear()}`;
 
     const marginY = 28;
     let currentY = marginY;
@@ -192,7 +306,7 @@ const ResumenPage = () => {
       pdf.setFontSize(10);
       pdf.setTextColor(80);
       pdf.text(`Fecha: ${fechaStr}`, 14, 16);
-      pdf.text(`Sesión: ${nombreSesionVisible}`, 14, 21);
+      pdf.text(`Sesión: ${filtroSesion || "General"}`, 14, 21);
       pdf.text(`Participantes: ${totalParticipantes}`, 14, 26);
     };
 
@@ -202,16 +316,59 @@ const ResumenPage = () => {
       .filter((p) => !preguntasExcluidas.includes(p.idpregunta))
       .forEach((pregunta) => {
         const respuestas = getRespuestasParaPregunta(pregunta.idpregunta);
-        const totalRespuestas = getTotalRespuestasPregunta(pregunta.idpregunta);
+        const alternativasTexto = alternativasData[pregunta.idpregunta] || {};
 
-        const rows = respuestas.map((r) => {
-          const texto = getTextoAlternativa(pregunta.idpregunta, r.idalternativa);
-          const total = r.total_respuestas;
-          const porcentaje = totalRespuestas > 0
-            ? ((total / totalRespuestas) * 100).toFixed(1) + "%"
-            : "0%";
-          return [texto, total.toString(), porcentaje];
+        const alternativasCompletasMap = Object.entries(
+          alternativasTexto
+        ).reduce((acc, [id, texto]) => {
+          const encontrada = respuestas.find(
+            (r) => r.idalternativa === Number(id)
+          );
+          const total = encontrada ? Number(encontrada.total_respuestas) : 0;
+          const key = texto.toLowerCase().includes("no aplica")
+            ? "No Aplica"
+            : texto;
+          acc[key] = (acc[key] || 0) + total;
+          return acc;
+        }, {});
+
+        respuestas.forEach((resp) => {
+          const id = resp.idalternativa;
+          if (!alternativasTexto[id]) {
+            const texto = getTextoAlternativa(pregunta.idpregunta, id);
+            const key = texto.toLowerCase().includes("no aplica")
+              ? "No Aplica"
+              : texto;
+            alternativasCompletasMap[key] =
+              (alternativasCompletasMap[key] || 0) +
+              Number(resp.total_respuestas);
+          }
         });
+
+        const totalActual = Object.values(alternativasCompletasMap).reduce(
+          (a, b) => a + b,
+          0
+        );
+        const faltantes = totalParticipantes - totalActual;
+
+        if (faltantes > 0) {
+          alternativasCompletasMap["No Aplica"] =
+            (alternativasCompletasMap["No Aplica"] || 0) + faltantes;
+        }
+
+        const totalFinal = Object.values(alternativasCompletasMap).reduce(
+          (a, b) => a + b,
+          0
+        );
+        const rows = Object.entries(alternativasCompletasMap).map(
+          ([texto, total]) => {
+            const porcentaje =
+              totalFinal > 0
+                ? ((total / totalFinal) * 100).toFixed(1) + "%"
+                : "0%";
+            return [texto, total.toString(), porcentaje];
+          }
+        );
 
         if (rows.length === 0) return;
 
@@ -245,49 +402,78 @@ const ResumenPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-6 sm:py-8 md:py-10 px-3 sm:px-4 md:px-6 lg:px-8">
       <div className="max-w-screen-lg mx-auto">
-        <FiltroSesion
-          onChange={setFiltroSesion}
-          idcuestionario={idcuestionario}
-        />
-
-        <div className="flex justify-between items-center mt-6 mb-4">
-          <h1 className="text-2xl font-bold text-gray-800">Resumen del Cuestionario</h1>
-          <button
-            onClick={handleExportPDF}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm"
-          >
-            Exportar PDF
-          </button>
+        <div className="mb-6 sm:mb-8">
+          <FiltroSesion
+            onChange={setFiltroSesion}
+            idcuestionario={idcuestionario}
+          />
+          {filtroSesion && (
+            <p className="text-center text-xs sm:text-sm text-gray-500 mt-2 mb-4">
+              Mostrando resultados para la sesión:{" "}
+              <strong>{filtroSesion}</strong>
+            </p>
+          )}
+          <div className="flex justify-between items-center mt-6 mb-4">
+            <h1 className="text-2xl font-bold text-gray-800">
+              Resumen del Cuestionario
+            </h1>
+            <button
+              onClick={handleExportPDF}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm"
+            >
+              Exportar PDF
+            </button>
+          </div>
         </div>
 
-        {filtroSesion && (
-          <p className="text-sm text-gray-500 mb-4">
-            Mostrando resultados para la sesión: <strong>{nombreSesionVisible}</strong>
-          </p>
-        )}
-
         {loading ? (
-          <p className="text-center text-gray-600">Cargando...</p>
+          <div className="flex justify-center items-center py-10">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+            <p className="ml-3 text-gray-600">Cargando...</p>
+          </div>
         ) : error ? (
           <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
             <p className="text-red-700">{error}</p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-6 sm:space-y-8 md:space-y-10">
             {preguntas
               .filter((p) => !preguntasExcluidas.includes(p.idpregunta))
               .map((pregunta) => (
                 <div
                   key={pregunta.idpregunta}
-                  className="bg-white shadow rounded p-4 border-l-4 border-blue-500"
+                  className="bg-white shadow-md rounded-lg border-l-4 border-blue-500 p-3 sm:p-4 md:p-6 space-y-3 sm:space-y-4"
                 >
-                  <h2 className="text-lg font-semibold text-gray-800">
-                    {pregunta.textopregunta}
-                  </h2>
-                  <p className="text-sm text-gray-500 mb-2">
-                    Total de respuestas: {getTotalRespuestasPregunta(pregunta.idpregunta)}
-                  </p>
-                  {renderChart(pregunta)}
+                  <div>
+                    <h2
+                      className={`${
+                        windowWidth < 480
+                          ? "text-sm"
+                          : windowWidth < 768
+                          ? "text-base"
+                          : "text-lg"
+                      } font-semibold text-gray-800`}
+                    >
+                      {pregunta.textopregunta}
+                    </h2>
+                    <p
+                      className={`${
+                        windowWidth < 768 ? "text-xs" : "text-sm"
+                      } text-gray-500 mt-1`}
+                    >
+                      Total de respuestas:{" "}
+                      {getTotalRespuestasPregunta(pregunta.idpregunta)}
+                    </p>
+                  </div>
+                  <div className="w-full overflow-x-auto">
+                    <div
+                      className={`${
+                        windowWidth < 480 ? "min-w-[280px]" : "min-w-full"
+                      }`}
+                    >
+                      {renderChart(pregunta)}
+                    </div>
+                  </div>
                 </div>
               ))}
           </div>
