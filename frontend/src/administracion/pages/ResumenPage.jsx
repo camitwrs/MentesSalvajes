@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@heroui/button";
 import { useParams } from "react-router-dom";
 import { getPreguntasPorCuestionarioRequest } from "../../api/preguntas";
 import {
@@ -11,6 +13,7 @@ import ColumnChart from "../components/ColumnChart";
 import RadarChart from "../components/RadarChart";
 import AngleChart from "../components/AngleChart";
 import FiltroSesion from "../components/FiltroSesion";
+import { ArrowLeft } from "lucide-react";
 
 const preguntasExcluidas = [8, 14, 29, 30, 31, 32, 35, 36, 37];
 
@@ -65,6 +68,8 @@ const ResumenPage = () => {
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 1200
   );
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleResize = () => {
@@ -256,6 +261,15 @@ const ResumenPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-6 sm:py-8 md:py-10 px-3 sm:px-4 md:px-6 lg:px-8">
+      <div>
+        <Button
+          onPress={() => navigate(-1)} // Navegar hacia atrás
+          className="flex mb-4 items-center gap-2 text-gray-700 hover:text-gray-900"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Volver
+        </Button>
+      </div>
       <div className="max-w-screen-lg mx-auto">
         <div className="mb-6 sm:mb-8">
           <FiltroSesion
