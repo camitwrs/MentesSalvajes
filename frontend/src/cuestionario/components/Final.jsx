@@ -1,12 +1,12 @@
-import { useEffect, useState, useContext } from "react";
-//import ReactDOMServer from "react-dom/server";
+import { useEffect, useState, useContext, useCallback } from "react";
+import ReactDOMServer from "react-dom/server";
 import { useAuth } from "../../autenticacion/context/AuthContext";
 import { getDatosEducadorRequest } from "../../api/usuarios";
 import { getRespuestasDetalleRequest } from "../../api/respuestas";
 import { FormContext } from "../context/FormContext";
 import { Spinner } from "@heroui/spinner";
 import PropTypes from "prop-types";
-//import { guardarMensajeRequest } from "./../../api/ilustraciones";
+import { guardarMensajeRequest } from "./../../api/ilustraciones";
 
 import Ballenas from "../assets/cetaceo.svg";
 import Focas from "../assets/pinipedo.svg";
@@ -66,13 +66,6 @@ const Final = ({ submitSuccess }) => {
     }
   }, [user, quizId, submitSuccess]);
 
-  const getCaracteristica = (idpregunta) => {
-    const respuesta = respuestasDetalle.find(
-      (resp) => String(resp.idpregunta) === String(idpregunta)
-    );
-    return respuesta?.caracteristicaalternativa || "desconocido";
-  };
-
   const getImagenSegunRespuesta = () => {
     const respuesta = respuestasDetalle.find(
       (resp) => Number(resp.idpregunta) === 12
@@ -85,73 +78,86 @@ const Final = ({ submitSuccess }) => {
       : null;
   };
 
-  const generarDescripcion = () => (
-    <>
-      Nombre de la especie:{" "}
-      <span className="font-bold text-YankeesBlue">
-        {user?.nombreusuario} {user?.apellidousuario}
-      </span>{" "}
-      +{" "}
-      <span className="font-bold text-YankeesBlue">
-        {getCaracteristica("32")}
-      </span>{" "}
-      +{" "}
-      <span className="font-bold text-YankeesBlue">
-        {getCaracteristica("37")}
-      </span>
-      <br />
-      Su principal comportamiento es:{" "}
-      <span className="font-bold text-YankeesBlue">
-        {getCaracteristica("40")}
-      </span>
-      <br />
-      Su capacidad de sumergirse en las profundidades alcanza hasta los:{" "}
-      <span className="font-bold text-YankeesBlue">{getCaracteristica(9)}</span>
-      <br />
-      Su velocidad de desplazamiento es de:{" "}
-      <span className="font-bold text-YankeesBlue">
-        {getCaracteristica("10")}
-      </span>
-      .
-      <br />
-      La distancia que puede recorrer al salir del agua es de:{" "}
-      <span className="font-bold text-YankeesBlue">
-        {getCaracteristica("11")}
-      </span>
-      .
-      <br />
-      Su hábitat es:{" "}
-      <span className="font-bold text-YankeesBlue">
-        {educador?.paiseducador || "desconocido"}
-      </span>{" "}
-      y se caracteriza por tener un entorno rodeado de{" "}
-      {[15, 16, 17, 18, 19, 20, 21, 22, 23, 24].map((id, index, array) => (
-        <span key={id} className="font-bold text-YankeesBlue">
-          {getCaracteristica(id)}
-          {index < array.length - 1 ? ", " : "."}
+  const generarDescripcion = useCallback(() => {
+    const getCaracteristica = (idpregunta) => {
+      const respuesta = respuestasDetalle.find(
+        (resp) => String(resp.idpregunta) === String(idpregunta)
+      );
+      return respuesta?.caracteristicaalternativa || "No descubierto";
+    };
+    return (
+      <>
+        Nombre de la especie:{" "}
+        <span className="font-bold text-YankeesBlue">
+          {user?.nombreusuario} {user?.apellidousuario}
+        </span>{" "}
+        +{" "}
+        <span className="font-bold text-YankeesBlue">
+          {getCaracteristica("32")}
+        </span>{" "}
+        +{" "}
+        <span className="font-bold text-YankeesBlue">
+          {getCaracteristica("37")}
         </span>
-      ))}
-      <br />
-      <br />
-      Su morfología es de un:{" "}
-      <span className="font-bold text-YankeesBlue">
-        {getCaracteristica(12)}
-      </span>
-      <br />
-      Tiene rayas o lunares de color:{" "}
-      <span className="font-bold text-YankeesBlue">
-        {getCaracteristica(13)}
-      </span>
-      <br />
-      Su tamaño es de:{" "}
-      <span className="font-bold text-YankeesBlue">{getCaracteristica(2)}</span>
-      <br />
-      Sus ojos son:{" "}
-      <span className="font-bold text-YankeesBlue">{getCaracteristica(3)}</span>
-    </>
-  );
+        <br />
+        Su principal comportamiento es:{" "}
+        <span className="font-bold text-YankeesBlue">
+          {getCaracteristica("40")}
+        </span>
+        <br />
+        Su capacidad de sumergirse en las profundidades alcanza hasta los:{" "}
+        <span className="font-bold text-YankeesBlue">
+          {getCaracteristica(9)}
+        </span>
+        <br />
+        Su velocidad de desplazamiento es de:{" "}
+        <span className="font-bold text-YankeesBlue">
+          {getCaracteristica("10")}
+        </span>
+        .
+        <br />
+        La distancia que puede recorrer al salir del agua es de:{" "}
+        <span className="font-bold text-YankeesBlue">
+          {getCaracteristica("11")}
+        </span>
+        .
+        <br />
+        Su hábitat es:{" "}
+        <span className="font-bold text-YankeesBlue">
+          {educador?.paiseducador || "desconocido"}
+        </span>{" "}
+        y se caracteriza por tener un entorno rodeado de{" "}
+        {[15, 16, 17, 18, 19, 20, 21, 22, 23, 24].map((id, index, array) => (
+          <span key={id} className="font-bold text-YankeesBlue">
+            {getCaracteristica(id)}
+            {index < array.length - 1 ? ", " : "."}
+          </span>
+        ))}
+        <br />
+        <br />
+        Su morfología es de un:{" "}
+        <span className="font-bold text-YankeesBlue">
+          {getCaracteristica(12)}
+        </span>
+        <br />
+        Tiene rayas o lunares de color:{" "}
+        <span className="font-bold text-YankeesBlue">
+          {getCaracteristica(13)}
+        </span>
+        <br />
+        Su tamaño es de:{" "}
+        <span className="font-bold text-YankeesBlue">
+          {getCaracteristica(2)}
+        </span>
+        <br />
+        Sus ojos son:{" "}
+        <span className="font-bold text-YankeesBlue">
+          {getCaracteristica(3)}
+        </span>
+      </>
+    );
+  }, [user?.nombreusuario, user?.apellidousuario, educador?.paiseducador, respuestasDetalle]);
 
-  /*
   useEffect(() => {
     if (!user || !educador || respuestasDetalle.length === 0) return;
 
@@ -163,21 +169,20 @@ const Final = ({ submitSuccess }) => {
       .replace(/\s+/g, " ") // Normaliza espacios
       .replace(/\. /g, ".\n"); // Saltos de línea opcionales
 
-    
     const mensajeToSend = {
       tituloilustracion: `${user.nombreusuario} ${user.apellidousuario}`,
-      descripcionllustracion: descripcionToSend,
+      descripcionilustracion: descripcionToSend,
       ideducador: user.idusuario,
     };
 
-    try {
-      const response = await guardarMensajeRequest(mensajeToSend);
-    } catch (error) {
-      console.error("Error al guardar la ilustracion:", error);
-    }
-
+    guardarMensajeRequest(mensajeToSend)
+      .then((response) => {
+        console.log("Mensaje enviado correctamente:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error al enviar el mensaje:", error);
+      });
   }, [user, educador, respuestasDetalle, generarDescripcion]);
-  */
 
   const imagenPerfil = getImagenSegunRespuesta();
 
