@@ -1,11 +1,16 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
 import { getPreguntasPorCuestionarioRequest } from "../../api/preguntas";
 import {
   getTotalAlternativasRespondidasRequest,
   getAlternativasPorPreguntaRequest,
 } from "../../api/alternativas";
 import { getRespuestasPorCodigoRequest } from "../../api/respuestas";
+import { getSesionesPorCuestionarioRequest } from "../../api/sesiones";
+
 import SimpleChart from "../components/SimpleChart";
 import ColumnChart from "../components/ColumnChart";
 import RadarChart from "../components/RadarChart";
@@ -27,19 +32,13 @@ const tipoGraficoPorPregunta = (id) => {
   return "pie";
 };
 
-// Agrupar respuestas planas (respuestasdetalle) en formato esperado por los gráficos
 const agruparRespuestasPorPregunta = (respuestas) => {
   const agrupadas = {};
-
-  respuestas.forEach((fila) => {
-    const { idpregunta, idalternativa } = fila;
-
+  respuestas.forEach(({ idpregunta, idalternativa }) => {
     if (!agrupadas[idpregunta]) agrupadas[idpregunta] = {};
-
     if (!agrupadas[idpregunta][idalternativa]) {
       agrupadas[idpregunta][idalternativa] = 0;
     }
-
     agrupadas[idpregunta][idalternativa]++;
   });
 
@@ -56,64 +55,65 @@ const agruparRespuestasPorPregunta = (respuestas) => {
 
 const ResumenPage = () => {
   const { idcuestionario } = useParams();
+
   const [filtroSesion, setFiltroSesion] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [nombreSesionVisible, setNombreSesionVisible] = useState("");
+  const [totalParticipantes, setTotalParticipantes] = useState(0);
   const [preguntas, setPreguntas] = useState([]);
   const [respuestasPorPregunta, setRespuestasPorPregunta] = useState([]);
   const [alternativasData, setAlternativasData] = useState({});
-  const [windowWidth, setWindowWidth] = useState(
-    typeof window !== "undefined" ? window.innerWidth : 1200
-  );
-
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const [sesiones, setSesiones] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
 
-        const preguntasResponse = await getPreguntasPorCuestionarioRequest(
-          idcuestionario
-        );
-        const preguntasFiltradas = preguntasResponse.data.map((pregunta) => ({
-          idpregunta: pregunta.idpregunta,
-          textopregunta: pregunta.textopregunta,
+        const preguntasResponse = await getPreguntasPorCuestionarioRequest(idcuestionario);
+        const preguntasFiltradas = preguntasResponse.data.map((p) => ({
+          idpregunta: p.idpregunta,
+          textopregunta: p.textopregunta,
         }));
         setPreguntas(preguntasFiltradas);
 
+        const sesionesResponse = await getSesionesPorCuestionarioRequest(idcuestionario);
+        setSesiones(sesionesResponse.data || []);
+
         const alternativasPorPregunta = {};
-        const alternativasRequests = preguntasFiltradas.map(
-          async (pregunta) => {
-            const response = await getAlternativasPorPreguntaRequest(
-              pregunta.idpregunta
-            );
-            alternativasPorPregunta[pregunta.idpregunta] = response.data.reduce(
-              (acc, alt) => {
-                acc[alt.idalternativa] = alt.textoalternativa;
-                return acc;
-              },
-              {}
-            );
-          }
-        );
+        const alternativasRequests = preguntasFiltradas.map(async (pregunta) => {
+          const response = await getAlternativasPorPreguntaRequest(pregunta.idpregunta);
+          alternativasPorPregunta[pregunta.idpregunta] = response.data.reduce(
+            (acc, alt) => {
+              acc[alt.idalternativa] = alt.textoalternativa;
+              return acc;
+            },
+            {}
+          );
+        });
         await Promise.all(alternativasRequests);
         setAlternativasData(alternativasPorPregunta);
 
         if (filtroSesion && filtroSesion.trim() !== "") {
           const respuesta = await getRespuestasPorCodigoRequest(filtroSesion);
-          const agrupadas = agruparRespuestasPorPregunta(respuesta.data);
+          const { data } = respuesta;
+
+          const sesionEncontrada = sesionesResponse.data.find(
+            (s) => s.codigosesion === filtroSesion
+          );
+          setNombreSesionVisible(sesionEncontrada?.nombresesion || "Sin nombre");
+
+          const participantesUnicos = new Set(data.map((r) => r.idpersona)).size;
+          setTotalParticipantes(participantesUnicos);
+
+          const agrupadas = agruparRespuestasPorPregunta(data);
           setRespuestasPorPregunta(agrupadas);
         } else {
           const respuesta = await getTotalAlternativasRespondidasRequest();
           setRespuestasPorPregunta(respuesta.data);
+          setNombreSesionVisible("General");
+          setTotalParticipantes(0);
         }
       } catch (err) {
         if (err.response.status === 404) {
@@ -149,189 +149,145 @@ const ResumenPage = () => {
 
   const renderChart = (pregunta) => {
     const respuestas = getRespuestasParaPregunta(pregunta.idpregunta);
-    const alternativasTexto = alternativasData[pregunta.idpregunta] || {};
-
-    const alternativasCompletasMap = Object.entries(alternativasTexto).reduce(
-      (acc, [id, texto]) => {
-        const encontrada = respuestas.find(
-          (r) => r.idalternativa === Number(id)
-        );
-        const total = encontrada ? Number(encontrada.total_respuestas) : 0;
-        const key = texto.toLowerCase().includes("no aplica")
-          ? "No Aplica"
-          : texto;
-        if (!acc[key]) acc[key] = 0;
-        acc[key] += total;
-        return acc;
-      },
-      {}
+    const labels = respuestas.map((r) =>
+      getTextoAlternativa(pregunta.idpregunta, r.idalternativa)
     );
-
-    respuestas.forEach((resp) => {
-      const id = resp.idalternativa;
-      if (!alternativasTexto[id]) {
-        const texto = getTextoAlternativa(pregunta.idpregunta, id);
-        if (texto.toLowerCase().includes("no aplica")) {
-          if (!alternativasCompletasMap["No Aplica"])
-            alternativasCompletasMap["No Aplica"] = 0;
-          alternativasCompletasMap["No Aplica"] += Number(
-            resp.total_respuestas
-          );
-        }
-      }
-    });
-
-    const alternativasCompletas = Object.entries(alternativasTexto)
-      .map(([id, texto]) => {
-        const key = texto.toLowerCase().includes("no aplica")
-          ? "No Aplica"
-          : texto;
-        return {
-          idalternativa: Number(id),
-          textoalternativa: key,
-          total_respuestas: alternativasCompletasMap[key] || 0,
-        };
-      })
-      .sort((a, b) => a.idalternativa - b.idalternativa);
-
-    if (
-      alternativasCompletasMap["No Aplica"] &&
-      !alternativasCompletas.some((a) => a.textoalternativa === "No Aplica")
-    ) {
-      alternativasCompletas.push({
-        idalternativa: 9999,
-        textoalternativa: "No Aplica",
-        total_respuestas: alternativasCompletasMap["No Aplica"],
-      });
-    }
-
-    const labels = alternativasCompletas.map((alt) => alt.textoalternativa);
-    const values = alternativasCompletas.map((alt) => alt.total_respuestas);
+    const values = respuestas.map((r) => Number(r.total_respuestas));
     const tipo = tipoGraficoPorPregunta(pregunta.idpregunta);
 
-    if (alternativasCompletas.length === 0) {
-      return (
-        <p className="text-gray-500 text-sm">No hay datos para mostrar.</p>
-      );
+    if (values.length === 0) {
+      return <p className="text-gray-500 text-sm">No hay datos para mostrar.</p>;
     }
 
     switch (tipo) {
       case "pie":
-        return (
-          <SimpleChart
-            labels={labels}
-            series={values}
-            title="Respuestas"
-            windowWidth={windowWidth}
-          />
-        );
+        return <SimpleChart labels={labels} series={values} />;
       case "column":
-        return (
-          <ColumnChart
-            series={[{ name: "Respuestas", data: values }]}
-            categories={labels}
-            windowWidth={windowWidth}
-          />
-        );
+        return <ColumnChart series={[{ name: "Respuestas", data: values }]} categories={labels} />;
       case "radar":
-        return (
-          <RadarChart
-            series={[{ name: "Respuestas", data: values }]}
-            categories={labels}
-            windowWidth={windowWidth}
-          />
-        );
+        return <RadarChart series={[{ name: "Respuestas", data: values }]} categories={labels} />;
       case "angle":
-        return (
-          <AngleChart
-            series={values}
-            labels={labels}
-            windowWidth={windowWidth}
-          />
-        );
+        return <AngleChart series={values} labels={labels} />;
       default:
         return null;
     }
   };
 
+  const handleExportPDF = () => {
+    const pdf = new jsPDF();
+    const title = "Resumen de Respuestas";
+    const fecha = new Date();
+    const fechaStr = `${String(fecha.getDate()).padStart(2, '0')}/${
+      String(fecha.getMonth() + 1).padStart(2, '0')
+    }/${fecha.getFullYear()}`;
+
+    const marginY = 28;
+    let currentY = marginY;
+
+    const drawHeader = () => {
+      pdf.setFontSize(14);
+      pdf.setTextColor(40);
+      pdf.text(title, 105, 10, { align: "center" });
+
+      pdf.setFontSize(10);
+      pdf.setTextColor(80);
+      pdf.text(`Fecha: ${fechaStr}`, 14, 16);
+      pdf.text(`Sesión: ${nombreSesionVisible}`, 14, 21);
+      pdf.text(`Participantes: ${totalParticipantes}`, 14, 26);
+    };
+
+    drawHeader();
+
+    preguntas
+      .filter((p) => !preguntasExcluidas.includes(p.idpregunta))
+      .forEach((pregunta) => {
+        const respuestas = getRespuestasParaPregunta(pregunta.idpregunta);
+        const totalRespuestas = getTotalRespuestasPregunta(pregunta.idpregunta);
+
+        const rows = respuestas.map((r) => {
+          const texto = getTextoAlternativa(pregunta.idpregunta, r.idalternativa);
+          const total = r.total_respuestas;
+          const porcentaje = totalRespuestas > 0
+            ? ((total / totalRespuestas) * 100).toFixed(1) + "%"
+            : "0%";
+          return [texto, total.toString(), porcentaje];
+        });
+
+        if (rows.length === 0) return;
+
+        autoTable(pdf, {
+          startY: currentY + 5,
+          head: [[pregunta.textopregunta, "Total", "%"]],
+          body: rows,
+          margin: { left: 14, right: 14 },
+          styles: { fontSize: 9 },
+          headStyles: { fillColor: [41, 128, 185], halign: "center" },
+          columnStyles: {
+            1: { halign: "center" },
+            2: { halign: "center" },
+          },
+          didDrawPage: (data) => {
+            currentY = data.cursor.y;
+            drawHeader();
+          },
+        });
+
+        currentY += 10;
+        if (currentY >= 260) {
+          pdf.addPage();
+          currentY = marginY;
+        }
+      });
+
+    pdf.save("resumen-respuestas.pdf");
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-6 sm:py-8 md:py-10 px-3 sm:px-4 md:px-6 lg:px-8">
       <div className="max-w-screen-lg mx-auto">
-        <div className="mb-6 sm:mb-8">
-          <FiltroSesion
-            onChange={setFiltroSesion}
-            idcuestionario={idcuestionario}
-          />
+        <FiltroSesion
+          onChange={setFiltroSesion}
+          idcuestionario={idcuestionario}
+        />
 
-          {filtroSesion && (
-            <p className="text-center text-xs sm:text-sm text-gray-500 mt-2 mb-4">
-              Mostrando resultados para la sesión:{" "}
-              <strong>{filtroSesion}</strong>
-            </p>
-          )}
-
-          <h1
-            className={`${
-              windowWidth < 480
-                ? "text-xl"
-                : windowWidth < 768
-                ? "text-2xl"
-                : "text-3xl"
-            } font-extrabold text-gray-900 mt-6 mb-8 text-center`}
+        <div className="flex justify-between items-center mt-6 mb-4">
+          <h1 className="text-2xl font-bold text-gray-800">Resumen del Cuestionario</h1>
+          <button
+            onClick={handleExportPDF}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm"
           >
-            Resumen del Cuestionario
-          </h1>
+            Exportar PDF
+          </button>
         </div>
 
+        {filtroSesion && (
+          <p className="text-sm text-gray-500 mb-4">
+            Mostrando resultados para la sesión: <strong>{nombreSesionVisible}</strong>
+          </p>
+        )}
+
         {loading ? (
-          <div className="flex justify-center items-center py-10">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
-            <p className="ml-3 text-gray-600">Cargando...</p>
-          </div>
+          <p className="text-center text-gray-600">Cargando...</p>
         ) : error ? (
           <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
             <p className="text-red-700">{error}</p>
           </div>
         ) : (
-          <div className="space-y-6 sm:space-y-8 md:space-y-10">
+          <div className="space-y-6">
             {preguntas
               .filter((p) => !preguntasExcluidas.includes(p.idpregunta))
               .map((pregunta) => (
                 <div
                   key={pregunta.idpregunta}
-                  className="bg-white shadow-md rounded-lg border-l-4 border-blue-500 p-3 sm:p-4 md:p-6 space-y-3 sm:space-y-4"
+                  className="bg-white shadow rounded p-4 border-l-4 border-blue-500"
                 >
-                  <div>
-                    <h2
-                      className={`${
-                        windowWidth < 480
-                          ? "text-sm"
-                          : windowWidth < 768
-                          ? "text-base"
-                          : "text-lg"
-                      } font-semibold text-gray-800`}
-                    >
-                      {pregunta.textopregunta}
-                    </h2>
-                    <p
-                      className={`${
-                        windowWidth < 768 ? "text-xs" : "text-sm"
-                      } text-gray-500 mt-1`}
-                    >
-                      Total de respuestas:{" "}
-                      {getTotalRespuestasPregunta(pregunta.idpregunta)}
-                    </p>
-                  </div>
-
-                  <div className="w-full overflow-x-auto">
-                    <div
-                      className={`${
-                        windowWidth < 480 ? "min-w-[280px]" : "min-w-full"
-                      }`}
-                    >
-                      {renderChart(pregunta)}
-                    </div>
-                  </div>
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    {pregunta.textopregunta}
+                  </h2>
+                  <p className="text-sm text-gray-500 mb-2">
+                    Total de respuestas: {getTotalRespuestasPregunta(pregunta.idpregunta)}
+                  </p>
+                  {renderChart(pregunta)}
                 </div>
               ))}
           </div>
