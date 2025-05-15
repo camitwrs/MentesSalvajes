@@ -11,18 +11,6 @@ const PreguntaRange = ({ idPregunta, opciones, userData, setUserData }) => {
     if (!userData[idPregunta] && opcionesOrdenadas.length > 0) {
       setUserData((prevUserData) => {
         const updatedUserData = { ...prevUserData };
-
-        // Verificar si la pregunta 56 tiene seleccionada la alternativa 154
-        if (prevUserData[56] === 154) {
-          delete updatedUserData[60];
-          delete updatedUserData[61];
-          delete updatedUserData[62];
-          delete updatedUserData[64];
-          delete updatedUserData[65];
-        } else {
-          updatedUserData[idPregunta] = opcionesOrdenadas[0].idalternativa;
-        }
-
         return updatedUserData;
       });
     }
@@ -50,6 +38,7 @@ const PreguntaRange = ({ idPregunta, opciones, userData, setUserData }) => {
 
   return (
     <div className="w-full">
+      {/* Slider */}
       <input
         type="range"
         min="0"
@@ -57,27 +46,41 @@ const PreguntaRange = ({ idPregunta, opciones, userData, setUserData }) => {
         step="1"
         value={selectedIndex !== -1 ? selectedIndex : 0}
         onChange={handleRangeChange}
-        className="w-full h-3 sm:h-4 bg-gray-200 rounded-lg appearance-none cursor-pointer transition-transform duration-200 ease-in-out"
+        className="w-full h-3 sm:h-4 bg-gray-200 rounded-lg appearance-none cursor-pointer transition-transform duration-200 ease-in-out
+          [&::-webkit-slider-thumb]:appearance-none
+          [&::-webkit-slider-thumb]:h-4
+          [&::-webkit-slider-thumb]:w-4
+          [&::-webkit-slider-thumb]:rounded-full
+          [&::-webkit-slider-thumb]:bg-gray-700
+          [&::-webkit-slider-thumb]:shadow
+          [&::-moz-range-thumb]:bg-gray-100"
       />
 
+      {/* Texto para móviles (debajo del slider) */}
       <div className="block sm:hidden mt-2 text-center text-sm text-gray-600">
         {opcionesOrdenadas[selectedIndex]?.textoalternativa}
       </div>
 
+      {/* Etiquetas alineadas debajo */}
       <div
-        className="hidden sm:grid sm:grid-cols-5 gap-2 mt-2 sm:mt-4 text-xs sm:text-sm text-gray-600 w-full px-2"
+        className="grid mt-4 text-sm text-gray-600 w-full"
         style={{
           gridTemplateColumns: `repeat(${opcionesOrdenadas.length}, 1fr)`,
         }}
       >
-        {opcionesOrdenadas.map((opcion) => (
-          <span
-            key={opcion.idalternativa}
-            className="text-center p-2 break-words"
-          >
-            {opcion.textoalternativa}
-          </span>
-        ))}
+        {opcionesOrdenadas.map((opcion) => {
+          const isSelected = opcion.idalternativa === selectedId;
+          return (
+            <div
+              key={opcion.idalternativa}
+              className={`text-center px-1 break-words ${
+                isSelected ? "text-black font-semibold" : ""
+              }`}
+            >
+              {opcion.textoalternativa}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
