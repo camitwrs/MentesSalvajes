@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@heroui/button";
-import { BarChart, Users, Copy, CheckCircle, Trash2 } from "lucide-react";
+import { Copy, CheckCircle, Trash2 } from "lucide-react";
 import {
   Modal,
   ModalContent,
@@ -10,6 +10,7 @@ import {
 } from "@heroui/modal";
 import { useAlert } from "../../shared/context/AlertContext";
 import { eliminarSesionRequest } from "../../api/sesiones";
+import PropTypes from "prop-types";
 
 const ListaSesiones = ({ sesiones, onDeleteSession }) => {
   const [deleteModal, setDeleteModal] = useState({ open: false, sesion: null });
@@ -98,12 +99,28 @@ const ListaSesiones = ({ sesiones, onDeleteSession }) => {
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {new Date(sesion.fechacreacionsesion).toLocaleDateString()}{" "}
-                {new Date(sesion.fechacreacionsesion).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                {(() => {
+                  const rawFecha = sesion.fechacreacionsesion;
+
+                  // Intenta convertir a fecha
+                  const fecha = new Date(rawFecha);
+
+                  // Verifica si es inválida
+                  if (!rawFecha || isNaN(fecha)) {
+                    return "Justo ahora";
+                  }
+
+                  // Si es válida, devuelve fecha y hora formateadas (hora chilena)
+                  return `${fecha.toLocaleDateString("es-CL", {
+                    timeZone: "America/Santiago",
+                  })} ${fecha.toLocaleTimeString("es-CL", {
+                    timeZone: "America/Santiago",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}`;
+                })()}
               </td>
+
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div className="flex justify-end space-x-2">
                   <Button
@@ -155,6 +172,18 @@ const ListaSesiones = ({ sesiones, onDeleteSession }) => {
       </Modal>
     </div>
   );
+};
+
+ListaSesiones.propTypes = {
+  sesiones: PropTypes.arrayOf(
+    PropTypes.shape({
+      idsesion: PropTypes.number.isRequired,
+      codigosesion: PropTypes.string.isRequired,
+      nombresesion: PropTypes.string.isRequired,
+      fechacreacionsesion: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  onDeleteSession: PropTypes.func,
 };
 
 export default ListaSesiones;

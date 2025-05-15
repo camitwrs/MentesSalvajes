@@ -8,6 +8,10 @@ import {
   getAlternativasPorPreguntaRequest,
 } from "../../api/alternativas";
 import { getRespuestasPorCodigoRequest } from "../../api/respuestas";
+
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
 import SimpleChart from "../components/SimpleChart";
 import ColumnChart from "../components/ColumnChart";
 import RadarChart from "../components/RadarChart";
@@ -30,15 +34,12 @@ const tipoGraficoPorPregunta = (id) => {
   return "pie";
 };
 
-// Agrupar respuestas planas (respuestasdetalle) en formato esperado por los gráficos
 const agruparRespuestasPorPregunta = (respuestas) => {
   const agrupadas = {};
-
   respuestas.forEach((fila) => {
     const { idpregunta, idalternativa } = fila;
 
     if (!agrupadas[idpregunta]) agrupadas[idpregunta] = {};
-
     if (!agrupadas[idpregunta][idalternativa]) {
       agrupadas[idpregunta][idalternativa] = 0;
     }
@@ -68,6 +69,7 @@ const ResumenPage = () => {
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 1200
   );
+  const [totalParticipantes, setTotalParticipantes] = useState(0);
 
   const navigate = useNavigate();
 
@@ -114,11 +116,15 @@ const ResumenPage = () => {
 
         if (filtroSesion && filtroSesion.trim() !== "") {
           const respuesta = await getRespuestasPorCodigoRequest(filtroSesion);
+          setTotalParticipantes(
+            new Set(respuesta.data.map((r) => r.idpersona)).size
+          );
           const agrupadas = agruparRespuestasPorPregunta(respuesta.data);
           setRespuestasPorPregunta(agrupadas);
         } else {
           const respuesta = await getTotalAlternativasRespondidasRequest();
           setRespuestasPorPregunta(respuesta.data);
+          setTotalParticipantes(0); // o podrías estimar desde los datos
         }
       } catch (err) {
         if (err.response.status === 404) {
@@ -145,11 +151,49 @@ const ResumenPage = () => {
   };
 
   const getTotalRespuestasPregunta = (idpregunta) => {
-    const alternativas = getRespuestasParaPregunta(idpregunta);
-    return alternativas.reduce(
-      (acc, alt) => acc + Number(alt.total_respuestas),
-      0
+    const respuestas = getRespuestasParaPregunta(idpregunta);
+    const alternativasTexto = alternativasData[idpregunta] || {};
+
+    const alternativasCompletasMap = Object.entries(alternativasTexto).reduce(
+      (acc, [id, texto]) => {
+        const encontrada = respuestas.find(
+          (r) => r.idalternativa === Number(id)
+        );
+        const total = encontrada ? Number(encontrada.total_respuestas) : 0;
+        const key = texto.toLowerCase().includes("no aplica")
+          ? "No Aplica"
+          : texto;
+        acc[key] = (acc[key] || 0) + total;
+        return acc;
+      },
+      {}
     );
+
+    // Extra alternativas no registradas
+    respuestas.forEach((resp) => {
+      const id = resp.idalternativa;
+      if (!alternativasTexto[id]) {
+        const texto = getTextoAlternativa(idpregunta, id);
+        const key = texto.toLowerCase().includes("no aplica")
+          ? "No Aplica"
+          : texto;
+        alternativasCompletasMap[key] =
+          (alternativasCompletasMap[key] || 0) + Number(resp.total_respuestas);
+      }
+    });
+
+    const totalRespuestasActuales = Object.values(
+      alternativasCompletasMap
+    ).reduce((sum, val) => sum + val, 0);
+    const faltantes = totalParticipantes - totalRespuestasActuales;
+
+    // Sumar faltantes a "No Aplica"
+    if (faltantes > 0) {
+      alternativasCompletasMap["No Aplica"] =
+        (alternativasCompletasMap["No Aplica"] || 0) + faltantes;
+    }
+
+    return Object.values(alternativasCompletasMap).reduce((a, b) => a + b, 0);
   };
 
   const renderChart = (pregunta) => {
@@ -165,8 +209,7 @@ const ResumenPage = () => {
         const key = texto.toLowerCase().includes("no aplica")
           ? "No Aplica"
           : texto;
-        if (!acc[key]) acc[key] = 0;
-        acc[key] += total;
+        acc[key] = (acc[key] || 0) + total;
         return acc;
       },
       {}
@@ -176,39 +219,29 @@ const ResumenPage = () => {
       const id = resp.idalternativa;
       if (!alternativasTexto[id]) {
         const texto = getTextoAlternativa(pregunta.idpregunta, id);
-        if (texto.toLowerCase().includes("no aplica")) {
-          if (!alternativasCompletasMap["No Aplica"])
-            alternativasCompletasMap["No Aplica"] = 0;
-          alternativasCompletasMap["No Aplica"] += Number(
-            resp.total_respuestas
-          );
-        }
-      }
-    });
-
-    const alternativasCompletas = Object.entries(alternativasTexto)
-      .map(([id, texto]) => {
         const key = texto.toLowerCase().includes("no aplica")
           ? "No Aplica"
           : texto;
-        return {
-          idalternativa: Number(id),
-          textoalternativa: key,
-          total_respuestas: alternativasCompletasMap[key] || 0,
-        };
-      })
-      .sort((a, b) => a.idalternativa - b.idalternativa);
+        alternativasCompletasMap[key] =
+          (alternativasCompletasMap[key] || 0) + Number(resp.total_respuestas);
+      }
+    });
 
-    if (
-      alternativasCompletasMap["No Aplica"] &&
-      !alternativasCompletas.some((a) => a.textoalternativa === "No Aplica")
-    ) {
-      alternativasCompletas.push({
-        idalternativa: 9999,
-        textoalternativa: "No Aplica",
-        total_respuestas: alternativasCompletasMap["No Aplica"],
-      });
+    const totalRespuestasActuales = Object.values(
+      alternativasCompletasMap
+    ).reduce((sum, val) => sum + val, 0);
+    const faltantes = totalParticipantes - totalRespuestasActuales;
+    if (faltantes > 0) {
+      alternativasCompletasMap["No Aplica"] =
+        (alternativasCompletasMap["No Aplica"] || 0) + faltantes;
     }
+
+    const alternativasCompletas = Object.entries(alternativasCompletasMap).map(
+      ([textoalternativa, total]) => ({
+        textoalternativa,
+        total_respuestas: total,
+      })
+    );
 
     const labels = alternativasCompletas.map((alt) => alt.textoalternativa);
     const values = alternativasCompletas.map((alt) => alt.total_respuestas);
@@ -259,6 +292,118 @@ const ResumenPage = () => {
     }
   };
 
+  const handleExportPDF = () => {
+    const pdf = new jsPDF();
+    const title = "Resumen de Respuestas";
+    const fecha = new Date();
+    const fechaStr = `${String(fecha.getDate()).padStart(2, "0")}/${String(
+      fecha.getMonth() + 1
+    ).padStart(2, "0")}/${fecha.getFullYear()}`;
+
+    const marginY = 28;
+    let currentY = marginY;
+
+    const drawHeader = () => {
+      pdf.setFontSize(14);
+      pdf.setTextColor(40);
+      pdf.text(title, 105, 10, { align: "center" });
+
+      pdf.setFontSize(10);
+      pdf.setTextColor(80);
+      pdf.text(`Fecha: ${fechaStr}`, 14, 16);
+      pdf.text(`Sesión: ${filtroSesion || "General"}`, 14, 21);
+      pdf.text(`Participantes: ${totalParticipantes}`, 14, 26);
+    };
+
+    drawHeader();
+
+    preguntas
+      .filter((p) => !preguntasExcluidas.includes(p.idpregunta))
+      .forEach((pregunta) => {
+        const respuestas = getRespuestasParaPregunta(pregunta.idpregunta);
+        const alternativasTexto = alternativasData[pregunta.idpregunta] || {};
+
+        const alternativasCompletasMap = Object.entries(
+          alternativasTexto
+        ).reduce((acc, [id, texto]) => {
+          const encontrada = respuestas.find(
+            (r) => r.idalternativa === Number(id)
+          );
+          const total = encontrada ? Number(encontrada.total_respuestas) : 0;
+          const key = texto.toLowerCase().includes("no aplica")
+            ? "No Aplica"
+            : texto;
+          acc[key] = (acc[key] || 0) + total;
+          return acc;
+        }, {});
+
+        respuestas.forEach((resp) => {
+          const id = resp.idalternativa;
+          if (!alternativasTexto[id]) {
+            const texto = getTextoAlternativa(pregunta.idpregunta, id);
+            const key = texto.toLowerCase().includes("no aplica")
+              ? "No Aplica"
+              : texto;
+            alternativasCompletasMap[key] =
+              (alternativasCompletasMap[key] || 0) +
+              Number(resp.total_respuestas);
+          }
+        });
+
+        const totalActual = Object.values(alternativasCompletasMap).reduce(
+          (a, b) => a + b,
+          0
+        );
+        const faltantes = totalParticipantes - totalActual;
+
+        if (faltantes > 0) {
+          alternativasCompletasMap["No Aplica"] =
+            (alternativasCompletasMap["No Aplica"] || 0) + faltantes;
+        }
+
+        const totalFinal = Object.values(alternativasCompletasMap).reduce(
+          (a, b) => a + b,
+          0
+        );
+        const rows = Object.entries(alternativasCompletasMap).map(
+          ([texto, total]) => {
+            const porcentaje =
+              totalFinal > 0
+                ? ((total / totalFinal) * 100).toFixed(1) + "%"
+                : "0%";
+            return [texto, total.toString(), porcentaje];
+          }
+        );
+
+        if (rows.length === 0) return;
+
+        autoTable(pdf, {
+          startY: currentY + 5,
+          head: [[pregunta.textopregunta, "Total", "%"]],
+          body: rows,
+          margin: { left: 14, right: 14 },
+          styles: { fontSize: 9 },
+          headStyles: { fillColor: [41, 128, 185], halign: "center" },
+          columnStyles: {
+            1: { halign: "center" },
+            2: { halign: "center" },
+          },
+          didDrawPage: (data) => {
+            currentY = data.cursor.y;
+            drawHeader();
+          },
+        });
+
+        currentY += 10;
+        if (currentY >= 260) {
+          pdf.addPage();
+          currentY = marginY;
+        }
+      });
+
+    pdf.save("resumen-respuestas.pdf");
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-6 sm:py-8 md:py-10 px-3 sm:px-4 md:px-6 lg:px-8">
       <div>
@@ -276,25 +421,23 @@ const ResumenPage = () => {
             onChange={setFiltroSesion}
             idcuestionario={idcuestionario}
           />
-
           {filtroSesion && (
             <p className="text-center text-xs sm:text-sm text-gray-500 mt-2 mb-4">
               Mostrando resultados para la sesión:{" "}
               <strong>{filtroSesion}</strong>
             </p>
           )}
-
-          <h1
-            className={`${
-              windowWidth < 480
-                ? "text-xl"
-                : windowWidth < 768
-                ? "text-2xl"
-                : "text-3xl"
-            } font-extrabold text-gray-900 mt-6 mb-8 text-center`}
-          >
-            Resumen del Cuestionario
-          </h1>
+          <div className="flex justify-between items-center mt-6 mb-4">
+            <h1 className="text-2xl font-bold text-gray-800">
+              Resumen del Cuestionario
+            </h1>
+            <button
+              onClick={handleExportPDF}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm"
+            >
+              Exportar PDF
+            </button>
+          </div>
         </div>
 
         {loading ? (
@@ -336,7 +479,6 @@ const ResumenPage = () => {
                       {getTotalRespuestasPregunta(pregunta.idpregunta)}
                     </p>
                   </div>
-
                   <div className="w-full overflow-x-auto">
                     <div
                       className={`${
