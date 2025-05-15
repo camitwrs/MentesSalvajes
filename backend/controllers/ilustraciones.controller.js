@@ -41,7 +41,7 @@ export const guardarMensaje = async (req, res) => {
 
 // Guardar segunda parte de la ilustracion desde el disenador
 export const guardarArchivo = async (req, res) => {
-  const { iddisenador, idilustracion } = req.body;
+  const { idilustracion } = req.body;
   const archivoilustracion = req.file; // Multer sube el archivoilustracion aquí
 
   if (!archivoilustracion) {
@@ -53,8 +53,16 @@ export const guardarArchivo = async (req, res) => {
   try {
     await pool.query("BEGIN"); // Iniciar transacción
 
-    // 1) Subir archivoilustracion a Supabase Storage
-    const filePath = `${Date.now()}_${archivoilustracion.originalname}`;
+    // 1) Limpiar el nombre del archivo
+    const originalName = archivoilustracion.originalname;
+    const cleanedName = originalName
+      .normalize("NFD") // Normalizar caracteres Unicode
+      .replace(/[\u0300-\u036f]/g, "") // Eliminar diacríticos
+      .replace(/[^a-zA-Z0-9._-]/g, "_"); // Reemplazar caracteres no válidos con "_"
+
+    const filePath = `${Date.now()}_${cleanedName}`;
+
+    // 2) Subir archivoilustracion a Supabase Storage
     const { data, error } = await supabase.storage
       .from("ilustraciones")
       .upload(filePath, archivoilustracion.buffer, {
@@ -70,7 +78,7 @@ export const guardarArchivo = async (req, res) => {
         .json({ error: "Error subiendo archivoilustracion a storage" });
     }
 
-    // 2) Obtener URL pública
+    // 3) Obtener URL pública
     const { data: urlData } = supabase.storage
       .from("ilustraciones")
       .getPublicUrl(filePath);
@@ -84,14 +92,14 @@ export const guardarArchivo = async (req, res) => {
       });
     }
 
-    // 3) Guardar URL en Postgres
+    // 4) Guardar URL en Postgres
     const query = `
       UPDATE ilustraciones 
-      SET urlarchivoilustracion = $1, fechacargailustracion = CURRENT_TIMESTAMP, estadoilustracion = 'completado', iddisenador = $2
-      WHERE idilustracion = $3 RETURNING *;
+      SET urlarchivoilustracion = $1, fechacargailustracion = CURRENT_TIMESTAMP, estadoilustracion = 'completado'
+      WHERE idilustracion = $2 RETURNING *;
     `;
 
-    const values = [publicUrl, iddisenador, idilustracion];
+    const values = [publicUrl, idilustracion];
     const { rows } = await pool.query(query, values);
 
     if (rows.length === 0) {
@@ -112,6 +120,7 @@ export const guardarArchivo = async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
+
 
 export const getAllIlustraciones = async (req, res) => {
   try {
@@ -159,7 +168,8 @@ export const getIlustracionPorRespuesta = async (req, res) => {
 
     res.status(200).json({
       urlarchivoilustracion: ilustracion.urlarchivoilustracion,
-      descripcionilustracion: ilustracion.descripcionilustracion
+      descripcionilustracion: ilustracion.descripcionilustracion,
+      idilustracion
     });
 
   } catch (error) {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Accordion, AccordionItem } from "@heroui/accordion";
 import { Button } from "@heroui/button";
 import { useNavigate } from "react-router-dom";
@@ -6,7 +6,10 @@ import {
   getHistorialRespuestasRequest,
   getDetallePorRespuestaRequest,
 } from "../../api/respuestas";
-import { getIlustracionPorRespuestaRequest } from "../../api/ilustraciones";
+import {
+  getIlustracionPorRespuestaRequest,
+  guardarArchivoRequest,
+} from "../../api/ilustraciones";
 import { getEducadoresRequest } from "../../api/usuarios";
 import {
   Modal,
@@ -15,6 +18,7 @@ import {
   ModalBody,
   ModalFooter,
 } from "@heroui/modal";
+import { useAlert } from "../../shared/context/AlertContext";
 import {
   FileQuestion,
   PencilLine,
@@ -23,7 +27,13 @@ import {
   Image,
   Eye,
   ArrowLeft,
+  CloudUpload,
 } from "lucide-react";
+
+import { FilePond, registerPlugin } from "react-filepond";
+import FilePondPluginImagePreview from "filepond-plugin-image-preview";
+
+registerPlugin(FilePondPluginImagePreview);
 
 const PerfilesEducadoresPage = () => {
   const [educadores, setEducadores] = useState([]);
@@ -37,12 +47,18 @@ const PerfilesEducadoresPage = () => {
 
   const [modalImagenVisible, setModalImagenVisible] = useState(false);
   const [imagenData, setImagenData] = useState({
+    idilustracion: "",
     urlarchivoilustracion: "",
     descripcionilustracion: "",
   });
   const [loadingImagen, setLoadingImagen] = useState(false);
 
+  const [files, setFiles] = useState([]);
+  const [uploadMessage, setUploadMessage] = useState("");
+  const pondRef = useRef(null);
+
   const navigate = useNavigate();
+  const { showAlert } = useAlert();
 
   // Obtener la lista de educadores al cargar la página
   useEffect(() => {
@@ -65,10 +81,8 @@ const PerfilesEducadoresPage = () => {
   // Obtener el historial de respuestas de un educador
   const fetchHistorial = async (idusuario) => {
     try {
-      console.log("id:", idusuario);
       const response = await getHistorialRespuestasRequest(idusuario);
       setHistorial(response.data);
-      console.log(historial);
     } catch (err) {
       console.error("Error al obtener el historial de respuestas:", err);
     }
@@ -93,11 +107,45 @@ const PerfilesEducadoresPage = () => {
       setLoadingImagen(true); // Activar el estado de carga
       const response = await getIlustracionPorRespuestaRequest(idrespuesta);
       setImagenData(response.data); // Guardar los datos de la imagen y descripción
+
       setModalImagenVisible(true); // Mostrar el modal
     } catch (error) {
       console.error("Error al obtener la ilustración:", error);
     } finally {
       setLoadingImagen(false); // Desactivar el estado de carga
+    }
+  };
+
+  // Subir o actualizar una imagen
+  const handleUpload = async (file, load, clearFile) => {
+    const formData = new FormData();
+    formData.append("archivoilustracion", file.file);
+    formData.append("idilustracion", imagenData.idilustracion);
+
+    try {
+      const response = await guardarArchivoRequest(formData);
+      setUploadMessage(response.data.mensaje);
+
+      // Actualizar la imagen en el estado
+      setImagenData((prev) => ({
+        ...prev,
+        urlarchivoilustracion: response.data.urlarchivoilustracion,
+      }));
+
+      load("unique-file-id");
+
+      // Cerrar el modal después de subir la imagen
+      setTimeout(() => {
+        clearFile();
+        setModalImagenVisible(false);
+        showAlert("Imagen subida exitosamente", "success");
+        setFiles([]);
+        setUploadMessage("");
+      }, 2000);
+    } catch (error) {
+      showAlert("rror al subir la imagen", "warning");
+      setUploadMessage("Error al subir la imagen");
+      load(null);
     }
   };
 
@@ -257,6 +305,7 @@ const PerfilesEducadoresPage = () => {
           </ModalContent>
         </Modal>
       )}
+
       {modalImagenVisible && (
         <Modal
           isOpen={modalImagenVisible}
@@ -273,33 +322,60 @@ const PerfilesEducadoresPage = () => {
                 </div>
               ) : (
                 <div className="flex flex-col items-center">
-                  {/* Mostrar mensaje si no hay imagen */}
-                  {!imagenData.urlarchivoilustracion && (
-                    <p className="text-gray-500 text-center mb-4">
-                      Todavía no hay imagen disponible.
-                    </p>
-                  )}
-
-                  {/* Mostrar imagen si está disponible */}
                   {imagenData.urlarchivoilustracion && (
                     <img
                       src={imagenData.urlarchivoilustracion}
                       alt="Ilustración"
                       className="rounded-md shadow-md"
                       style={{
-                        width: "200px", // Ancho fijo
-                        height: "200px", // Altura fija
-                        objectFit: "cover", // Ajustar la imagen al tamaño especificado
+                        width: "200px",
+                        height: "200px",
+                        objectFit: "cover",
                       }}
                     />
                   )}
 
-                  {/* Mostrar descripción siempre que esté disponible */}
-                  {imagenData.descripcionilustracion && (
-                    <p className="mt-4 text-gray-700 text-center">
-                      {imagenData.descripcionilustracion}
-                    </p>
-                  )}
+                  <div className="mt-4 w-full">
+                    <FilePond
+                      ref={pondRef}
+                      files={files}
+                      allowMultiple={false}
+                      acceptedFileTypes={[
+                        "image/png",
+                        "image/jpeg",
+                        "image/webp",
+                        "image/svg+xml",
+                      ]}
+                      onupdatefiles={setFiles}
+                      labelIdle="Arrastra tu imagen aquí o haz clic para actualizar"
+                      credits={false}
+                      className="filepond-container"
+                      server={{
+                        process: (
+                          _fieldName,
+                          file,
+                          _metadata,
+                          load,
+                          _error,
+                          _progress,
+                          _abort,
+                          clear
+                        ) => {
+                          handleUpload({ file }, load, () => clear());
+                        },
+                      }}
+                    />
+                    {uploadMessage && (
+                      <p className="text-center text-sm text-gray-500 mt-2">
+                        {uploadMessage}
+                      </p>
+                    )}
+                    {imagenData.descripcionilustracion && (
+                      <p className="mt-4 text-gray-700 text-center">
+                        {imagenData.descripcionilustracion}
+                      </p>
+                    )}
+                  </div>
                 </div>
               )}
             </ModalBody>
