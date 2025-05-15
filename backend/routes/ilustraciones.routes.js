@@ -3,6 +3,7 @@ import {
   guardarMensaje,
   guardarArchivo,
   getAllIlustraciones,
+  getIlustracionPorRespuesta,
 } from "../controllers/ilustraciones.controller.js";
 import multer from "multer";
 
@@ -19,5 +20,7 @@ router.post(
 );
 
 router.get("/", getAllIlustraciones);
+router.get("/respuesta/:idrespuesta", getIlustracionPorRespuesta);
+
 
 export default router;

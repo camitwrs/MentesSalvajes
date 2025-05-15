@@ -17,12 +17,18 @@ import Pingüinos from "../assets/pinguino.svg";
 import Nutrias from "../assets/mustelido.svg";
 
 const imagenesPorRespuesta = {
-  Ballenas: Ballenas,
-  Focas: Focas,
-  "Tortugas marinas": TortugasMarinas,
-  Orcas: Orcas,
-  Pingüinos: Pingüinos,
-  Nutrias: Nutrias,
+  Ballenas:
+    "https://doqdfqrenenggbljmhdh.supabase.co/storage/v1/object/public/ilustraciones//cetaceo.svg",
+  Focas:
+    "https://doqdfqrenenggbljmhdh.supabase.co/storage/v1/object/public/ilustraciones//pinipedo.svg",
+  "Tortugas marinas":
+    "https://doqdfqrenenggbljmhdh.supabase.co/storage/v1/object/public/ilustraciones//tortuga.svg",
+  Orcas:
+    "https://doqdfqrenenggbljmhdh.supabase.co/storage/v1/object/public/ilustraciones//orca.svg",
+  Pingüinos:
+    "https://doqdfqrenenggbljmhdh.supabase.co/storage/v1/object/public/ilustraciones//pinguino.svg",
+  Nutrias:
+    "https://doqdfqrenenggbljmhdh.supabase.co/storage/v1/object/public/ilustraciones//mustelido.svg",
 };
 
 const Final = ({ submitSuccess }) => {
@@ -180,6 +186,7 @@ const Final = ({ submitSuccess }) => {
     const mensajeToSend = {
       tituloilustracion: `${user.nombreusuario} ${user.apellidousuario}`,
       descripcionilustracion: descripcionToSend,
+      urlarchivoilustracion: imagenPerfil,
       ideducador: user.idusuario,
       idrespuesta: idrespuesta,
     };

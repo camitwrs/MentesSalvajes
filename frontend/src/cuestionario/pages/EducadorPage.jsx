@@ -28,6 +28,7 @@ import {
   X,
   FileQuestion,
   PencilLine,
+  Image,
 } from "lucide-react";
 import { getCuestionariosRequest } from "../../api/cuestionarios";
 import {
@@ -39,6 +40,8 @@ import {
   getHistorialRespuestasRequest,
   getDetallePorRespuestaRequest,
 } from "../../api/respuestas";
+import { getIlustracionPorRespuestaRequest } from "../../api/ilustraciones";
+
 import { FormContext } from "../context/FormContext";
 import { useAuth } from "../../autenticacion/context/AuthContext";
 
@@ -52,6 +55,13 @@ const EducadorPage = () => {
   const [detalleRespuesta, setDetalleRespuesta] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [loadingDetalle, setLoadingDetalle] = useState(false);
+
+  const [modalImagenVisible, setModalImagenVisible] = useState(false);
+  const [imagenData, setImagenData] = useState({
+    urlarchivoilustracion: "",
+    descripcionilustracion: "",
+  });
+  const [loadingImagen, setLoadingImagen] = useState(false);
 
   const [editMode, setEditMode] = useState(false);
 
@@ -143,6 +153,19 @@ const EducadorPage = () => {
     } finally {
       setLoadingButtonId(null); // Desactivar el estado de carga del botón
       setLoadingDetalle(false); // Desactivar el estado de carga del modal
+    }
+  };
+
+  const handleVerImagen = async (idrespuesta) => {
+    try {
+      setLoadingImagen(true); // Activar el estado de carga
+      const response = await getIlustracionPorRespuestaRequest(idrespuesta);
+      setImagenData(response.data); // Guardar los datos de la imagen y descripción
+      setModalImagenVisible(true); // Mostrar el modal
+    } catch (error) {
+      console.error("Error al obtener la ilustración:", error);
+    } finally {
+      setLoadingImagen(false); // Desactivar el estado de carga
     }
   };
 
@@ -706,75 +729,143 @@ const EducadorPage = () => {
                               </>
                             )}
                           </button>
+                          <button
+                            className="flex items-center gap-1 py-1.5 px-3 rounded-md text-sm bg-YankeesBlue text-white"
+                            onClick={() => handleVerImagen(respuesta.id)}
+                          >
+                            <Image className="w-4 h-4" />
+                            Ver imagen
+                          </button>
                         </div>
                       </td>
                     </tr>
                   ))}
-                </tbody>
 
-                {/* Modal para mostrar los detalles */}
-                {modalVisible && (
-                  <Modal
-                    isOpen={modalVisible}
-                    onClose={() => setModalVisible(false)}
-                    className="max-w-4xl mx-auto"
-                  >
-                    <ModalContent>
-                      <ModalHeader>Detalles de la Respuesta</ModalHeader>
-                      <ModalBody className="max-h-[70vh] overflow-y-auto">
-                        {loadingDetalle ? (
-                          <div className="flex justify-center items-center">
-                            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-                            <p className="ml-4 text-gray-600">
-                              Cargando detalles...
+                  {/* Modal para mostrar los detalles */}
+                  {modalVisible && (
+                    <Modal
+                      isOpen={modalVisible}
+                      onClose={() => setModalVisible(false)}
+                      className="max-w-4xl mx-auto"
+                    >
+                      <ModalContent>
+                        <ModalHeader>Detalles de la Respuesta</ModalHeader>
+                        <ModalBody className="max-h-[70vh] overflow-y-auto">
+                          {loadingDetalle ? (
+                            <div className="flex justify-center items-center">
+                              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                              <p className="ml-4 text-gray-600">
+                                Cargando detalles...
+                              </p>
+                            </div>
+                          ) : detalleRespuesta.length > 0 ? (
+                            <ul className="space-y-4">
+                              {detalleRespuesta.map((detalle, index) => (
+                                <li key={index} className="border-b pb-2">
+                                  <div className="flex items-start gap-4">
+                                    {/* Ícono para la pregunta */}
+                                    <div className="flex items-center justify-center bg-blue-100 rounded-full w-10 h-10 shrink-0">
+                                      <FileQuestion className="w-6 h-6 text-blue-500" />
+                                    </div>
+                                    <div className="flex flex-col">
+                                      <p className="text-sm font-medium text-gray-700">
+                                        <span className="font-bold">
+                                          Pregunta:
+                                        </span>{" "}
+                                        {detalle.textopregunta}
+                                      </p>
+                                      <p className="text-sm text-gray-600 flex items-center gap-2">
+                                        {/* Ícono para la respuesta */}
+                                        <PencilLine className="w-5 h-5 text-green-500" />
+                                        <span className="font-bold">
+                                          Respuesta:
+                                        </span>{" "}
+                                        {detalle.respuestaelegida}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="text-gray-500">
+                              No se encontraron detalles para esta respuesta.
                             </p>
-                          </div>
-                        ) : detalleRespuesta.length > 0 ? (
-                          <ul className="space-y-4">
-                            {detalleRespuesta.map((detalle, index) => (
-                              <li key={index} className="border-b pb-2">
-                                <div className="flex items-start gap-4">
-                                  {/* Ícono para la pregunta */}
-                                  <div className="flex items-center justify-center bg-blue-100 rounded-full w-10 h-10 shrink-0">
-                                    <FileQuestion className="w-6 h-6 text-blue-500" />
-                                  </div>
-                                  <div className="flex flex-col">
-                                    <p className="text-sm font-medium text-gray-700">
-                                      <span className="font-bold">
-                                        Pregunta:
-                                      </span>{" "}
-                                      {detalle.textopregunta}
-                                    </p>
-                                    <p className="text-sm text-gray-600 flex items-center gap-2">
-                                      {/* Ícono para la respuesta */}
-                                      <PencilLine className="w-5 h-5 text-green-500" />
-                                      <span className="font-bold">
-                                        Respuesta:
-                                      </span>{" "}
-                                      {detalle.respuestaelegida}
-                                    </p>
-                                  </div>
-                                </div>
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p className="text-gray-500">
-                            No se encontraron detalles para esta respuesta.
-                          </p>
-                        )}
-                      </ModalBody>
-                      <ModalFooter>
-                        <button
-                          className="bg-gray-500 text-white py-1.5 px-3 rounded-md text-sm"
-                          onClick={() => setModalVisible(false)}
-                        >
-                          Cerrar
-                        </button>
-                      </ModalFooter>
-                    </ModalContent>
-                  </Modal>
-                )}
+                          )}
+                        </ModalBody>
+                        <ModalFooter>
+                          <button
+                            className="bg-gray-500 text-white py-1.5 px-3 rounded-md text-sm"
+                            onClick={() => setModalVisible(false)}
+                          >
+                            Cerrar
+                          </button>
+                        </ModalFooter>
+                      </ModalContent>
+                    </Modal>
+                  )}
+
+                  {/* Modal para mostrar la imagen */}
+                  {modalImagenVisible && (
+                    <Modal
+                      isOpen={modalImagenVisible}
+                      onClose={() => setModalImagenVisible(false)}
+                      className="max-w-4xl mx-auto"
+                    >
+                      <ModalContent>
+                        <ModalHeader>Ilustración</ModalHeader>
+                        <ModalBody className="max-h-[70vh] overflow-y-auto">
+                          {loadingImagen ? (
+                            <div className="flex justify-center items-center">
+                              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                              <p className="ml-4 text-gray-600">
+                                Cargando imagen...
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col items-center">
+                              {/* Mostrar mensaje si no hay imagen */}
+                              {!imagenData.urlarchivoilustracion && (
+                                <p className="text-gray-500 text-center mb-4">
+                                  Todavía no hay imagen disponible.
+                                </p>
+                              )}
+
+                              {/* Mostrar imagen si está disponible */}
+                              {imagenData.urlarchivoilustracion && (
+                                <img
+                                  src={imagenData.urlarchivoilustracion}
+                                  alt="Ilustración"
+                                  className="rounded-md shadow-md"
+                                  style={{
+                                    width: "200px", // Ancho fijo
+                                    height: "200px", // Altura fija
+                                    objectFit: "cover", // Ajustar la imagen al tamaño especificado
+                                  }}
+                                />
+                              )}
+
+                              {/* Mostrar descripción siempre que esté disponible */}
+                              {imagenData.descripcionilustracion && (
+                                <p className="mt-4 text-gray-700 text-center">
+                                  {imagenData.descripcionilustracion}
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </ModalBody>
+                        <ModalFooter>
+                          <button
+                            className="bg-gray-500 text-white py-1.5 px-3 rounded-md text-sm"
+                            onClick={() => setModalImagenVisible(false)}
+                          >
+                            Cerrar
+                          </button>
+                        </ModalFooter>
+                      </ModalContent>
+                    </Modal>
+                  )}
+                </tbody>
               </table>
               {historialRespuestas.length === 0 && (
                 <div className="text-center py-6 text-gray-500">
