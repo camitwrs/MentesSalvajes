@@ -39,27 +39,27 @@ const BotonesNavegacion = ({
               : "bg-Moonstone text-white hover:scale-105"
           }`}
         >
-          {isLastQuestion ? (
-            isSubmitting ? (
-              "Enviando..."
-            ) : (
-              <>
-                Enviar
-                <SendHorizontal className="h-5 w-5 ml-2" />
-              </>
-            )
+          {isLastQuestion && isSubmitting ? (
+            <div className="flex items-center">
+              <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-white"></div>
+              <span className="ml-3 text-sm sm:text-base text-white font-medium">
+                Enviando información
+              </span>
+            </div>
+          ) : isLastQuestion ? (
+            <>
+              Enviar
+              <SendHorizontal className="h-5 w-5 ml-2" />
+            </>
           ) : (
-            "Siguiente"
+            <>
+              Siguiente
+              <MoveRight className="h-5 w-5 ml-2" />
+            </>
           )}
-          {!isLastQuestion && <MoveRight className="h-5 w-5 ml-2" />}
         </button>
 
-        {/* Mostrar mensaje debajo del botón si está enviando */}
-        {isLastQuestion && isSubmitting && (
-          <p className="text-sm text-gray-600 mt-2">
-            El envío puede demorar unos segundos, por favor espere...
-          </p>
-        )}
+        
       </div>
     </div>
   );

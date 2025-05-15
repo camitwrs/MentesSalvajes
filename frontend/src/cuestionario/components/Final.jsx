@@ -88,19 +88,29 @@ const Final = ({ submitSuccess }) => {
       );
       return respuesta?.caracteristicaalternativa || "No descubierto";
     };
+
+    const getRespuestaElegida = (idpregunta) => {
+      const respuesta = respuestasDetalle.find(
+        (resp) => Number(resp.idpregunta) === Number(idpregunta)
+      );
+      if (!respuesta?.respuestaelegida) return "desconocido";
+      const palabras = respuesta.respuestaelegida.trim().split(" ");
+      return palabras.length > 1
+        ? palabras[palabras.length - 1]
+        : respuesta.respuestaelegida;
+    };
+
     return (
       <>
         Nombre de la especie:{" "}
         <span className="font-bold text-YankeesBlue">
           {user?.nombreusuario} {user?.apellidousuario}
         </span>{" "}
-        +{" "}
         <span className="font-bold text-YankeesBlue">
-          {getCaracteristica("32")}
+          {getRespuestaElegida("32")}
         </span>{" "}
-        +{" "}
         <span className="font-bold text-YankeesBlue">
-          {getCaracteristica("37")}
+          {getRespuestaElegida("37")}
         </span>
         <br />
         Su principal comportamiento es:{" "}
