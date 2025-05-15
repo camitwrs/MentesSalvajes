@@ -116,7 +116,11 @@ const ResumenPage = () => {
           setRespuestasPorPregunta(respuesta.data);
         }
       } catch (err) {
-        setError(err.message || "Error al cargar los datos");
+        if (err.response.status === 404) {
+          setError("Esta sesión no contiene respuestas."); // Mensaje personalizado para 404
+        } else {
+          setError(err.message || "Error al cargar los datos");
+        }
         console.error("Error:", err);
       } finally {
         setLoading(false);
@@ -286,7 +290,7 @@ const ResumenPage = () => {
           </div>
         ) : error ? (
           <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
-            <p className="text-red-700">Error: {error}</p>
+            <p className="text-red-700">{error}</p>
           </div>
         ) : (
           <div className="space-y-6 sm:space-y-8 md:space-y-10">
