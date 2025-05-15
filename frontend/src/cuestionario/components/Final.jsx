@@ -24,7 +24,6 @@ const imagenesPorRespuesta = {
   Nutrias: Nutrias,
 };
 
-
 const Final = ({ submitSuccess }) => {
   const { user } = useAuth();
   const { quizId } = useContext(FormContext);
@@ -170,13 +169,13 @@ const Final = ({ submitSuccess }) => {
       descripcionllustracion: descripcionToSend,
       ideducador: user.idusuario,
     };
-    guardarMensajeRequest(mensajeToSend)
-      .then((response) => {
-        console.log("Mensaje enviado correctamente:", response.data);
-      })
-      .catch((error) => {
-        console.error("Error al enviar el mensaje:", error);
-      });
+
+    try {
+      const response = await guardarMensajeRequest(mensajeToSend);
+    } catch (error) {
+      console.error("Error al guardar la ilustracion:", error);
+    }
+
   }, [user, educador, respuestasDetalle, generarDescripcion]);
   */
 
@@ -186,10 +185,7 @@ const Final = ({ submitSuccess }) => {
     user && educador && respuestasDetalle.length > 0 ? (
       generarDescripcion()
     ) : (
-      <p className="italic text-gray-500">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pronto podrás
-        ver tu perfil aquí.
-      </p>
+      <p className="italic text-gray-500">Pronto podrás ver tu perfil aquí.</p>
     );
 
   return (

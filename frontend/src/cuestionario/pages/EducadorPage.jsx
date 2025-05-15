@@ -3,6 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
 import { Accordion, AccordionItem } from "@heroui/accordion";
 import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "@heroui/modal";
+import {
   ClipboardList,
   User,
   MoveRight,
@@ -19,6 +26,8 @@ import {
   Pencil,
   Save,
   X,
+  FileQuestion,
+  PencilLine,
 } from "lucide-react";
 import { getCuestionariosRequest } from "../../api/cuestionarios";
 import {
@@ -26,7 +35,10 @@ import {
   actualizarDatosEducadorRequest,
   actualizarDatosUsuarioRequest,
 } from "../../api/usuarios";
-import { getHistorialRespuestasRequest } from "../../api/respuestas";
+import {
+  getHistorialRespuestasRequest,
+  getDetallePorRespuestaRequest,
+} from "../../api/respuestas";
 import { FormContext } from "../context/FormContext";
 import { useAuth } from "../../autenticacion/context/AuthContext";
 
@@ -34,6 +46,13 @@ const EducadorPage = () => {
   const [cuestionarios, setCuestionarios] = useState([]);
   const [educador, setEducador] = useState(null);
   const [historialRespuestas, setHistorialRespuestas] = useState([]);
+
+  const [loadingButton, setLoadingButton] = useState(false);
+  const [loadingButtonId, setLoadingButtonId] = useState(null);
+
+  const [detalleRespuesta, setDetalleRespuesta] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [loadingDetalle, setLoadingDetalle] = useState(false);
 
   const [editMode, setEditMode] = useState(false);
 
@@ -112,6 +131,21 @@ const EducadorPage = () => {
     fetchDatosEducador();
     fetchHistorial();
   }, [user?.idusuario]);
+
+  const handleVerDetalle = async (idrespuesta) => {
+    try {
+      setLoadingButtonId(idrespuesta); // Activar el estado de carga para el botón específico
+      setLoadingDetalle(true); // Activar el estado de carga del modal
+      const response = await getDetallePorRespuestaRequest(idrespuesta);
+      setDetalleRespuesta(response.data);
+      setModalVisible(true); // Mostrar el modal
+    } catch (error) {
+      console.error("Error al obtener los detalles de la respuesta:", error);
+    } finally {
+      setLoadingButtonId(null); // Desactivar el estado de carga del botón
+      setLoadingDetalle(false); // Desactivar el estado de carga del modal
+    }
+  };
 
   const handleEducadorInputChange = (e) => {
     const { name, value } = e.target;
@@ -656,17 +690,92 @@ const EducadorPage = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end gap-2">
                           <button
-                            className="flex items-center gap-1 bg-gray-500 text-white py-1.5 px-3 rounded-md text-sm cursor-not-allowed"
-                            disabled
+                            className={`flex items-center gap-1 py-1.5 px-3 rounded-md text-sm ${
+                              loadingButtonId === respuesta.id
+                                ? "bg-Moonstone cursor-not-allowed"
+                                : "bg-Moonstone text-white"
+                            }`}
+                            onClick={() => handleVerDetalle(respuesta.id)}
+                            disabled={loadingButtonId === respuesta.id} // Deshabilitar solo el botón en carga
                           >
-                            <Eye className="w-4 h-4" />
-                            Ver detalle (Próximamente)
+                            {loadingButtonId === respuesta.id ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                            ) : (
+                              <>
+                                <Eye className="w-4 h-4" />
+                                Ver detalle
+                              </>
+                            )}
                           </button>
                         </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
+
+                {/* Modal para mostrar los detalles */}
+                {modalVisible && (
+                  <Modal
+                    isOpen={modalVisible}
+                    onClose={() => setModalVisible(false)}
+                    className="max-w-4xl mx-auto"
+                  >
+                    <ModalContent>
+                      <ModalHeader>Detalles de la Respuesta</ModalHeader>
+                      <ModalBody className="max-h-[70vh] overflow-y-auto">
+                        {loadingDetalle ? (
+                          <div className="flex justify-center items-center">
+                            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                            <p className="ml-4 text-gray-600">
+                              Cargando detalles...
+                            </p>
+                          </div>
+                        ) : detalleRespuesta.length > 0 ? (
+                          <ul className="space-y-4">
+                            {detalleRespuesta.map((detalle, index) => (
+                              <li key={index} className="border-b pb-2">
+                                <div className="flex items-start gap-4">
+                                  {/* Ícono para la pregunta */}
+                                  <div className="flex items-center justify-center bg-blue-100 rounded-full w-10 h-10 shrink-0">
+                                    <FileQuestion className="w-6 h-6 text-blue-500" />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <p className="text-sm font-medium text-gray-700">
+                                      <span className="font-bold">
+                                        Pregunta:
+                                      </span>{" "}
+                                      {detalle.textopregunta}
+                                    </p>
+                                    <p className="text-sm text-gray-600 flex items-center gap-2">
+                                      {/* Ícono para la respuesta */}
+                                      <PencilLine className="w-5 h-5 text-green-500" />
+                                      <span className="font-bold">
+                                        Respuesta:
+                                      </span>{" "}
+                                      {detalle.respuestaelegida}
+                                    </p>
+                                  </div>
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-gray-500">
+                            No se encontraron detalles para esta respuesta.
+                          </p>
+                        )}
+                      </ModalBody>
+                      <ModalFooter>
+                        <button
+                          className="bg-gray-500 text-white py-1.5 px-3 rounded-md text-sm"
+                          onClick={() => setModalVisible(false)}
+                        >
+                          Cerrar
+                        </button>
+                      </ModalFooter>
+                    </ModalContent>
+                  </Modal>
+                )}
               </table>
               {historialRespuestas.length === 0 && (
                 <div className="text-center py-6 text-gray-500">

@@ -100,11 +100,16 @@ export const getDetallePorRespuesta = async (req, res) => {
     const result = await pool.query(
       `
       SELECT 
-      *
+        p.textopregunta, 
+        rd.respuestaelegida
       FROM 
-        respuestasdetalle
+        respuestasdetalle rd
+      JOIN 
+        preguntas p 
+      ON 
+        rd.idpregunta = p.idpregunta
       WHERE 
-        idrespuesta = $1
+        rd.idrespuesta = $1
       `,
       [idrespuesta]
     );
