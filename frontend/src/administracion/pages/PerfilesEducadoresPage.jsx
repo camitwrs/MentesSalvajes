@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Accordion, AccordionItem } from "@heroui/accordion";
 import { Button } from "@heroui/button";
+import { useNavigate } from "react-router-dom";
 import {
   getHistorialRespuestasRequest,
   getDetallePorRespuestaRequest,
@@ -14,7 +15,15 @@ import {
   ModalBody,
   ModalFooter,
 } from "@heroui/modal";
-import { FileQuestion, PencilLine, X, User, Image, Eye } from "lucide-react";
+import {
+  FileQuestion,
+  PencilLine,
+  X,
+  User,
+  Image,
+  Eye,
+  ArrowLeft,
+} from "lucide-react";
 
 const PerfilesEducadoresPage = () => {
   const [educadores, setEducadores] = useState([]);
@@ -32,6 +41,8 @@ const PerfilesEducadoresPage = () => {
     descripcionilustracion: "",
   });
   const [loadingImagen, setLoadingImagen] = useState(false);
+
+  const navigate = useNavigate();
 
   // Obtener la lista de educadores al cargar la página
   useEffect(() => {
@@ -119,6 +130,15 @@ const PerfilesEducadoresPage = () => {
 
   return (
     <div className="min-h-screen p-8 space-y-6 bg-gray-50">
+      <div>
+        <Button
+          onPress={() => navigate(-1)} // Navegar hacia atrás
+          className="flex items-center gap-2 text-gray-700 hover:text-gray-900"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Volver
+        </Button>
+      </div>
       <h1 className="text-xl sm:text-2xl font-bold mb-4">
         Perfiles de Educadores
       </h1>

@@ -13,6 +13,7 @@ import Navbar from "./shared/components/Navbar";
 import { HeroUIProvider } from "@heroui/react";
 import EdicionPage from "./administracion/pages/EdicionPage";
 import PerfilesEducadoresPage from "./administracion/pages/PerfilesEducadoresPage";
+import GestionUsuariosPage from "./administracion/pages/GestionUsuariosPage";
 import SesionesPage from "./administracion/pages/SesionesPage";
 import { useAuth } from "./autenticacion/context/AuthContext";
 import { Navigate } from "react-router-dom";
@@ -96,6 +97,7 @@ function App() {
                 path="/perfiles-educadores"
                 element={<PerfilesEducadoresPage />}
               />
+              <Route path="/usuarios" element={<GestionUsuariosPage />} />
             </Route>
 
             {/* PROTECTED ROUTES PARA ILUSTRADORES (ROL 4) */}

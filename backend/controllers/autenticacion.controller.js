@@ -108,6 +108,7 @@ export const registrarUsuario = async (req, res) => {
   } = req.body;
 
   try {
+    console.log("toiii")
     // Verificar si el admin ya existe
     const usuarioExistente = await pool.query(
       "SELECT * FROM usuarios WHERE correousuario = $1",

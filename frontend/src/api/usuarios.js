@@ -14,6 +14,9 @@ export const getTotalEducadoresRequest = () =>
   axios.get(`${API}/usuarios/all`);
 
 export const getEducadoresRequest = () => 
+  axios.get(`${API}/usuarios/educadores`);
+
+export const getUsuariosRequest = () => 
   axios.get(`${API}/usuarios`);
 
 export const getDiferenciaEducadoresRequest = () =>
@@ -22,5 +25,11 @@ export const getDiferenciaEducadoresRequest = () =>
 export const actualizarDatosEducadorRequest = (idusuario, data) =>
   axios.put(`${API}/usuarios/datos-educador/${idusuario}`, data);
 
+export const eliminarUsuarioRequest = (idusuario) =>
+  axios.delete(`${API}/usuarios/${idusuario}`);
+
 export const actualizarDatosUsuarioRequest = (idusuario, data) =>
   axios.put(`${API}/usuarios/datos-usuario/${idusuario}`, data);
+
+export const registrarUsuarioSinTokenRequest = (user) =>
+  axios.post(`${API}/usuarios`, user);

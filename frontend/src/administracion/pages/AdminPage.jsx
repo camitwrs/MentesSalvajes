@@ -166,7 +166,7 @@ const AdminPage = () => {
   }
 
   return (
-    <div className="min-min-h-screen p-8 space-y-6 bg-gray-50">
+    <div className="min-h-screen p-8 space-y-6 bg-gray-50">
       {/* Panel de Usuarios */}
       <div>
         <h1 className="text-xl sm:text-2xl font-bold mb-4">
@@ -210,6 +210,7 @@ const AdminPage = () => {
               color="success"
               size="md"
               className="mt-4 text-white hover:bg-green-600"
+              onPress={() => navigate("/usuarios")}
             >
               Gestionar Usuarios
             </Button>

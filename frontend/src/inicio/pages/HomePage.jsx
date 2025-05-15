@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 const HomePage = () => {
   return (
-    <div className="flex flex-col min-min-h-screen">
+    <div className="flex flex-col min-h-screen">
       <nav className="bg-YankeesBlue h-20 px-4 sm:px-6 md:px-8 flex items-center justify-between">
         {/* Logo y Título */}
         <div className="flex items-center gap-x-3">

@@ -49,7 +49,7 @@ const LoginPage = () => {
   });
 
   return (
-    <div className="min-min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="bg-white p-8 w-full max-w-md">
         <div className="text-center mb-6">
           <img

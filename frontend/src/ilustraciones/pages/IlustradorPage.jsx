@@ -61,7 +61,7 @@ function IlustradorPage() {
   }
 
   return (
-    <div className="min-min-h-screen bg-gray-50 w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+    <div className="min-h-screen bg-gray-50 w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
       <div className="mx-auto max-w-7xl">
         {/* Header con título y búsqueda */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
