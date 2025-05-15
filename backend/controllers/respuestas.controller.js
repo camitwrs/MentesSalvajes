@@ -83,7 +83,11 @@ export const guardarRespuesta = async (req, res) => {
     }
 
     await pool.query("COMMIT"); // Confirmar transacción
-    res.status(201).json({ message: "Respuestas guardadas correctamente."});
+    res.status(201).json({ 
+      message: "Respuestas guardadas correctamente.",
+      idrespuesta: idrespuesta 
+    });
+
   } catch (error) {
 
     await pool.query("ROLLBACK"); // Revertir cambios si hay error

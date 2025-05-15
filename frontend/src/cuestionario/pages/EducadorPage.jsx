@@ -47,7 +47,6 @@ const EducadorPage = () => {
   const [educador, setEducador] = useState(null);
   const [historialRespuestas, setHistorialRespuestas] = useState([]);
 
-  const [loadingButton, setLoadingButton] = useState(false);
   const [loadingButtonId, setLoadingButtonId] = useState(null);
 
   const [detalleRespuesta, setDetalleRespuesta] = useState([]);

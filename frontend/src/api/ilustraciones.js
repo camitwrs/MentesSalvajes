@@ -86,3 +86,6 @@ Si hay un error, devuelve una respuesta con status 400, 404 o 500 y un JSON como
 
 export const guardarArchivoRequest = (archivo) =>
   axios.post(`${API}/ilustraciones/guardar-archivo`, archivo);
+
+export const getArchivoRequest = (idrespuesta) =>
+  axios.post(`${API}/ilustraciones/guardar-archivo`, archivo);

@@ -3,20 +3,34 @@ import supabase from "../config/supabaseClient.js";
 
 // Guardar primera parte de la ilustracion desde el cuestionario
 export const guardarMensaje = async (req, res) => {
-  const { tituloilustracion, descripcionilustracion, ideducador } = req.body;
+  const { tituloilustracion, descripcionilustracion, ideducador, idrespuesta } = req.body;
 
   try {
-    const query = `
-      INSERT INTO ilustraciones (tituloilustracion, descripcionilustracion, ideducador)
-      VALUES ($1, $2, $3) RETURNING *;
-    `;
 
-    const values = [tituloilustracion, descripcionilustracion, ideducador];
-    const { rows } = await pool.query(query, values);
+    await pool.query('BEGIN'); // Inicia transacción
+
+    // 1. Insertar la ilustración
+    const insertQuery = `
+      INSERT INTO ilustraciones (tituloilustracion, descripcionilustracion, ideducador)
+      VALUES ($1, $2, $3) RETURNING idilustracion;
+    `;
+    const insertValues = [tituloilustracion, descripcionilustracion, ideducador];
+    const insertResult = await pool.query(insertQuery, insertValues);
+
+    const idilustracion = insertResult.rows[0].idilustracion;
+
+    // 2. Asociar la ilustración con la respuesta correspondiente
+    const updateQuery = `
+      UPDATE respuestas
+      SET idilustracion = $1
+      WHERE idrespuesta = $2;
+    `;
+    await pool.query(updateQuery, [idilustracion, idrespuesta]);
+
+    await pool.query('COMMIT'); // Confirmar transacción
 
     res.status(201).json({
-      mensaje: "Ilustración guardada con éxito",
-      ilustracion: rows[0],
+      message: "Ilustración guardada y asociada correctamente.",
     });
   } catch (error) {
     console.error("Error al guardar la ilustración:", error);

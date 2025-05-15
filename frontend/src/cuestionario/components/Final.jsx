@@ -7,6 +7,7 @@ import { FormContext } from "../context/FormContext";
 import { Spinner } from "@heroui/spinner";
 import PropTypes from "prop-types";
 import { guardarMensajeRequest } from "./../../api/ilustraciones";
+import { useAlert } from "../../shared/context/AlertContext";
 
 import Ballenas from "../assets/cetaceo.svg";
 import Focas from "../assets/pinipedo.svg";
@@ -26,11 +27,13 @@ const imagenesPorRespuesta = {
 
 const Final = ({ submitSuccess }) => {
   const { user } = useAuth();
-  const { quizId } = useContext(FormContext);
+  const { quizId, idrespuesta } = useContext(FormContext);
 
   const [educador, setEducador] = useState(null);
   const [respuestasDetalle, setRespuestasDetalle] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const { showAlert } = useAlert();
 
   useEffect(() => {
     const fetchDatosEducador = async () => {
@@ -156,7 +159,12 @@ const Final = ({ submitSuccess }) => {
         </span>
       </>
     );
-  }, [user?.nombreusuario, user?.apellidousuario, educador?.paiseducador, respuestasDetalle]);
+  }, [
+    user?.nombreusuario,
+    user?.apellidousuario,
+    educador?.paiseducador,
+    respuestasDetalle,
+  ]);
 
   useEffect(() => {
     if (!user || !educador || respuestasDetalle.length === 0) return;
@@ -173,14 +181,18 @@ const Final = ({ submitSuccess }) => {
       tituloilustracion: `${user.nombreusuario} ${user.apellidousuario}`,
       descripcionilustracion: descripcionToSend,
       ideducador: user.idusuario,
+      idrespuesta: idrespuesta,
     };
 
     guardarMensajeRequest(mensajeToSend)
-      .then((response) => {
-        console.log("Mensaje enviado correctamente:", response.data);
+      .then(() => {
+        showAlert("Resultado guardado exitosamente", "success");
       })
-      .catch((error) => {
-        console.error("Error al enviar el mensaje:", error);
+      .catch(() => {
+        showAlert(
+          "Error al guardar el resultado, inténtalo denuevo más tarde",
+          "danger"
+        );
       });
   }, [user, educador, respuestasDetalle, generarDescripcion]);
 

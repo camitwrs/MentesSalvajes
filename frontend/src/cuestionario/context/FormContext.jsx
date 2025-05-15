@@ -10,6 +10,7 @@ export const FormProvider = ({ children }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userData, setUserData] = useState({});
   const [finalData, setFinalData] = useState({});
+  const [idrespuesta, setIdRespuesta] = useState(null);
   const [isQuizStarted, setIsQuizStarted] = useState(false); // Estado para iniciar el cuestionario
   const [quizId, setQuizId] = useState(() => {
     return localStorage.getItem("quizId") || null;
@@ -86,6 +87,7 @@ export const FormProvider = ({ children }) => {
 
     try {
       const response = await guardarRespuestaRequest(finalDataToSend);
+      setIdRespuesta(response.data.idrespuesta);
     } catch (error) {
       console.error("Error al enviar respuestas:", error);
     }
@@ -118,6 +120,7 @@ export const FormProvider = ({ children }) => {
         submitData,
         quizId,
         setQuizId: updateQuizId,
+        idrespuesta,
       }}
     >
       {children}
