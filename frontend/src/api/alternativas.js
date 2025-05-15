@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = import.meta.env.VITE_API_URL;
-
+//const PAIS_URL = process.env.REACT_APP_PAISES_API_URL;
 /*
   Funcion: getAlternativasPorPregunta
   ----------------------------------------
@@ -98,3 +98,8 @@ export const eliminarAlternativaRequest = (idalternativa) =>
 // Petición a API PUIBLICA EXTERNA
 export const getUniversidadesPorPaisRequest = (nombrepais) =>
   axios.get(`http://universities.hipolabs.com/search?country=${nombrepais}`);
+
+// alternativas.js
+export const getPaisesExternosRequest = async () => {
+  return await axios.get("https://restcountries.com/v3.1/all");
+};

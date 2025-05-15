@@ -4,8 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { registerEducatorSchema } from "../../../schemas/autenticacion.schema";
 import { useAuth } from "../context/AuthContext";
 import {
-  getAlternativasPorPreguntaRequest,
+  //getAlternativasPorPreguntaRequest,
   getUniversidadesPorPaisRequest,
+  getPaisesExternosRequest,
 } from "../../api/alternativas";
 import logo from "../../shared/assets/logo.svg";
 import { Link, useNavigate } from "react-router-dom";
@@ -52,10 +53,18 @@ const RegisterPage = () => {
   useEffect(() => {
     const cargarPaises = async () => {
       try {
-        const paisesResponse = await getAlternativasPorPreguntaRequest(5);
-        setPaises(paisesResponse.data);
+        const response = await getPaisesExternosRequest();
+        const paisesOrdenados = response.data
+          .filter((pais) => pais.name && pais.name.common) // filtra inválidos
+          .map((pais) => ({
+            idalternativa: pais.cca2 || pais.cca3 || pais.name.common,
+            textoalternativa: pais.name.common,
+          }))
+          .sort((a, b) => a.textoalternativa.localeCompare(b.textoalternativa));
+
+        setPaises(paisesOrdenados);
       } catch (error) {
-        console.error("Error al cargar los países:", error);
+        console.error("Error al cargar los países desde API externa:", error);
       }
     };
 
