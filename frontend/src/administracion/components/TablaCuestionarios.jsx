@@ -63,11 +63,11 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
         handleCloseDeleteModal();
       } else {
         console.error("Error al eliminar:", response);
-        showAlert("No se pudo eliminar. Intenta nuevamente.", "danger");
+        showAlert("No se pudo eliminar. Intenta nuevamente.", "warning");
       }
     } catch (error) {
       console.error("Error al eliminar:", error);
-      showAlert("Ocurrió un error al eliminar. Intenta nuevamente.", "danger");
+      showAlert("Ocurrió un error al eliminar. Intenta nuevamente.", "warning");
     }
   };
 
@@ -226,7 +226,7 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
                       <span className="hidden lg:inline">Editar</span>
                     </Button>
                     <Button
-                      color="danger"
+                      color="warning"
                       size="sm"
                       onPress={() => handleEliminarCuestionario(cuestionario)}
                       className="flex items-center gap-1 transition-all hover:bg-red-700 hover:shadow-md"
@@ -265,7 +265,7 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
             >
               Cancelar
             </Button>
-            <Button color="danger" onPress={handleConfirmarEliminar}>
+            <Button color="warning" onPress={handleConfirmarEliminar}>
               Eliminar
             </Button>
           </ModalFooter>

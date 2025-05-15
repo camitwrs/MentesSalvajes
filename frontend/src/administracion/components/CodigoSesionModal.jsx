@@ -74,7 +74,7 @@ const SessionCodeModal = ({
       }, 1000);
     } catch (error) {
       console.error("Error al crear la sesión:", error);
-      showAlert("Error al crear la sesión", "danger");
+      showAlert("Error al crear la sesión", "warning");
       setIsLoading(false);
     }
   };

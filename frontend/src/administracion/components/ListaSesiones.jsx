@@ -39,7 +39,7 @@ const ListaSesiones = ({ sesiones, onDeleteSession }) => {
       setDeleteModal({ open: false, sesion: null });
     } catch (error) {
       console.error("Error al eliminar la sesión:", error);
-      showAlert("Error al eliminar la sesión", "danger");
+      showAlert("Error al eliminar la sesión", "warning");
     }
   };
 
@@ -107,7 +107,7 @@ const ListaSesiones = ({ sesiones, onDeleteSession }) => {
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div className="flex justify-end space-x-2">
                   <Button
-                    color="danger"
+                    color="warning"
                     size="sm"
                     onPress={() => confirmarEliminacion(sesion)}
                     className="flex items-center gap-1"
@@ -147,7 +147,7 @@ const ListaSesiones = ({ sesiones, onDeleteSession }) => {
             >
               Cancelar
             </Button>
-            <Button color="danger" onPress={handleEliminar}>
+            <Button color="warning" onPress={handleEliminar}>
               Eliminar
             </Button>
           </ModalFooter>

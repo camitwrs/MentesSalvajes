@@ -60,7 +60,7 @@ export const AlertProvider = ({ children }) => {
         <div className="fixed bottom-5 left-5 z-50 max-w-sm w-full animate-fade-in">
           <Alert
             type={alertInfo.type}
-            color="primary"
+            color={alertInfo.type}
             variant="solid"
             radius="full"
             onClose={hideAlert}

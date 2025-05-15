@@ -12,10 +12,10 @@ import EstadisticaCuestionarios from "../components/EstadisticaCuestionarios";
 import TablaCuestionarios from "../components/TablaCuestionarios";
 import {
   crearCuestionarioRequest,
-  getCuestionariosRequest, 
+  getCuestionariosRequest,
 } from "../../api/cuestionarios";
-import { getTotalRespuestasPorCuestionarioRequest } from "../../api/respuestas"; 
-import { getTotalPreguntasPorCuestionarioRequest } from "../../api/preguntas"; 
+import { getTotalRespuestasPorCuestionarioRequest } from "../../api/respuestas";
+import { getTotalPreguntasPorCuestionarioRequest } from "../../api/preguntas";
 
 import { PlusIcon } from "lucide-react";
 import { useAlert } from "../../shared/context/AlertContext";
@@ -53,29 +53,26 @@ const AdminPage = () => {
 
         const cuestionariosConDatos = await Promise.all(
           data.map(async (cuestionario) => {
-            const id =
-              cuestionario.idcuestionario 
+            const id = cuestionario.idcuestionario;
             if (!id) return cuestionario;
 
             try {
-              const respuestasResponse = await getTotalRespuestasPorCuestionarioRequest(id);
-              const preguntasResponse = await getTotalPreguntasPorCuestionarioRequest(id);
+              const respuestasResponse =
+                await getTotalRespuestasPorCuestionarioRequest(id);
+              const preguntasResponse =
+                await getTotalPreguntasPorCuestionarioRequest(id);
               return {
                 ...cuestionario,
                 total_respuestas:
                   respuestasResponse?.data?.total_respuestas || 0,
-                total_preguntas:
-                preguntasResponse?.data?.total_preguntas || 0,
+                total_preguntas: preguntasResponse?.data?.total_preguntas || 0,
               };
-
             } catch (error) {
-              console.error(
-                error
-              );
+              console.error(error);
               return {
                 ...cuestionario,
                 total_respuestas: 0,
-                total_preguntas:0,
+                total_preguntas: 0,
               };
             }
           })
@@ -116,7 +113,11 @@ const AdminPage = () => {
         setCuestionarios((prevCuestionarios) => [
           ...prevCuestionarios,
           // Asegúrate de que el nuevo cuestionario tenga el campo total_respuestas inicializado
-          { ...response.data.cuestionario, total_respuestas: 0, total_preguntas: 0 },
+          {
+            ...response.data.cuestionario,
+            total_respuestas: 0,
+            total_preguntas: 0,
+          },
         ]);
         showAlert("Cuestionario creado exitosamente.", "success");
         handleCloseModal();
@@ -127,11 +128,11 @@ const AdminPage = () => {
         });
       } else {
         console.error("Error al crear el cuestionario:", response);
-        showAlert("No se pudo crear. Intenta nuevamente.", "danger");
+        showAlert("No se pudo crear. Intenta nuevamente.", "warning");
       }
     } catch (error) {
       console.error("Error al crear el cuestionario:", error);
-      showAlert("Ocurrió un error al crear. Intenta nuevamente.", "danger");
+      showAlert("Ocurrió un error al crear. Intenta nuevamente.", "warning");
     }
   };
 

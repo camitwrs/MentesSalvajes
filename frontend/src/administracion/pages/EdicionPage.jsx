@@ -177,7 +177,7 @@ const EdicionPage = () => {
       }
     } catch (err) {
       console.error("Error al eliminar pregunta:", err);
-      showAlert("Error al eliminar la pregunta", "danger");
+      showAlert("Error al eliminar la pregunta", "warning");
     }
   };
 
@@ -196,7 +196,7 @@ const EdicionPage = () => {
       }
     } catch (err) {
       console.error("Error al eliminar alternativa:", err);
-      showAlert("Error al eliminar la alternativa", "danger");
+      showAlert("Error al eliminar la alternativa", "warning");
     }
   };
 
@@ -216,7 +216,7 @@ const EdicionPage = () => {
       }
     } catch (err) {
       console.error("Error al actualizar alternativa:", err);
-      showAlert("Error al actualizar la alternativa", "danger");
+      showAlert("Error al actualizar la alternativa", "warning");
     }
   };
 
@@ -248,7 +248,7 @@ const EdicionPage = () => {
       }
     } catch (err) {
       console.error("Error al agregar alternativa:", err);
-      showAlert("Error al agregar la alternativa", "danger");
+      showAlert("Error al agregar la alternativa", "warning");
     }
   };
 
@@ -276,7 +276,7 @@ const EdicionPage = () => {
       }
     } catch (err) {
       console.error("Error al agregar pregunta:", err);
-      showAlert("Error al agregar la pregunta", "danger");
+      showAlert("Error al agregar la pregunta", "warning");
     }
   };
 
@@ -296,7 +296,7 @@ const EdicionPage = () => {
       }
     } catch (err) {
       console.error("Error al actualizar pregunta:", err);
-      showAlert("Error al actualizar la pregunta", "danger");
+      showAlert("Error al actualizar la pregunta", "warning");
     }
   };
 

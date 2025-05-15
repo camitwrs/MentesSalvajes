@@ -191,7 +191,7 @@ const Final = ({ submitSuccess }) => {
       .catch(() => {
         showAlert(
           "Error al guardar el resultado, inténtalo denuevo más tarde",
-          "danger"
+          "warning"
         );
       });
   }, [user, educador, respuestasDetalle, generarDescripcion]);
