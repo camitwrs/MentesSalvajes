@@ -226,7 +226,7 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
                       <span className="hidden lg:inline">Editar</span>
                     </Button>
                     <Button
-                      color="warning"
+                      color="danger"
                       size="sm"
                       onPress={() => handleEliminarCuestionario(cuestionario)}
                       className="flex items-center gap-1 transition-all hover:bg-red-700 hover:shadow-md"
@@ -265,7 +265,7 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
             >
               Cancelar
             </Button>
-            <Button color="warning" onPress={handleConfirmarEliminar}>
+            <Button color="danger" onPress={handleConfirmarEliminar}>
               Eliminar
             </Button>
           </ModalFooter>

@@ -107,7 +107,7 @@ const ListaSesiones = ({ sesiones, onDeleteSession }) => {
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div className="flex justify-end space-x-2">
                   <Button
-                    color="warning"
+                    color="danger"
                     size="sm"
                     onPress={() => confirmarEliminacion(sesion)}
                     className="flex items-center gap-1"
@@ -147,7 +147,7 @@ const ListaSesiones = ({ sesiones, onDeleteSession }) => {
             >
               Cancelar
             </Button>
-            <Button color="warning" onPress={handleEliminar}>
+            <Button color="danger" onPress={handleEliminar}>
               Eliminar
             </Button>
           </ModalFooter>
