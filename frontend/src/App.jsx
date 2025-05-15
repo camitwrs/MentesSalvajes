@@ -12,6 +12,7 @@ import ProtectedRoutes from "./ProtectedRoutes";
 import Navbar from "./shared/components/Navbar";
 import { HeroUIProvider } from "@heroui/react";
 import EdicionPage from "./administracion/pages/EdicionPage";
+import PerfilesEducadoresPage from "./administracion/pages/PerfilesEducadoresPage";
 import SesionesPage from "./administracion/pages/SesionesPage";
 import { useAuth } from "./autenticacion/context/AuthContext";
 import { Navigate } from "react-router-dom";
@@ -90,6 +91,10 @@ function App() {
               <Route
                 path="/editar-cuestionario/:idcuestionario"
                 element={<EdicionPage />}
+              />
+              <Route
+                path="/perfiles-educadores"
+                element={<PerfilesEducadoresPage />}
               />
             </Route>
 

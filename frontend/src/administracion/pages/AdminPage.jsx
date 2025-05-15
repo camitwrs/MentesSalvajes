@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"; // Añadir useEffect
+import { useNavigate } from "react-router-dom";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import {
@@ -17,11 +18,12 @@ import {
 import { getTotalRespuestasPorCuestionarioRequest } from "../../api/respuestas";
 import { getTotalPreguntasPorCuestionarioRequest } from "../../api/preguntas";
 
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, Users, UserCheck } from "lucide-react";
 import { useAlert } from "../../shared/context/AlertContext";
 
 const AdminPage = () => {
-  // Estados movidos aquí
+  const navigate = useNavigate();
+  // Estados
   const [cuestionarios, setCuestionarios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -139,7 +141,7 @@ const AdminPage = () => {
   // Renderizado condicional basado en loading y error
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
         <span className="ml-4 text-gray-600">Cargando datos...</span>
       </div>
@@ -148,7 +150,7 @@ const AdminPage = () => {
 
   if (error) {
     return (
-      <div className="h-screen p-8 space-y-6 bg-gray-50">
+      <div className="min-h-screen p-8 space-y-6 bg-gray-50">
         <div className="p-4 bg-red-50 border-l-4 border-red-500 text-red-700">
           <h3 className="font-bold">Error</h3>
           <p>{error}</p>
@@ -164,7 +166,58 @@ const AdminPage = () => {
   }
 
   return (
-    <div className="h-screen p-8 space-y-6 bg-gray-50">
+    <div className="min-min-h-screen p-8 space-y-6 bg-gray-50">
+      {/* Panel de Usuarios */}
+      <div>
+        <h1 className="text-xl sm:text-2xl font-bold mb-4">
+          Panel de Usuarios
+        </h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Perfiles de los Educadores */}
+          <div className="p-6 bg-white rounded-lg shadow-md">
+            <div className="flex items-center mb-4">
+              <Users className="w-6 h-6 text-blue-500 mr-2" />
+              <h2 className="text-lg font-bold text-gray-700">
+                Perfiles de los Educadores
+              </h2>
+            </div>
+            <p className="text-gray-500">
+              Visualiza y gestiona los perfiles de los educadores registrados en
+              la plataforma.
+            </p>
+            <Button
+              color="primary"
+              size="md"
+              className="mt-4 text-white hover:bg-blue-700"
+              onPress={() => navigate("/perfiles-educadores")}
+            >
+              Ver Perfiles
+            </Button>
+          </div>
+
+          {/* Gestión de Usuarios */}
+          <div className="p-6 bg-white rounded-lg shadow-md">
+            <div className="flex items-center mb-4">
+              <UserCheck className="w-6 h-6 text-green-500 mr-2" />
+              <h2 className="text-lg font-bold text-gray-700">
+                Gestión de Usuarios
+              </h2>
+            </div>
+            <p className="text-gray-500">
+              Administra los usuarios de la plataforma.
+            </p>
+            <Button
+              color="success"
+              size="md"
+              className="mt-4 text-white hover:bg-green-600"
+            >
+              Gestionar Usuarios
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Panel de Cuestionarios */}
       <div>
         <h1 className="text-xl sm:text-2xl font-bold">
           Panel de Cuestionarios
@@ -176,7 +229,7 @@ const AdminPage = () => {
       <div>
         <Button
           color="warning"
-          size="sm"
+          size="md"
           onPress={handleOpenModal}
           className="flex items-center gap-1 transition-all text-white"
         >
@@ -184,7 +237,7 @@ const AdminPage = () => {
           <span>Crear Cuestionario</span>
         </Button>
       </div>
-      <div className="mt-6">
+      <div className="my-6">
         <TablaCuestionarios
           cuestionarios={cuestionarios}
           setCuestionarios={setCuestionarios}

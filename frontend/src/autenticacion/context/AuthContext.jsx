@@ -115,7 +115,7 @@ export const AuthProvider = ({ children }) => {
   // Mostrar spinner mientras se verifica la autenticación inicial
   if (isInitializing) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen">
+      <div className="flex flex-col items-center justify-center min-h-screen">
         <Spinner size="lg" color="warning" />
         <p className="mt-4 text-gray-600 font-semibold text-lg">
           Cargando aplicación...
@@ -126,7 +126,7 @@ export const AuthProvider = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen">
+      <div className="flex flex-col items-center justify-center min-h-screen">
         <Spinner size="lg" color="warning" />
         <p className="mt-4 text-gray-600 font-semibold text-lg">
           Procesando, por favor espera...

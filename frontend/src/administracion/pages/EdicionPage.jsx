@@ -326,7 +326,7 @@ const EdicionPage = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center min-h-screen">
         <div className="flex items-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mr-4"></div>
           <p className="text-gray-600 text-lg">
@@ -338,7 +338,7 @@ const EdicionPage = () => {
   }
 
   return (
-    <div className="mx-auto h-screen bg-gray-50 px-4 py-6">
+    <div className="mx-auto min-h-screen bg-gray-50 px-4 py-6">
       {/* Cabecera */}
       <div className="flex justify-between items-center mb-6">
         <button

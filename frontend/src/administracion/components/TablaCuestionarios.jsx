@@ -160,8 +160,8 @@ const TablaCuestionarios = ({ cuestionarios, setCuestionarios }) => {
                     <Chip
                       className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         isActive
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-800"
+                          ? "bg-green-200 text-green-800"
+                          : "bg-gray-200 text-gray-800"
                       }`}
                     >
                       {cuestionario.estadocuestionario || "Desconocido"}

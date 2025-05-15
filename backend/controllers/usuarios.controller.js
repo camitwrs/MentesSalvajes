@@ -126,8 +126,20 @@ export const actualizarDatosUsuario = async (req, res) => {
   }
 };
 
+export const getEducadores = async (_, res) => {
+  try {
+    const query = `
+      SELECT * FROM usuarios
+      WHERE idrol = 1;
+    `;
 
-
+    const result = await pool.query(query);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error al obtener los usuarios educadores:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
 
 export const getTotalEducadores = async (_, res) => {
   try {

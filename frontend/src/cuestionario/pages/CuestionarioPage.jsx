@@ -131,7 +131,7 @@ const CuestionarioPage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen ">
+    <div className="flex flex-col min-min-h-screen ">
       <div className="flex-grow flex items-center justify-center p-6 sm:p-8">
         <div className="bg-white rounded-lg w-full max-w-4xl p-6 sm:p-8">
           <Carga isLoading={isLoading} loadError={loadError} />
