@@ -8,11 +8,11 @@ const PreguntaRange = ({ idPregunta, opciones, userData, setUserData }) => {
   );
 
   useEffect(() => {
-    if (!userData[idPregunta] && opcionesOrdenadas.length > 0) {
-      setUserData((prevUserData) => {
-        const updatedUserData = { ...prevUserData };
-        return updatedUserData;
-      });
+    if (userData[idPregunta] === undefined && opcionesOrdenadas.length > 0) {
+      setUserData((prevUserData) => ({
+        ...prevUserData,
+        [idPregunta]: opcionesOrdenadas[0].idalternativa,
+      }));
     }
   }, [idPregunta, opcionesOrdenadas, userData, setUserData]);
 

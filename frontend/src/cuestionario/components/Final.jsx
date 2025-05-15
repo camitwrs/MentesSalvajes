@@ -9,13 +9,6 @@ import PropTypes from "prop-types";
 import { guardarMensajeRequest } from "./../../api/ilustraciones";
 import { useAlert } from "../../shared/context/AlertContext";
 
-import Ballenas from "../assets/cetaceo.svg";
-import Focas from "../assets/pinipedo.svg";
-import TortugasMarinas from "../assets/tortuga.svg";
-import Orcas from "../assets/orca.svg";
-import Pingüinos from "../assets/pinguino.svg";
-import Nutrias from "../assets/mustelido.svg";
-
 const imagenesPorRespuesta = {
   Ballenas:
     "https://doqdfqrenenggbljmhdh.supabase.co/storage/v1/object/public/ilustraciones//cetaceo.svg",
@@ -188,10 +181,13 @@ const Final = ({ submitSuccess }) => {
     const descripcionHTML = ReactDOMServer.renderToStaticMarkup(
       generarDescripcion()
     );
+
     const descripcionToSend = descripcionHTML
       .replace(/<[^>]*>/g, "") // Elimina etiquetas HTML
       .replace(/\s+/g, " ") // Normaliza espacios
-      .replace(/\. /g, ".\n"); // Saltos de línea opcionales
+      .replace(/([a-z])([A-Z])/g, "$1. $2") // Agrega punto y espacio entre oraciones pegadas
+      .replace(/\. ?/g, ".\n") // Salto de línea después de cada punto
+      .trim();
 
     const mensajeToSend = {
       tituloilustracion: `${user.nombreusuario} ${user.apellidousuario}`,

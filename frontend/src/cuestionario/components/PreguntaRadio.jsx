@@ -7,23 +7,14 @@ const PreguntaRadio = ({ idPregunta, opciones, userData, setUserData }) => {
     setUserData((prevUserData) => {
       const updatedUserData = { ...prevUserData, [idPregunta]: value };
 
-      // Verificar si la pregunta 20 tiene seleccionada la alternativa 67
-      if (idPregunta === 20 && value === 67) {
-        delete updatedUserData[21];
-      }
-
-      // Verificar si la pregunta 56 tiene seleccionada la alternativa 154
-      if (idPregunta === 56 && value === 154) {
-        delete updatedUserData[57];
-        delete updatedUserData[58];
-      }
-
       return updatedUserData;
     });
   };
 
   // Ordenar las opciones por idalternativa de menor a mayor
-  const opcionesOrdenadas = opciones.sort((a, b) => a.idalternativa - b.idalternativa);
+  const opcionesOrdenadas = opciones.sort(
+    (a, b) => a.idalternativa - b.idalternativa
+  );
 
   return (
     <div className="w-full">
@@ -40,8 +31,16 @@ const PreguntaRadio = ({ idPregunta, opciones, userData, setUserData }) => {
             onChange={handleRadioChange}
             className="mr-2 h-5 w-5 text-blue-600 flex-shrink-0"
           />
-          <span className="text-gray-700 text-sm sm:text-base leading-normal">
-            {opcion.textoalternativa}
+          <span
+            className={`text-gray-700 text-sm sm:text-base ${
+              idPregunta === 40 ? "whitespace-pre-line font-medium" : ""
+            }`}
+          >
+            {idPregunta === 40
+              ? opcion.textoalternativa
+                  .replaceAll(/\n|\r/g, "")
+                  .replaceAll(/(\d+)\.\s*/g, "\n$1. ")
+              : opcion.textoalternativa}
           </span>
         </label>
       ))}
