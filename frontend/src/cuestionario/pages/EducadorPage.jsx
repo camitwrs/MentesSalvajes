@@ -118,20 +118,23 @@ const EducadorPage = () => {
       if (!user?.idusuario) return;
       try {
         const response = await getHistorialRespuestasRequest(user.idusuario);
-        const historial = response.data.map((item) => {
-          const fecha = new Date(item.fecharespuesta);
-          return {
-            id: item.idrespuesta,
-            nombre: item.titulocuestionario,
-            fecha: fecha.toLocaleDateString("es-CL"),
-            hora: fecha.toLocaleTimeString("es-CL", {
-              timeZone: "America/Santiago",
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-          };
-        });
-        setHistorialRespuestas(historial);
+
+        if (Array.isArray(response.data) && response.data.length > 0) {
+          const historial = response.data.map((item) => {
+            const fecha = new Date(item.fecharespuesta);
+            return {
+              id: item.idrespuesta,
+              nombre: item.titulocuestionario,
+              fecha: fecha.toLocaleDateString("es-CL"),
+              hora: fecha.toLocaleTimeString("es-CL", {
+                timeZone: "America/Santiago",
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+            };
+          });
+          setHistorialRespuestas(historial);
+        }
       } catch (error) {
         console.error("Error al obtener el historial de respuestas:", error);
       }

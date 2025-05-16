@@ -176,38 +176,53 @@ const Final = ({ submitSuccess }) => {
   ]);
 
   useEffect(() => {
-    if (!user || !educador || respuestasDetalle.length === 0) return;
+    // Define una función async dentro de useEffect para poder usar await
+    const guardarResultadoIlustracion = async () => {
+      // Condiciones para ejecutar el guardado
+      const descripcionHTML = ReactDOMServer.renderToStaticMarkup(
+        generarDescripcion()
+      );
 
-    const descripcionHTML = ReactDOMServer.renderToStaticMarkup(
-      generarDescripcion()
-    );
+      const descripcionToSend = descripcionHTML
+        .replace(/<[^>]*>/g, "") // Elimina etiquetas HTML
+        .replace(/\s+/g, " ") // Normaliza espacios
+        .replace(/([a-z])([A-Z])/g, "$1. $2") // Agrega punto y espacio
+        .replace(/\. ?/g, ".\n") // Salto de línea después de cada punto
+        .trim();
 
-    const descripcionToSend = descripcionHTML
-      .replace(/<[^>]*>/g, "") // Elimina etiquetas HTML
-      .replace(/\s+/g, " ") // Normaliza espacios
-      .replace(/([a-z])([A-Z])/g, "$1. $2") // Agrega punto y espacio entre oraciones pegadas
-      .replace(/\. ?/g, ".\n") // Salto de línea después de cada punto
-      .trim();
+      const imagenPerfilActual = getImagenSegunRespuesta(); // Llama a la función memoizada
 
-    const mensajeToSend = {
-      tituloilustracion: `${user.nombreusuario} ${user.apellidousuario}`,
-      descripcionilustracion: descripcionToSend,
-      urlarchivoilustracion: imagenPerfil,
-      ideducador: user.idusuario,
-      idrespuesta: idrespuesta,
-    };
+      const mensajeToSend = {
+        tituloilustracion: `${user.nombreusuario} ${user.apellidousuario}`,
+        descripcionilustracion: descripcionToSend,
+        urlarchivoilustracion: imagenPerfilActual, // Usa la variable correcta
+        ideducador: user.idusuario, // Asegúrate que este sea el ID correcto
+        idrespuesta: idrespuesta,
+      };
 
-    guardarMensajeRequest(mensajeToSend)
-      .then(() => {
+      try {
+        // Llama a guardarMensajeRequest y espera su resultado
+        const respuestaDelGuardado = await guardarMensajeRequest(mensajeToSend);
+
         showAlert("Resultado guardado exitosamente", "success");
-      })
-      .catch(() => {
+      } catch (err) {
         showAlert(
-          "Error al guardar el resultado, inténtalo denuevo más tarde",
+          "Error al guardar el resultado, inténtalo de nuevo más tarde",
           "warning"
         );
-      });
-  }, [user, educador, respuestasDetalle, generarDescripcion]);
+      }
+    };
+
+    guardarResultadoIlustracion(); // Llama a la función async
+  }, [
+    user,
+    educador,
+    respuestasDetalle,
+    generarDescripcion,
+    idrespuesta, // Asegúrate que idrespuesta venga del FormContext y esté disponible
+    getImagenSegunRespuesta, // Función memoizada
+    showAlert, // Función del contexto de alerta
+  ]);
 
   const imagenPerfil = getImagenSegunRespuesta();
 

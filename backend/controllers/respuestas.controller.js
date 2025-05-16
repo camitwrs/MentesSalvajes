@@ -55,10 +55,9 @@ export const guardarRespuesta = async (req, res) => {
           [idrespuesta, idpregunta, textoRespuesta]
         );
       }
-      
+
       // 🔹 **CASO 2: Respuesta seleccionada de alternativas (Número ENTERO)**
       else if (!isNaN(valor)) {
-        
         const alternativa = await pool.query(
           `SELECT idalternativa, textoalternativa, caracteristicaalternativa 
           FROM alternativas 
@@ -75,24 +74,29 @@ export const guardarRespuesta = async (req, res) => {
           await pool.query(
             `INSERT INTO respuestasdetalle (idrespuesta, idpregunta, respuestaelegida, idalternativa, caracteristicaalternativa) 
             VALUES ($1, $2, $3, $4, $5);`,
-            [idrespuesta, idpregunta, textoRespuesta, idalternativa, caracteristicaalternativa]
+            [
+              idrespuesta,
+              idpregunta,
+              textoRespuesta,
+              idalternativa,
+              caracteristicaalternativa,
+            ]
           );
-        } 
+        }
       }
-    
     }
 
     await pool.query("COMMIT"); // Confirmar transacción
-    res.status(201).json({ 
+    res.status(201).json({
       message: "Respuestas guardadas correctamente.",
-      idrespuesta: idrespuesta 
+      idrespuesta: idrespuesta,
     });
-
   } catch (error) {
-
     await pool.query("ROLLBACK"); // Revertir cambios si hay error
 
-    res.status(500).json({ message: "Ocurrió un error al guardar las respuestas."});;
+    res
+      .status(500)
+      .json({ message: "Ocurrió un error al guardar las respuestas." });
   }
 };
 
@@ -120,9 +124,9 @@ export const getDetallePorRespuesta = async (req, res) => {
 
     // Verificar si hay resultados
     if (result.rows.length === 0) {
-      return res
-        .status(404)
-        .json({ error: "No se encontraron detalles para la respuesta proporcionada." });
+      return res.status(404).json({
+        error: "No se encontraron detalles para la respuesta proporcionada.",
+      });
     }
 
     // Retornar los detalles encontrados
@@ -132,8 +136,6 @@ export const getDetallePorRespuesta = async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor." });
   }
 };
-
-
 
 export const getRespuestasDetalle = async (req, res) => {
   const { idusuario, idcuestionario } = req.query;
@@ -199,9 +201,9 @@ export const getRespuestasPorCodigo = async (req, res) => {
     if (sesionResult.rows.length === 0) {
       await pool.query("ROLLBACK"); // Revertir si no se encuentra el codigosesion
 
-      return res
-        .status(404)
-        .json({ error: "No se encontró una sesión con el código proporcionado." });
+      return res.status(404).json({
+        error: "No se encontró una sesión con el código proporcionado.",
+      });
     }
 
     const idsesion = sesionResult.rows[0].idsesion;
@@ -226,7 +228,6 @@ export const getRespuestasPorCodigo = async (req, res) => {
     await pool.query("COMMIT"); // Confirmar transacción
 
     res.status(200).json(detalles.rows);
-
   } catch (error) {
     await pool.query("ROLLBACK"); // Revertir transacción en caso de error
     res.status(500).json({ error: "Error interno del servidor." });
@@ -301,7 +302,9 @@ export const obtenerHistorialRespuestasPorUsuario = async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ mensaje: "No se encontraron respuestas para este usuario." });
+      return res.status(200).json({
+        message: "No se encontraron respuestas para este usuario.",
+      });
     }
 
     res.json(result.rows);

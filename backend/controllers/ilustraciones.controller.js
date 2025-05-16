@@ -3,18 +3,35 @@ import supabase from "../config/supabaseClient.js";
 
 // Guardar primera parte de la ilustracion desde el cuestionario
 export const guardarMensaje = async (req, res) => {
-  const { tituloilustracion, descripcionilustracion, ideducador, idrespuesta, urlarchivoilustracion } = req.body;
-
+  const {
+    tituloilustracion,
+    descripcionilustracion,
+    ideducador,
+    idrespuesta,
+    urlarchivoilustracion,
+  } = req.body;
+  console.log(
+    "datos",
+    tituloilustracion,
+    descripcionilustracion,
+    ideducador,
+    idrespuesta,
+    urlarchivoilustracion
+  );
   try {
-
-    await pool.query('BEGIN'); // Inicia transacción
+    await pool.query("BEGIN"); // Inicia transacción
 
     // 1. Insertar la ilustración
     const insertQuery = `
       INSERT INTO ilustraciones (tituloilustracion, descripcionilustracion, ideducador, urlarchivoilustracion)
       VALUES ($1, $2, $3, $4) RETURNING idilustracion;
     `;
-    const insertValues = [tituloilustracion, descripcionilustracion, ideducador, urlarchivoilustracion];
+    const insertValues = [
+      tituloilustracion,
+      descripcionilustracion,
+      ideducador,
+      urlarchivoilustracion,
+    ];
     const insertResult = await pool.query(insertQuery, insertValues);
 
     const idilustracion = insertResult.rows[0].idilustracion;
@@ -27,13 +44,13 @@ export const guardarMensaje = async (req, res) => {
     `;
     await pool.query(updateQuery, [idilustracion, idrespuesta]);
 
-    await pool.query('COMMIT'); // Confirmar transacción
+    await pool.query("COMMIT"); // Confirmar transacción
 
     res.status(201).json({
       message: "Ilustración guardada y asociada correctamente.",
     });
   } catch (error) {
-     await pool.query('ROLLBACK');
+    await pool.query("ROLLBACK");
     console.error("Error al guardar la ilustración:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
@@ -121,7 +138,6 @@ export const guardarArchivo = async (req, res) => {
   }
 };
 
-
 export const getAllIlustraciones = async (req, res) => {
   try {
     const query = `
@@ -139,22 +155,28 @@ export const getAllIlustraciones = async (req, res) => {
 
 export const getIlustracionPorRespuesta = async (req, res) => {
   const { idrespuesta } = req.params;
-  
-  try {
 
+  try {
     // 1. Obtener idilustracion desde la tabla respuestas
     const respuestaResult = await pool.query(
       `SELECT idilustracion FROM respuestas WHERE idrespuesta = $1`,
       [idrespuesta]
     );
 
-    if (respuestaResult.rows.length === 0 || !respuestaResult.rows[0].idilustracion) {
-      return res.status(404).json({ error: "No se encontró una ilustración asociada a la respuesta." });
+    if (
+      respuestaResult.rows.length === 0 ||
+      !respuestaResult.rows[0].idilustracion
+    ) {
+      return res
+        .status(404)
+        .json({
+          error: "No se encontró una ilustración asociada a la respuesta.",
+        });
     }
 
     const idilustracion = respuestaResult.rows[0].idilustracion;
 
-     // 2. Obtener la información de la ilustración
+    // 2. Obtener la información de la ilustración
     const ilustracionResult = await pool.query(
       `SELECT urlarchivoilustracion, descripcionilustracion FROM ilustraciones WHERE idilustracion = $1`,
       [idilustracion]
@@ -169,9 +191,8 @@ export const getIlustracionPorRespuesta = async (req, res) => {
     res.status(200).json({
       urlarchivoilustracion: ilustracion.urlarchivoilustracion,
       descripcionilustracion: ilustracion.descripcionilustracion,
-      idilustracion
+      idilustracion,
     });
-
   } catch (error) {
     console.error("Error al obtener la info de la ilustración:", error);
     res.status(500).json({ error: "Error interno del servidor" });

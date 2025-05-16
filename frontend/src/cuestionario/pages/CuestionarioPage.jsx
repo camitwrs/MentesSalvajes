@@ -1,5 +1,6 @@
 import { useContext, useState, useEffect, useCallback } from "react";
 import { FormContext } from "../context/FormContext";
+import { useNavigate } from "react-router-dom";
 import Inicio from "../components/Inicio";
 import Carga from "../components/Carga";
 import RenderizarPreguntas from "../components/RenderizarPreguntas";
@@ -15,6 +16,8 @@ import {
 import SeccionesCuestionario from "../components/SeccionesCuestionario";
 import Final from "../components/Final";
 import InputCodigoSesion from "../components/InputCodigoSesion";
+import { Button } from "@heroui/button";
+import { ArrowLeft } from "lucide-react";
 
 const CuestionarioPage = () => {
   const {
@@ -24,6 +27,8 @@ const CuestionarioPage = () => {
     setCurrentQuestionIndex,
     submitData,
   } = useContext(FormContext);
+
+  const navigate = useNavigate();
 
   const [aceptaTerminos, setAceptaTerminos] = useState(false);
   const [isQuizStarted, setIsQuizStarted] = useState(false);
@@ -132,8 +137,18 @@ const CuestionarioPage = () => {
 
   return (
     <div className="flex flex-col min-h-screen ">
-      <div className="flex-grow flex items-center justify-center p-6 sm:p-8">
-        <div className="bg-white rounded-lg w-full max-w-4xl p-6 sm:p-8">
+      <div className="mx-6 mt-4">
+        <Button
+          onPress={() => navigate(-1)} // Navegar hacia atrás
+          className="flex mb-2 items-center gap-2 text-gray-700 hover:text-gray-900"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Volver
+        </Button>
+      </div>
+
+      <div className="flex-grow flex items-center justify-center p-6 sm:p-2">
+        <div className="bg-white rounded-lg w-full max-w-4xl p-6 sm:p-2">
           <Carga isLoading={isLoading} loadError={loadError} />
           {!isLoading && !loadError && (
             <>

@@ -3,11 +3,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerEducatorSchema } from "../../../schemas/autenticacion.schema";
 import { useAuth } from "../context/AuthContext";
-import {
-  //getAlternativasPorPreguntaRequest,
-  getUniversidadesPorPaisRequest,
-  getPaisesExternosRequest,
-} from "../../api/alternativas";
+import { getUniversidadesPorPaisRequest } from "../../api/universidades";
+import { getPaisesRequest } from "../../api/paises";
 import logo from "../../shared/assets/logo.svg";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -44,32 +41,31 @@ const RegisterPage = () => {
   const [paises, setPaises] = useState([]);
   const [instituciones, setInstituciones] = useState([]);
   const [selectedPais, setSelectedPais] = useState("");
-  const [paisesSinUniversidades, setPaisesSinUniversidades] = useState(
-    new Set()
-  );
+
   const [mensaje, setMensaje] = useState("");
 
   // Cargar los países una sola vez al montar el componente
   useEffect(() => {
     const cargarPaises = async () => {
       try {
-        const response = await getPaisesExternosRequest();
-        const paisesOrdenados = response.data
-          .filter((pais) => pais.name && pais.name.common) // filtra inválidos
-          .map((pais) => ({
-            idalternativa: pais.cca2 || pais.cca3 || pais.name.common,
-            textoalternativa: pais.name.common,
-          }))
-          .sort((a, b) => a.textoalternativa.localeCompare(b.textoalternativa));
+        const datosRecibidos = await getPaisesRequest();
 
-        setPaises(paisesOrdenados);
+        setPaises(datosRecibidos.data);
       } catch (error) {
-        console.error("Error al cargar los países desde API externa:", error);
+        console.error("Error al cargar los países", error);
       }
     };
 
     cargarPaises();
   }, []);
+
+  useEffect(() => {
+    console.log("El estado 'paises' ha cambiado a:", paises);
+  }, [paises]);
+
+  useEffect(() => {
+    console.log("El estado 'instituciones' ha cambiado a:", instituciones);
+  }, [instituciones]);
 
   // Cargar instituciones solo cuando cambia `selectedPais`
   useEffect(() => {
@@ -78,35 +74,21 @@ const RegisterPage = () => {
       return;
     }
 
-    // Si el país está en la lista de países sin universidades, limpiar las instituciones y salir
-    if (paisesSinUniversidades.has(selectedPais)) {
-      setInstituciones([]); // Limpiar instituciones si el país no tiene universidades
-      return;
-    }
-
     const cargarInstituciones = async () => {
       try {
         const institucionesResponse = await getUniversidadesPorPaisRequest(
           selectedPais
         );
-        if (institucionesResponse.data.length === 0) {
-          // Si no hay universidades, deshabilitar el país
-          setPaisesSinUniversidades((prev) => new Set(prev).add(selectedPais));
-          setInstituciones([]); // Vaciar lista de instituciones
-        } else {
-          // Si hay universidades, actualizar la lista
-          setInstituciones(institucionesResponse.data.map((uni) => uni.name));
-        }
+
+        setInstituciones(institucionesResponse.data);
       } catch (error) {
         console.error("Error al cargar las instituciones:", error);
-        // Si la API falla, también deshabilitar el país
-        setPaisesSinUniversidades((prev) => new Set(prev).add(selectedPais));
         setInstituciones([]); // Vaciar lista de instituciones en caso de error
       }
     };
 
     cargarInstituciones();
-  }, [paisesSinUniversidades, selectedPais]); // Se ejecuta solo cuando `selectedPais` cambia
+  }, [selectedPais]); // Se ejecuta solo cuando `selectedPais` cambia
 
   // Enviar los datos del registro al backend
   const onSubmit = async (data) => {
@@ -332,17 +314,8 @@ const RegisterPage = () => {
                     Selecciona tu país
                   </option>
                   {paises.map((pais) => (
-                    <option
-                      key={pais.idalternativa}
-                      value={pais.textoalternativa}
-                      disabled={paisesSinUniversidades.has(
-                        pais.textoalternativa
-                      )}
-                    >
-                      {pais.textoalternativa}
-                      {paisesSinUniversidades.has(pais.textoalternativa)
-                        ? " (No disponible)"
-                        : ""}
+                    <option key={pais.idpais} value={pais.nombrepais}>
+                      {pais.nombrepais}
                     </option>
                   ))}
                 </select>
@@ -408,9 +381,12 @@ const RegisterPage = () => {
                       ? "No hay universidades disponibles"
                       : "Selecciona tu institución"}
                   </option>
-                  {instituciones.map((institucion, index) => (
-                    <option key={index} value={institucion}>
-                      {institucion}
+                  {instituciones.map((institucion) => (
+                    <option
+                      key={institucion.iduniversidad}
+                      value={institucion.nombreuniversidad}
+                    >
+                      {institucion.nombreuniversidad}
                     </option>
                   ))}
                 </select>

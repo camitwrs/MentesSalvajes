@@ -35,7 +35,7 @@ export const actualizarDatosEducador = async (req, res) => {
     paiseducador,
     intereseseducador,
     tituloprofesionaleducador,
-    anosexperienciaeducador
+    anosexperienciaeducador,
   } = req.body; // Obtener los campos del cuerpo de la solicitud
 
   try {
@@ -58,7 +58,7 @@ export const actualizarDatosEducador = async (req, res) => {
         intereseseducador,
         tituloprofesionaleducador,
         anosexperienciaeducador,
-        idusuario
+        idusuario,
       ]
     );
 
@@ -72,30 +72,26 @@ export const actualizarDatosEducador = async (req, res) => {
     await pool.query("COMMIT"); // Confirmar transacción
 
     res.status(200).json({
-      message: "Educador actualizado correctamente."
+      message: "Educador actualizado correctamente.",
     });
   } catch (error) {
     await pool.query("ROLLBACK"); // Revertir transacción en caso de error
     console.error("Error al actualizar educador:", error);
     res.status(500).json({
       error: "Error al actualizar educador.",
-      details: error.message
+      details: error.message,
     });
   }
 };
 
 export const actualizarDatosUsuario = async (req, res) => {
   const { idusuario } = req.params; // Obtener el idusuario de los parámetros
-  const {
-    correousuario,
-    nombreusuario,
-    apellidousuario
-  } = req.body; // Obtener los campos del cuerpo de la solicitud
+  const { correousuario, nombreusuario, apellidousuario } = req.body; // Obtener los campos del cuerpo de la solicitud
 
   try {
     await pool.query("BEGIN"); // Iniciar transacción
 
-// 🔹 Actualizar la tabla usuarios
+    // 🔹 Actualizar la tabla usuarios
     const usuarioResult = await pool.query(
       `UPDATE usuarios
        SET nombreusuario = $1,
@@ -115,14 +111,14 @@ export const actualizarDatosUsuario = async (req, res) => {
     await pool.query("COMMIT"); // Confirmar transacción
 
     res.status(200).json({
-      message: "Usuario actualizados correctamente."
+      message: "Usuario actualizados correctamente.",
     });
   } catch (error) {
     await pool.query("ROLLBACK"); // Revertir transacción en caso de error
     console.error("Error al actualizar usuario:", error);
     res.status(500).json({
       error: "Error al actualizar usuario.",
-      details: error.message
+      details: error.message,
     });
   }
 };
@@ -193,7 +189,7 @@ export const getDiferenciaEducadores = async (_, res) => {
 };
 
 export const eliminarUsuario = async (req, res) => {
-  const {idusuario} = req.params
+  const { idusuario } = req.params;
   try {
     const query = `
       DELETE FROM usuarios
@@ -207,7 +203,7 @@ export const eliminarUsuario = async (req, res) => {
 
     res.status(204).send();
   } catch (error) {
-    console.error("Error al obtener los usuarios educadores:", error);
+    console.error("Error al obtener los usuarios educadores..:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
@@ -222,7 +218,7 @@ export const registrarUsuarioSinToken = async (req, res) => {
   } = req.body;
 
   try {
-    console.log("toiii")
+    console.log("toiii");
     // Verificar si el admin ya existe
     const usuarioExistente = await pool.query(
       "SELECT * FROM usuarios WHERE correousuario = $1",

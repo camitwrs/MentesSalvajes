@@ -8,6 +8,8 @@ import autenticacionRoutes from "./autenticacion.routes.js";
 import usuariosRoutes from "./usuarios.routes.js";
 import ilustracionesRoutes from "./ilustraciones.routes.js";
 import sesionesRoutes from "./sesiones.routes.js";
+import paisesRoutes from "./paises.routes.js";
+import universidadesRoutes from "./universidades.routes.js";
 
 const router = Router();
 
@@ -19,5 +21,7 @@ router.use("/autenticacion", autenticacionRoutes);
 router.use("/usuarios", usuariosRoutes);
 router.use("/ilustraciones", ilustracionesRoutes);
 router.use("/sesiones", sesionesRoutes);
+router.use("/paises", paisesRoutes);
+router.use("/universidades", universidadesRoutes);
 
 export default router;
