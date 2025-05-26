@@ -227,7 +227,6 @@ const EdicionPage = () => {
         idpregunta,
       };
 
-      console.log(nuevaAlternativaData);
       const response = await crearAlternativaRequest(nuevaAlternativaData);
 
       if (response.status === 201) {

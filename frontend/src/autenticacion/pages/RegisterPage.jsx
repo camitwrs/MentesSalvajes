@@ -59,14 +59,6 @@ const RegisterPage = () => {
     cargarPaises();
   }, []);
 
-  useEffect(() => {
-    console.log("El estado 'paises' ha cambiado a:", paises);
-  }, [paises]);
-
-  useEffect(() => {
-    console.log("El estado 'instituciones' ha cambiado a:", instituciones);
-  }, [instituciones]);
-
   // Cargar instituciones solo cuando cambia `selectedPais`
   useEffect(() => {
     if (!selectedPais) {
