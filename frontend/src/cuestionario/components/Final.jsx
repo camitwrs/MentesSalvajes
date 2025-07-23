@@ -1,27 +1,27 @@
+// frontend/src/components/Final.jsx
+
 import { useEffect, useState, useContext, useCallback } from "react";
-import ReactDOMServer from "react-dom/server";
+import ReactDOMServer from "react-dom/server"; // Para convertir React a HTML string
 import { useAuth } from "../../autenticacion/context/AuthContext";
 import { getDatosEducadorRequest } from "../../api/usuarios";
 import { getRespuestasDetalleRequest } from "../../api/respuestas";
 import { FormContext } from "../context/FormContext";
-import { Spinner } from "@heroui/spinner";
+import { Spinner } from "@heroui/spinner"; // Asumo que es un componente de spinner
 import PropTypes from "prop-types";
-import { guardarMensajeRequest } from "./../../api/ilustraciones";
-import { useAlert } from "../../shared/context/AlertContext";
+import { guardarMensajeRequest } from "./../../api/ilustraciones"; // Tu función para llamar al backend
+import { useAlert } from "../../shared/context/AlertContext"; // Tu contexto para alertas
 
+// URLs de tus imágenes de ilustración de R2
+// ✨ IMPORTANTE: Reemplaza estas URLs con las URLs públicas REALES de tus SVGs en Cloudflare R2.
+// Deben tener el formato: https://pub-[tu-uuid].r2.dev/nombre_del_archivo.svg
 const imagenesPorRespuesta = {
-  Ballenas:
-    "https://doqdfqrenenggbljmhdh.supabase.co/storage/v1/object/public/ilustraciones//cetaceo.svg",
-  Focas:
-    "https://doqdfqrenenggbljmhdh.supabase.co/storage/v1/object/public/ilustraciones//pinipedo.svg",
+  Ballenas: "https://pub-6d04f08c23914d56abf8c556fa6b0f9d.r2.dev/cetaceo.jpg",
+  Focas: "https://pub-6d04f08c23914d56abf8c556fa6b0f9d.r2.dev/pinipedo.jpg",
   "Tortugas marinas":
-    "https://doqdfqrenenggbljmhdh.supabase.co/storage/v1/object/public/ilustraciones//tortuga.svg",
-  Orcas:
-    "https://doqdfqrenenggbljmhdh.supabase.co/storage/v1/object/public/ilustraciones//orca.svg",
-  Pingüinos:
-    "https://doqdfqrenenggbljmhdh.supabase.co/storage/v1/object/public/ilustraciones//pinguino.svg",
-  Nutrias:
-    "https://doqdfqrenenggbljmhdh.supabase.co/storage/v1/object/public/ilustraciones//mustelido.svg",
+    "https://pub-6d04f08c23914d56abf8c556fa6b0f9d.r2.dev/tortuga.jpg",
+  Orcas: "https://pub-6d04f08c23914d56abf8c556fa6b0f9d.r2.dev/orca.jpg",
+  Pingüinos: "https://pub-6d04f08c23914d56abf8c556fa6b0f9d.r2.dev/pinguino.jpg",
+  Nutrias: "https://pub-6d04f08c23914d56abf8c556fa6b0f9d.r2.dev/mustelido.jpg",
 };
 
 const Final = ({ submitSuccess }) => {
@@ -31,9 +31,12 @@ const Final = ({ submitSuccess }) => {
   const [educador, setEducador] = useState(null);
   const [respuestasDetalle, setRespuestasDetalle] = useState([]);
   const [loading, setLoading] = useState(true);
+  // ✨ Nuevo estado para controlar si la ilustración ya ha sido guardada
+  const [hasIlustracionBeenSaved, setHasIlustracionBeenSaved] = useState(false);
 
   const { showAlert } = useAlert();
 
+  // useEffect para obtener los datos del educador
   useEffect(() => {
     const fetchDatosEducador = async () => {
       if (!user?.idusuario) return;
@@ -47,6 +50,7 @@ const Final = ({ submitSuccess }) => {
     fetchDatosEducador();
   }, [user]);
 
+  // useEffect para obtener las respuestas del cuestionario
   useEffect(() => {
     setLoading(true);
     const fetchRespuestas = async () => {
@@ -68,18 +72,18 @@ const Final = ({ submitSuccess }) => {
     }
   }, [user, quizId, submitSuccess]);
 
-  const getImagenSegunRespuesta = () => {
+  // useCallback para obtener la imagen según la respuesta
+  const getImagenSegunRespuesta = useCallback(() => {
     const respuesta = respuestasDetalle.find(
       (resp) => Number(resp.idpregunta) === 12
     );
-
-    const clave = respuesta?.caracteristicaalternativa?.trim(); // Elimina espacios
-
+    const clave = respuesta?.caracteristicaalternativa?.trim();
     return clave && imagenesPorRespuesta[clave]
       ? imagenesPorRespuesta[clave]
       : null;
-  };
+  }, [respuestasDetalle]);
 
+  // useCallback para generar la descripción HTML
   const generarDescripcion = useCallback(() => {
     const getCaracteristica = (idpregunta) => {
       const respuesta = respuestasDetalle.find(
@@ -88,15 +92,23 @@ const Final = ({ submitSuccess }) => {
       return respuesta?.caracteristicaalternativa || "No descubierto";
     };
 
-    const getRespuestaElegida = (idpregunta) => {
-      const respuesta = respuestasDetalle.find(
-        (resp) => Number(resp.idpregunta) === Number(idpregunta)
-      );
-      if (!respuesta?.respuestaelegida) return "desconocido";
-      const palabras = respuesta.respuestaelegida.trim().split(" ");
-      return palabras.length > 1
-        ? palabras[palabras.length - 1]
-        : respuesta.respuestaelegida;
+    const getCaracteristicaLatina = (idpregunta) => {
+      // Primero, obtenemos la característica original usando la función existente
+      const originalCaracteristica = getCaracteristica(idpregunta);
+
+      // Aplicamos la lógica de traducción SÓLO si es la pregunta 40
+      if (String(idpregunta) === "40") {
+        if (originalCaracteristica === "Migrador") {
+          return "Migrare";
+        } else if (originalCaracteristica === "Estivador") {
+          return "Stipare";
+        } else if (originalCaracteristica === "Cazador") {
+          return "Captiare";
+        }
+      }
+      // Si no es la pregunta 40, o si el valor no está mapeado,
+      // devolvemos la característica original
+      return originalCaracteristica;
     };
 
     return (
@@ -106,10 +118,10 @@ const Final = ({ submitSuccess }) => {
           {user?.nombreusuario} {user?.apellidousuario}
         </span>{" "}
         <span className="font-bold text-YankeesBlue">
-          {getRespuestaElegida("32")}
+          {getCaracteristica(34)}
         </span>{" "}
         <span className="font-bold text-YankeesBlue">
-          {getRespuestaElegida("37")}
+          {getCaracteristicaLatina("40")}
         </span>
         <br />
         Su principal comportamiento es:{" "}
@@ -175,37 +187,57 @@ const Final = ({ submitSuccess }) => {
     respuestasDetalle,
   ]);
 
+  // ✨ useEffect principal para guardar el resultado de la ilustración
   useEffect(() => {
     // Define una función async dentro de useEffect para poder usar await
     const guardarResultadoIlustracion = async () => {
-      // Condiciones para ejecutar el guardado
+      // ✨ CAMBIO IMPORTANTE: Condiciones para ejecutar el guardado UNA SOLA VEZ
+      if (
+        !user?.idusuario || // El usuario debe estar autenticado
+        !idrespuesta || // Debe haber un ID de respuesta del cuestionario
+        respuestasDetalle.length === 0 || // Las respuestas deben haber cargado
+        loading || // No debe estar en estado de carga (evita disparos prematuros)
+        hasIlustracionBeenSaved // ✨ Clave: Si ya se guardó con éxito, no volver a llamar
+      ) {
+        // console.log("Saltando guardarResultadoIlustracion debido a condiciones.");
+        // Opcional: Para depuración, puedes descomentar la línea de arriba y las siguientes para ver por qué no se dispara
+        // console.log({ user: user?.idusuario, idrespuesta, respuestasDetalleLength: respuestasDetalle.length, loading, hasIlustracionBeenSaved });
+        return; // No ejecutar la llamada a la API
+      }
+
+      // Convertir la descripción React HTML a texto plano para el backend
       const descripcionHTML = ReactDOMServer.renderToStaticMarkup(
         generarDescripcion()
       );
-
       const descripcionToSend = descripcionHTML
         .replace(/<[^>]*>/g, "") // Elimina etiquetas HTML
         .replace(/\s+/g, " ") // Normaliza espacios
-        .replace(/([a-z])([A-Z])/g, "$1. $2") // Agrega punto y espacio
-        .replace(/\. ?/g, ".\n") // Salto de línea después de cada punto
+        .replace(/([a-z])([A-Z])/g, "$1. $2") // Agrega punto y espacio (ej. "animalTipo" -> "animal. Tipo")
+        .replace(/\. ?/g, ".\n") // Agrega salto de línea después de cada punto para formato
         .trim();
 
-      const imagenPerfilActual = getImagenSegunRespuesta(); // Llama a la función memoizada
+      // Obtener la URL de la imagen de stock (ahora de R2)
+      const imagenPerfilActual = getImagenSegunRespuesta();
 
+      // Preparar el objeto de datos para enviar al backend
       const mensajeToSend = {
         tituloilustracion: `${user.nombreusuario} ${user.apellidousuario}`,
         descripcionilustracion: descripcionToSend,
-        urlarchivoilustracion: imagenPerfilActual, // Usa la variable correcta
-        ideducador: user.idusuario, // Asegúrate que este sea el ID correcto
+        urlarchivoilustracion: imagenPerfilActual, // Esta URL es de R2 ahora
+        ideducador: user.idusuario,
         idrespuesta: idrespuesta,
       };
 
       try {
-        // Llama a guardarMensajeRequest y espera su resultado
+        // Llama a la función de la API de tu backend para guardar el mensaje
         const respuestaDelGuardado = await guardarMensajeRequest(mensajeToSend);
+
+        // ✨ CAMBIO IMPORTANTE: Marcar que el guardado fue exitoso
+        setHasIlustracionBeenSaved(true);
 
         showAlert("Resultado guardado exitosamente", "success");
       } catch (err) {
+        console.error("Error al guardar el resultado de la ilustración:", err);
         showAlert(
           "Error al guardar el resultado, inténtalo de nuevo más tarde",
           "warning"
@@ -213,19 +245,21 @@ const Final = ({ submitSuccess }) => {
       }
     };
 
-    guardarResultadoIlustracion(); // Llama a la función async
+    guardarResultadoIlustracion(); // Llama a la función async que hemos definido
   }, [
-    user,
-    educador,
-    respuestasDetalle,
-    generarDescripcion,
-    idrespuesta, // Asegúrate que idrespuesta venga del FormContext y esté disponible
-    getImagenSegunRespuesta, // Función memoizada
-    showAlert, // Función del contexto de alerta
+    user, // Si user cambia, podría ser un nuevo usuario o recarga de sesión
+    educador, // Si educador cambia, podría afectar generarDescripcion
+    respuestasDetalle, // Si las respuestas cambian, queremos re-evaluar el guardado
+    generarDescripcion, // Función memoizada, se recalcula si sus deps cambian
+    idrespuesta, // ID de la respuesta, esencial para el guardado
+    getImagenSegunRespuesta, // Función memoizada, se recalcula si sus deps cambian
+    showAlert, // Función del contexto, no cambia a menudo pero es buena práctica
+    loading, // ✨ NUEVA DEPENDENCIA: Para esperar que los datos terminen de cargar
+    hasIlustracionBeenSaved, // ✨ NUEVA DEPENDENCIA: Para que el useEffect reaccione a su propio cambio de estado
   ]);
 
+  // Lógica para mostrar la imagen y descripción en el JSX
   const imagenPerfil = getImagenSegunRespuesta();
-
   const descripcion =
     user && educador && respuestasDetalle.length > 0 ? (
       generarDescripcion()
@@ -256,16 +290,23 @@ const Final = ({ submitSuccess }) => {
             </p>
           </div>
 
-          <div className="w-full md:w-1/2 border border-gray-300 rounded-lg p-3 bg-white shadow-md">
-            <div className="relative h-[250px] md:h-[400px] w-full rounded-lg overflow-hidden flex justify-center">
+          <div className="md:w-1/2 border border-gray-300 rounded-lg p-2 bg-white">
+            <div className="rounded-lg">
               {imagenPerfil ? (
-                <img
-                  src={imagenPerfil}
-                  alt="Perfil descubierto"
-                  className="object-contain h-full w-full"
-                />
+                // ✨ CAMBIO: Contenedor con relación de aspecto
+                // pt-[75%] significa que la altura es el 75% del ancho (relación 4:3)
+                // pt-[56.25%] sería 16:9
+                // pt-[100%] sería 1:1 (cuadrado)
+                <div className="relative pt-[75%]">
+                  <img
+                    src={imagenPerfil}
+                    alt="Perfil descubierto"
+                    className="absolute inset-0 w-full h-full object-cover object-center" // `inset-0` es shorthand para `top-0 left-0 right-0 bottom-0`
+                  />
+                </div>
               ) : (
-                <p className="text-center text-gray-500 italic">
+                // Para la imagen pendiente, también querrás darle una altura fija o un padding
+                <p className="text-center text-gray-500 italic py-10 h-full flex items-center justify-center">
                   Imagen ilustrativa pendiente
                 </p>
               )}
