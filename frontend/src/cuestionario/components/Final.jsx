@@ -115,7 +115,7 @@ const Final = ({ submitSuccess }) => {
       <>
         Nombre de la especie:{" "}
         <span className="font-bold text-YankeesBlue">
-          {user?.nombreusuario} {user?.apellidousuario}
+          {user?.nombreusuario}
         </span>{" "}
         <span className="font-bold text-YankeesBlue">
           {getCaracteristica(34)}
@@ -182,7 +182,6 @@ const Final = ({ submitSuccess }) => {
     );
   }, [
     user?.nombreusuario,
-    user?.apellidousuario,
     educador?.paiseducador,
     respuestasDetalle,
   ]);

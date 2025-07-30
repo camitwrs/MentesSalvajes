@@ -7,11 +7,11 @@ dotenv.config();
 
 // Configuración de la conexión
 const pool = new Pool({
-  user: process.env.SUPABASE_USER,
-  host: process.env.SUPABASE_HOST,
-  database: process.env.SUPABASE_DATABASE,
-  password: process.env.SUPABASE_PASSWORD,
-  port: process.env.SUPABASE_PORT,
+  user: process.env.PG_USER,
+  host: process.env.PG_HOST,
+  database: process.env.PG_DATABASE,
+  password: process.env.PG_PASSWORD,
+  port: process.env.PG_PORT,
   ssl: { rejectUnauthorized: false }, // Importante para Supabase
 });
 
@@ -20,7 +20,7 @@ pool.query("SELECT NOW()", (err, res) => {
   if (err) {
     console.error("❌ Error conectando a la BD:", err.message);
   } else {
-    console.log("✅ Conexión exitosa a Supabase:", res.rows[0]);
+    console.log("✅ Conexión exitosa a Railway:", res.rows[0]);
   }
 });
 

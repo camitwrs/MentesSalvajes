@@ -1,5 +1,5 @@
 import pool from "../config/pg.js";
-import supabase from "../config/supabaseClient.js"; // Lo mantenemos por si lo usas en otros lugares
+//import supabase from "../config/supabaseClient.js"; // Lo mantenemos por si lo usas en otros lugares
 import { v4 as uuidv4 } from 'uuid'; // Necesitas esta importación para generar nombres únicos
 import { uploadFileToR2, deleteFileFromR2 } from '../services/r2.js'; // <-- Importa tus funciones de R2
 
