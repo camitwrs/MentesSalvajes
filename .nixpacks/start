@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Navegar al directorio del frontend
+cd frontend
+
+# Servir la carpeta de build de Vite usando 'serve'
+# 'serve' es una herramienta común para servir archivos estáticos.
+# Necesitas que esté instalada como dependencia de desarrollo en tu frontend/package.json
+# npm install -D serve
+
+# Railway inyecta el puerto en la variable $PORT
+exec serve -s dist -l "$PORT"
