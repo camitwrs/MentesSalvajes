@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-# Navegar al directorio del frontend
-cd frontend
-
-# Servir la carpeta de build de Vite usando 'serve'
-exec serve -s dist -l "$PORT"
