@@ -42,7 +42,7 @@ function App() {
   return (
     <HeroUIProvider>
       <AuthProvider>
-        <Router>
+        <Router basename="/">
           <Routes>
             {/* RUTAS PÚBLICAS (Sin Navbar) */}
             <Route path="/" element={<HomePage />} />
